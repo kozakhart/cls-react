@@ -20,7 +20,8 @@ from datetime import timedelta
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-ythtl@!l9(yd3lx=l&s!d0+)83c_(bja)#-%3bsa0r*)a!&@%u'
+from django.core.management.utils import get_random_secret_key
+SECRET_KEY = get_random_secret_key()
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -62,7 +63,7 @@ INSTALLED_APPS = [
 AXES_FAILURE_LIMIT = 3
 AXES_LOCK_OUT_AT_FAILURE = True 
 AXES_USE_USER_AGENT = True
-AXES_COOLOFF_TIME = 1
+AXES_COOLOFF_TIME = timedelta(minutes=60)
 AXES_RESET_COOL_OFF_ON_FAILURE_DURING_LOCKOUT = False
 
 MIDDLEWARE = [
@@ -74,6 +75,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'djangoreact.custom_middleware.CustomAdminLoginMiddleware',
+    'djangoreact.custom_middleware.TokenVerificationMiddleware',
 ]
 
 ROOT_URLCONF = 'djangoreact.urls'
@@ -101,7 +104,10 @@ REST_FRAMEWORK = {
         'knox.auth.TokenAuthentication',
     ),
 }
-
+# AUTHENTICATION_BACKENDS = [
+#     'djangoreact.custom_admin_auth.KnoxTokenBackend',
+#     # Other authentication backends
+# ]
 KNOX = {
     'TOKEN_TTL': timedelta(hours=10),  # Default token expiration of 10 hours
     'USER_SERIALIZER': 'your_app.serializers.UserSerializer',
