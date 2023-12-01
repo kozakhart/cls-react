@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" style=>
+<head>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href='{% static 'mystyle.css' %}?{% now "U" %}'>
+    <link rel="shortcut icon" type="image/png" href='{% static 'favicon.ico' %}?{% now "U" %}'>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OPI Data</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    {{ form.media }}
+    </script>
+</head>
+</html>
+<body>
+    {% load crispy_forms_tags %}
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-8">
+          <form method="post" id="form_id">
+            {% csrf_token %}
+                {% for i in form %}
+                    {{ form.as_p }}
+                {% endfor %}
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Download All Data</button>
+            </form>
+</body>
