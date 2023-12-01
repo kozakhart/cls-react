@@ -1,0 +1,36 @@
+  /* Hide the default scrollbar for webkit-based browsers (e.g., Chrome) */
+/* Note: You may need to adjust the selectors for your specific use case */
+::-webkit-scrollbar {
+    width: 6px; /* Width of the scrollbar */
+  }
+  
+  /* Set the color of the scrollbar thumb and track */
+  ::-webkit-scrollbar-thumb {
+    background: transparent; /* Make the thumb transparent (invisible) */
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: transparent; /* Make the track transparent (invisible) */
+  }
+  
+  /* Hide the default scrollbar for Firefox */
+  /* Note: You may need to adjust the selectors for your specific use case */
+  * {
+    scrollbar-width: thin; /* Width of the scrollbar */
+  }
+  
+  /* Set the color of the scrollbar thumb and track in Firefox */
+  * {
+    scrollbar-color: transparent transparent; /* Make the thumb and track transparent (invisible) */
+  }
+
+  .react-datepicker__input-container input {
+    padding-top: 16.5px;
+    padding-bottom: 16.5px;
+    font-size: inherit;
+    cursor: pointer;
+    border: 1px solid #ccc; /* Light gray border */
+    border-radius: 5px;
+    background-color: initial;
+  }
+  

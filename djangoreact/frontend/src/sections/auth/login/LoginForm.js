@@ -1,0 +1,108 @@
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+// @mui
+import { Link, Stack, IconButton, InputAdornment, TextField, Checkbox } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
+import Cookies from 'js-cookie';
+// components
+import axios from 'axios';
+
+import { set } from 'lodash';
+import Iconify from '../../../components/iconify';
+// ----------------------------------------------------------------------
+
+export default function LoginForm({ formData, handleFormChange }) {
+  const navigate = useNavigate();
+  const { username, password } = formData;
+  const [showPassword, setShowPassword] = useState(false);
+  const getCsrfToken = async  () => {
+    try {
+      const res = await axios.get("http://localhost:8000/api/get-csrf-token/", {
+        withCredentials: true,
+      });
+      const csrfToken = res.headers.get("X-CSRFToken");
+      console.log(csrfToken);
+    } catch (error) {
+      console.log(error);
+      console.log("Something went wrong");
+    }
+  };
+  // useEffect(() => {
+
+  // }, []);
+  const handlelogin = async (e) => {
+    e.preventDefault();
+    const csrfToken = Cookies.get("csrftoken");
+    console.log(username, password)
+    try {
+      const res = await axios.post(
+        
+      "http://localhost:8000/api/login/",  
+        {
+          username,
+          password,
+        },
+        { withCredentials: true,
+        headers: {
+          "X-CSRFToken": csrfToken,
+        }, }
+      );
+      const tokenAuthentication = await axios.get("http://localhost:8000/api/verify-token/", {
+        withCredentials: true,
+        headers: {
+          "X-CSRFToken": csrfToken,
+        },
+      });
+      if (tokenAuthentication.status === 200) {
+        navigate('/dashboard/app', { replace: true });
+        console.log('hello dash')
+      }
+
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  return (
+    <>
+    <form onSubmit={handlelogin}>
+      <Stack spacing={3}>
+      <TextField name="username" label="Username" value={formData.username} onChange={handleFormChange} />
+
+      <TextField
+        name="password"
+        label="Password"
+        type={showPassword ? 'text' : 'password'}
+        value={formData.password}
+        onChange={handleFormChange}
+        InputProps={{
+          endAdornment: (
+            <InputAdornment position="end">
+              <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                <Iconify icon={showPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'} />
+              </IconButton>
+            </InputAdornment>
+          ),
+        }}
+      />
+      </Stack>
+
+      <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ my: 2 }}>
+        {/* <Checkbox
+          name="remember"
+          checked={formData.remember}
+          onChange={handleFormChange}
+        />
+        <Link variant="subtitle2" underline="hover">
+          Forgot password?
+        </Link> */}
+      </Stack>
+
+      <LoadingButton fullWidth size="large" type="submit" variant="contained">
+        Login
+      </LoadingButton>
+      </form>
+
+    </>
+  );
+}
