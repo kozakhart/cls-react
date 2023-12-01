@@ -1,8 +1,5 @@
 from django.urls import path, include
 from . import views
-from knox import views as knox_views
-
-from rest_framework_simplejwt import views as jwt_views
 
 urlpatterns = [
     path('', views.apiOverview, name="api-overview"),

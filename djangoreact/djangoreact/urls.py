@@ -16,9 +16,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from .custom_admin_auth import custom_admin_login
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
     path('', include('myapp.urls')),
+    path('cls/', custom_admin_login),
 ]
+admin.site.login = path('cls/', custom_admin_login)
