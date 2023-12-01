@@ -52,3 +52,12 @@ def custom_admin_login(request):
         'next': request.get_full_path(),
     }
     return render(request, 'admin/login.html', context)
+
+def custom_admin_logout(request):
+    response = redirect('/admin/login/')  # Redirect to the admin login page after logout
+
+    # Delete the token cookie by setting an empty value and expiring it
+    response.set_cookie('token', '', max_age=0)
+    response.set_cookie('sessionid', '', max_age=0)
+
+    return response

@@ -75,7 +75,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'djangoreact.custom_middleware.CustomAdminLoginMiddleware',
+    #'djangoreact.custom_middleware.CustomAdminLoginMiddleware',
     'djangoreact.custom_middleware.TokenVerificationMiddleware',
 ]
 
@@ -102,6 +102,8 @@ WSGI_APPLICATION = 'djangoreact.wsgi.application'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'knox.auth.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+
     ),
 }
 # AUTHENTICATION_BACKENDS = [
@@ -114,6 +116,11 @@ KNOX = {
 }
 
 CORS_ORIGIN_ALLOW_ALL = True
+CORS_EXPOSE_HEADERS = [
+    'X-CSRFToken'
+]
+CSRF_COOKIE_NAME = 'X-CSRFToken'
+CSRF_COOKIE_HTTPONLY = True
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
