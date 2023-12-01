@@ -105,8 +105,14 @@ def student_delete(request, student):
 @api_view(['GET'])
 @ensure_csrf_cookie
 def get_csrf_token(request):
-    response = Response({"message": "Set CSRF cookie"})
-    response["X-CSRFToken"] = get_token(request)
+    # Function to get CSRF token (replace this with your implementation)
+    csrf_token = get_token(request)
+    
+    response = JsonResponse({"message": "Set CSRF cookie"})
+    
+    # Set the CSRF token as an HTTP-only cookie for same-origin requests
+    response.set_cookie(key='csrftoken', value=csrf_token, httponly=True)
+    
     return response
 
 @api_view(['GET'])
@@ -365,6 +371,7 @@ def get_user_info(request):
 
 @axes_dispatch
 @api_view(['POST'])
+@ensure_csrf_cookie
 def login_knox(request):
     username = request.data.get("username")
     password = request.data.get("password")

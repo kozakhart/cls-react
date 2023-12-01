@@ -20,8 +20,6 @@ export default function LoginForm({ formData, handleFormChange }) {
       const res = await axios.get("http://localhost:8000/api/get-csrf-token/", {
         withCredentials: true,
       });
-      const csrfToken = res.headers.get("X-CSRFToken");
-      console.log(csrfToken);
     } catch (error) {
       console.log(error);
       console.log("Something went wrong");
@@ -32,9 +30,10 @@ export default function LoginForm({ formData, handleFormChange }) {
   // }, []);
   const handlelogin = async (e) => {
     e.preventDefault();
-    const csrfToken = Cookies.get("csrftoken");
-    console.log(username, password)
     try {
+      const fetchCsrfToken = await getCsrfToken();
+      const csrfToken = Cookies.get("x-csrftoken");
+
       const res = await axios.post(
         
       "http://localhost:8000/api/login/",  
