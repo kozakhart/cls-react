@@ -99,6 +99,8 @@ export default function UserPage() {
   const [userList, setUserList] = useState([]);
   const navigate = useNavigate();
 
+  const verifyTokenUrl = process.env.REACT_APP_VERIFY_TOKEN_URL;
+  const filemakerUrl = process.env.REACT_APP_FILEMAKER_URL;
 
   const handleClickedBox = () => {
     setIsChecked(!isChecked); 
@@ -108,7 +110,7 @@ export default function UserPage() {
     const fetchData = async () => {
       try{
         const csrfToken = Cookies.get('csrftoken');
-        const response = await axios.get("http://localhost:8000/api/verify-token/", {
+        const response = await axios.get(verifyTokenUrl, {
            withCredentials: true,
             headers: {
               "X-CSRFToken": csrfToken,
@@ -117,7 +119,7 @@ export default function UserPage() {
         if (response.status === 200) {
           try {
             const csrfToken = Cookies.get('csrftoken');
-            const response = await axios.get('http://localhost:8000/api/filemaker/', {
+            const response = await axios.get(filemakerUrl, {
               withCredentials: true,
               headers: {
                 'X-CSRFToken': csrfToken,

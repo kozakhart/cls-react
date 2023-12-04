@@ -53,6 +53,7 @@ export default function UpdateNotification({firstnameID, lastnameID, approvedID,
   const [previousexperienceValue, setPreviousExperienceValue] = useState('');
   const [updateData, setUpdateData] = useState(false);
 
+  const updateRecordUrl = `${process.env.REACT_APP_UPDATE_RECORD_URL}${recordId}/`;
   const handleCheckData = () => {
     // Set the flag to update data
     setUpdateData(true);
@@ -208,7 +209,7 @@ export default function UpdateNotification({firstnameID, lastnameID, approvedID,
     };
     const csrfToken = Cookies.get("csrftoken");
     axios
-    .post(`http://localhost:8000/api/update/${recordId}/`, dataToSend, {
+    .post(updateRecordUrl, dataToSend, {
       withCredentials: true,
       headers: {
         "X-CSRFToken": csrfToken,

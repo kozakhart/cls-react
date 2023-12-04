@@ -15,9 +15,13 @@ export default function LoginForm({ formData, handleFormChange }) {
   const navigate = useNavigate();
   const { username, password } = formData;
   const [showPassword, setShowPassword] = useState(false);
+  const csrfUrl = process.env.REACT_APP_GET_CSRF_URL;
+  const verifyTokenUrl = process.env.REACT_APP_VERIFY_TOKEN_URL;
+  const loginUrl = process.env.REACT_APP_LOGIN_URL;
+
   const getCsrfToken = async  () => {
     try {
-      const res = await axios.get("http://localhost:8000/api/get-csrf-token/", {
+      const res = await axios.get(csrfUrl, {
         withCredentials: true,
       });
     } catch (error) {
@@ -35,8 +39,7 @@ export default function LoginForm({ formData, handleFormChange }) {
       const csrfToken = Cookies.get("x-csrftoken");
 
       const res = await axios.post(
-        
-      "http://localhost:8000/api/login/",  
+        loginUrl,  
         {
           username,
           password,
@@ -46,7 +49,7 @@ export default function LoginForm({ formData, handleFormChange }) {
           "X-CSRFToken": csrfToken,
         }, }
       );
-      const tokenAuthentication = await axios.get("http://localhost:8000/api/verify-token/", {
+      const tokenAuthentication = await axios.get(verifyTokenUrl, {
         withCredentials: true,
         headers: {
           "X-CSRFToken": csrfToken,

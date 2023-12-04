@@ -19,6 +19,9 @@ export default function UpdateNotification({netid}) {
   const [netidValue, setNetIDValue] = useState('');
   const [updateData, setUpdateData] = useState(false);
 
+  const verifyTokenUrl = process.env.REACT_APP_VERIFY_TOKEN_URL;
+  const awardCertificateUrl = process.env.REACT_APP_AWARD_CERTIFICATE_URL;
+
   const handleCheckData = () => {
     // Set the flag to update data
     setUpdateData(true);
@@ -54,7 +57,7 @@ export default function UpdateNotification({netid}) {
     try {
       const csrfToken = Cookies.get('csrftoken');
       
-      const verifyTokenResponse = await axios.get("http://localhost:8000/api/verify-token/", {
+      const verifyTokenResponse = await axios.get(verifyTokenUrl, {
         withCredentials: true,
         headers: {
           "X-CSRFToken": csrfToken,
@@ -64,7 +67,7 @@ export default function UpdateNotification({netid}) {
       if (verifyTokenResponse.status === 200) {
         try {
           const awardCertificateResponse = await axios.post(
-            'http://localhost:8000/api/award-certificate/',
+            awardCertificateUrl,
             { dataToSend },
             {
               withCredentials: true,

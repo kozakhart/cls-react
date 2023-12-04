@@ -98,8 +98,8 @@ export default function UserPage() {
   const [isChecked, setIsChecked] = useState(false);
   const [userList, setUserList] = useState([]);
   const navigate = useNavigate();
-
-
+  const verifyTokenUrl = process.env.REACT_APP_VERIFY_TOKEN_URL;
+  const needApprovalUrl = process.env.REACT_APP_NEED_APPROVAL_URL;
   const handleClickedBox = () => {
     setIsChecked(!isChecked); 
   };
@@ -108,7 +108,7 @@ export default function UserPage() {
     const fetchData = async () => {
       try{
         const csrfToken = Cookies.get('csrftoken');
-        const response = await axios.get("http://localhost:8000/api/verify-token/", {
+        const response = await axios.get(verifyTokenUrl, {
            withCredentials: true,
             headers: {
               "X-CSRFToken": csrfToken,
@@ -117,7 +117,7 @@ export default function UserPage() {
         if (response.status === 200) {
       try {
         const csrfToken = Cookies.get('csrftoken');
-      const response = await axios.get('http://localhost:8000/api/need-approval-filemaker/', {
+      const response = await axios.get(needApprovalUrl, {
         withCredentials: true,
         headers: {
           'X-CSRFToken': csrfToken,

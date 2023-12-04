@@ -58,6 +58,10 @@ export default function DashboardAppPage() {
   const theme = useTheme();
   const navigate = useNavigate();
 
+  const verifyTokenUrl = process.env.REACT_APP_VERIFY_TOKEN_URL;
+  const filemakerUrl = process.env.REACT_APP_FILEMAKER;
+
+
   function countOccurrences(arr) {
     const counts = {};
 
@@ -95,7 +99,7 @@ export default function DashboardAppPage() {
     const fetchData = async () => {
       try{
         const csrfToken = Cookies.get('csrftoken');
-        const response = await axios.get("http://localhost:8000/api/verify-token/", {
+        const response = await axios.get(verifyTokenUrl, {
            withCredentials: true,
             headers: {
               "X-CSRFToken": csrfToken,
@@ -133,7 +137,7 @@ export default function DashboardAppPage() {
 
       try {
         const csrfToken = Cookies.get('csrftoken');
-        const response = await axios.get('http://localhost:8000/api/filemaker/', {
+        const response = await axios.get(filemakerUrl, {
           withCredentials: true,
           headers: {
             'X-CSRFToken': csrfToken,

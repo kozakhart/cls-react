@@ -48,6 +48,10 @@ export default function BlogPage() {
   const [reasons, setReasons] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate(); 
+
+  const verifyTokenUrl = process.env.REACT_APP_VERIFY_TOKEN_URL;
+  const getLtiUrl = process.env.REACT_APP_LTI_URL;
+
   const handleGraphChange = (event) => {
     setSelectedGraph(event.target.value);
   };
@@ -82,7 +86,7 @@ export default function BlogPage() {
     const fetchData = async () =>{
       try{
         const csrfToken = Cookies.get('csrftoken');
-        const response = await axios.get("http://localhost:8000/api/verify-token/", {
+        const response = await axios.get(verifyTokenUrl, {
            withCredentials: true,
             headers: {
               "X-CSRFToken": csrfToken,
@@ -90,7 +94,7 @@ export default function BlogPage() {
         });
         if (response.status === 200) {
           const csrfToken = Cookies.get('csrftoken');
-          const response = await axios.post('http://localhost:8000/api/lti/', {
+          const response = await axios.post(getLtiUrl, {
             scoreType,
             fromDate,
             toDate,
