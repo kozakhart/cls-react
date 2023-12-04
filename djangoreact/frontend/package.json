@@ -6,14 +6,18 @@
   "private": false,
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "copy .env.production .env && react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "lint": "eslint --ext .js,.jsx ./src",
     "lint:fix": "eslint --fix --ext .js,.jsx ./src",
     "clear-all": "rm -rf build node_modules",
     "re-start": "rm -rf build node_modules && yarn install && yarn start",
-    "re-build": "rm -rf build node_modules && yarn install && yarn build"
+    "re-build": "rm -rf build node_modules && yarn install && yarn build",
+    "start:dev": "copy .env.development .env && react-scripts start",
+    "start:prod": "copy .env.production .env && react-scripts start",
+    "build:dev": "cp .env.development .env && react-scripts build",
+    "build:prod": "cp .env.production .env && react-scripts build"
   },
   "eslintConfig": {
     "extends": [

@@ -29,21 +29,21 @@ function ProtectedRoute({ element, auth, ...rest }) {
 export default function Router() {
   const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  // Function to get the token from the cookie
+  const csrfUrl = process.env.REACT_APP_GET_CSRF_URL;
+  const verifyTokenUrl = process.env.REACT_APP_VERIFY_TOKEN_URL;
   
   useEffect(() => {
     const checkAuthentication = async () => {
       try {
         const csrfToken = Cookies.get('csrftoken');
-        const response = await axios.get("http://localhost:8000/api/get-csrf-token/", {
+        const response = await axios.get(csrfUrl, {
          withCredentials: true,
           headers: {
             "X-CSRFToken": csrfToken,
           }, 
       });
         if (response.status === 200) {
-          const tokenAuthentication = await axios.get("http://localhost:8000/api/verify-token/", {
+          const tokenAuthentication = await axios.get(verifyTokenUrl, {
             withCredentials: true,
             headers: {
               "X-CSRFToken": csrfToken,

@@ -42,11 +42,14 @@ export default function Nav({ openNav, onCloseNav }) {
   const [groups, setGroups] = useState('');
 
   const isDesktop = useResponsive('up', 'lg');
+
+  const userInfoUrl = process.env.REACT_APP_USER_INFO_URL;
+  const adminUrl = process.env.REACT_APP_ADMIN_URL;
   useEffect(() => {
     const fetchData = async () => {
       const csrfToken = Cookies.get('csrftoken');
       try {
-        const response = await axios.get("http://localhost:8000/api/get-user-info/", {
+        const response = await axios.get(userInfoUrl, {
           withCredentials: true,
           headers: {
             "X-CSRFToken": csrfToken,
@@ -133,7 +136,7 @@ export default function Nav({ openNav, onCloseNav }) {
             </Typography> */}
           </Box>
 
-          <Button href="http://localhost:8000/admin/" target="_blank" variant="contained">
+          <Button href={adminUrl} target="_blank" variant="contained">
             Admin Backend
           </Button>
         </Stack>

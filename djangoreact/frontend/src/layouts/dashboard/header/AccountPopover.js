@@ -34,11 +34,13 @@ export default function AccountPopover() {
     const [username, setUsername] = useState('');
     const [groups, setGroups] = useState('');
   
+    const userInfoUrl = process.env.REACT_APP_USER_INFO_URL;
+    const logoutUrl = process.env.REACT_APP_LOGOUT_URL;
     useEffect(() => {
       const fetchData = async () => {
         const csrfToken = Cookies.get('csrftoken');
         try {
-          const response = await axios.get("http://localhost:8000/api/get-user-info/", {
+          const response = await axios.get(userInfoUrl, {
             withCredentials: true,
             headers: {
               "X-CSRFToken": csrfToken,
@@ -71,7 +73,7 @@ export default function AccountPopover() {
     const csrfToken = Cookies.get("csrftoken");
     console.log(csrfToken);
     try {
-      await axios.post('http://localhost:8000/api/logout/', null, {
+      await axios.post(logoutUrl, null, {
         withCredentials: true, // Ensure cookies are sent with the request
         headers: {
           'X-CSRFToken': csrfToken,

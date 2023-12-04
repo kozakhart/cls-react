@@ -127,6 +127,9 @@ export default function UserPage() {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const navigate = useNavigate();
 
+  const verifyTokenUrl = process.env.REACT_APP_VERIFY_TOKEN_URL;
+  const getCertificateDataUrl = process.env.REACT_APP_CERTIFICATE_DATA_URL;
+
   useEffect(() => {
     const getFormattedDate = () => {
       const today = new Date();
@@ -355,7 +358,7 @@ export default function UserPage() {
     console.log(languageValue, byuidValue)
     try {
       const csrfToken = Cookies.get('csrftoken');
-      const response = await axios.get("http://localhost:8000/api/verify-token/", {
+      const response = await axios.get(verifyTokenUrl, {
         withCredentials: true,
         headers: {
           "X-CSRFToken": csrfToken,
@@ -367,7 +370,7 @@ export default function UserPage() {
           const formattedrecordDate = format(recordDate, 'MM/dd/yyyy');
           const formattedsemesterDate = format(semesterDate, 'MM/dd/yyyy');
           const csrfToken = Cookies.get('csrftoken');
-          const response = await axios.post('http://localhost:8000/api/get-certificate-data/', 
+          const response = await axios.post(getCertificateDataUrl, 
             {
               recordDate: formattedrecordDate,
               semesterDate: formattedsemesterDate,

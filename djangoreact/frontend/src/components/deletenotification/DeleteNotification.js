@@ -15,6 +15,8 @@ import Iconify from '../iconify';
 export default function DeleteNotification({recordId}) {
   const [isConfirmationOpen, setConfirmationOpen] = useState(false);
 
+  const deleteRecordUrl = `${process.env.REACT_APP_DELETE_RECORD_URL}${recordId}/`;
+  
   const handleCheckData = () => {
     setConfirmationOpen(true);
   };
@@ -27,7 +29,7 @@ export default function DeleteNotification({recordId}) {
     const csrfToken = Cookies.get("csrftoken");
 
     axios
-      .post(`http://localhost:8000/api/delete/${recordId}/`, recordId, {
+      .post(deleteRecordUrl, recordId, {
         withCredentials: true,
         headers: {
           "X-CSRFToken": csrfToken,
