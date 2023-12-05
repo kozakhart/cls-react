@@ -64,7 +64,7 @@ export default function Router() {
 
     checkAuthentication();
   }, []);
-  
+  const reactPrefix = '/cls';
   const routes = useRoutes([
     {
       path: '/dashboard',
