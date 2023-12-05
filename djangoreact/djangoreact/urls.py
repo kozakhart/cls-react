@@ -24,6 +24,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
     path('', include('myapp.urls')),
-    #path('cls/', custom_admin_login),
 ]
 #admin.site.login = path('cls/', custom_admin_login)

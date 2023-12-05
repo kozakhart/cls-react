@@ -64,13 +64,12 @@ export default function Router() {
 
     checkAuthentication();
   }, []);
-  const reactPrefix = '/cls';
   const routes = useRoutes([
     {
-      path: '/dashboard',
-      element: isAuthenticated ? <DashboardLayout /> : <Navigate to="/login" />,
+      path: '/cls/dashboard',
+      element: isAuthenticated ? <DashboardLayout /> : <Navigate to="/cls/login" />,
       children: [
-        { element: <Navigate to="/dashboard/app" />, index: true },
+        { element: <Navigate to="/cls/dashboard/app" />, index: true },
         { path: 'app', element: <DashboardAppPage /> },
         { path: 'user', element: <UserPage /> },
         { path: 'needs-approval', element: <NeedsApprovalPagePage /> },
@@ -79,20 +78,20 @@ export default function Router() {
       ],
     },
     {
-      path: 'login',
+      path: '/cls/login',
       element: <LoginPage />,
     },
     {
       element: <SimpleLayout />,
       children: [
-        { element: <Navigate to="/dashboard/app" />, index: true },
-        { path: '404', element: <Page404 /> },
-        { path: '*', element: <Navigate to="/404" /> },
+        { element: <Navigate to="/cls/dashboard/app" />, index: true },
+        { path: '/cls/404', element: <Page404 /> },
+        { path: '/cls/*', element: <Navigate to="/cls/404" /> },
       ],
     },
     {
-      path: '*',
-      element: <Navigate to="/404" replace />,
+      path: '/cls/*',
+      element: <Navigate to="/cls/404" replace />,
     },
   ]);
 
