@@ -82,12 +82,8 @@ export default function Router() {
       element: <LoginPage />,
     },
     {
-      element: <SimpleLayout />,
-      children: [
-        { element: <Navigate to="/cls/dashboard/app" />, index: true },
-        { path: '/cls/404', element: <Page404 /> },
-        { path: '/cls/*', element: <Navigate to="/cls/404" /> },
-      ],
+      path: '/cls/404',
+      element: <Page404 />,
     },
     {
       path: '/cls/*',
