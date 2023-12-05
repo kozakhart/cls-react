@@ -24,16 +24,16 @@ from django.core.management.utils import get_random_secret_key
 SECRET_KEY = get_random_secret_key()
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['18.226.104.24']
 
 
 # Application definition
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
-CORS_ALLOWED_ORIGINS = ['http://localhost:3000']
+CORS_ALLOWED_ORIGINS = ['18.226.104.24']
 CORS_ALLOW_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']  # List of allowed HTTP methods
 CORS_ALLOW_HEADERS = (
     "accept",
@@ -43,7 +43,7 @@ CORS_ALLOW_HEADERS = (
     "x-csrftoken",
     "x-requested-with",
 )
-CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']
+CSRF_TRUSTED_ORIGINS = ['18.226.104.24']
 CSRF_COOKIE_SAMESITE = 'None'
 INSTALLED_APPS = [
     'django.contrib.admin',
