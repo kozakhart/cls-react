@@ -21,7 +21,7 @@ function ProtectedRoute({ element, auth, ...rest }) {
   return (
     <Route
       {...rest}
-      element={auth ? element : <Navigate to="/login" replace />}
+      element={auth ? element : <Navigate to="/cls/login" replace />}
     />
   );
 }
@@ -51,13 +51,13 @@ export default function Router() {
           });
           if (tokenAuthentication.status === 200) {
             setIsAuthenticated(true);
-            navigate('/dashboard/app', { replace: true });
+            navigate('/cls/dashboard/app', { replace: true });
             console.log('hello')
           }
         }
       } catch (error) {
         setIsAuthenticated(false);
-        navigate('/login', { replace: true });
+        navigate('/cls/login', { replace: true });
         console.error(error);
       }
     };
