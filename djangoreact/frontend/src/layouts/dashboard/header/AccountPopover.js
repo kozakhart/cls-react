@@ -79,7 +79,7 @@ export default function AccountPopover() {
           'X-CSRFToken': csrfToken,
         }, // Rename the CSRF cookie to match the Django expected default
       });
-      navigate('/login', { replace: true });
+      navigate('/cls/login', { replace: true });
       // You can add additional logic to handle the successful logout, such as redirecting the user to the login page.
     } catch (error) {
       console.error('Logout error:', error);

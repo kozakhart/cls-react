@@ -124,12 +124,15 @@ export default function UserPage() {
         },
       });
       const fetchedData = response.data;
-        console.log(fetchedData);
+      if (fetchedData && fetchedData.response && fetchedData.response.data) {
         setData(fetchedData.response.data);
-
+      
         const userList = fetchedData.response.data.map(item => `${item.recordId}`);
         setUserList(userList);
         setIsLoading(false);
+      } else {
+        console.log("Data structure is invalid or undefined.");
+      }
 
       } catch (error) {
         console.log(error);
@@ -137,7 +140,7 @@ export default function UserPage() {
     }
   }
   catch (error) {
-    navigate('/login', { replace: true });
+    navigate('/cls/login', { replace: true });
     console.log(error);
   }
     };

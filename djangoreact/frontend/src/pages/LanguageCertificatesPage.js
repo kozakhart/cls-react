@@ -404,7 +404,7 @@ export default function UserPage() {
       }
     } catch (error) {
       console.log(error);
-      navigate('/login', { replace: true });
+      navigate('/cls/login', { replace: true });
       setLanguageValue('None');
       setByuidValue('None');
       setLoading(false);

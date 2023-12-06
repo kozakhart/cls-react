@@ -59,7 +59,7 @@ export default function DashboardAppPage() {
   const navigate = useNavigate();
 
   const verifyTokenUrl = process.env.REACT_APP_VERIFY_TOKEN_URL;
-  const filemakerUrl = process.env.REACT_APP_FILEMAKER;
+  const filemakerUrl = process.env.REACT_APP_FILEMAKER_URL;
 
 
   function countOccurrences(arr) {
@@ -369,7 +369,7 @@ export default function DashboardAppPage() {
       }
     }
     } catch (error) {
-      navigate('/login', { replace: true });
+      navigate('/cls/login', { replace: true });
       console.error('Error verifying token:', error);
     }
     };

@@ -66,15 +66,17 @@ export default function Router() {
   }, []);
   const routes = useRoutes([
     {
-      path: '/cls/dashboard',
+      path: '/cls',
       element: isAuthenticated ? <DashboardLayout /> : <Navigate to="/cls/login" />,
       children: [
         { element: <Navigate to="/cls/dashboard/app" />, index: true },
-        { path: 'app', element: <DashboardAppPage /> },
-        { path: 'user', element: <UserPage /> },
-        { path: 'needs-approval', element: <NeedsApprovalPagePage /> },
-        { path: 'language-certificates', element: <LanguageCertificatesPage /> },
-        { path: 'reports', element: <GenerateReports /> },
+        { path: 'dashboard/app', element: <DashboardAppPage /> },
+        { path: 'dashboard/user', element: <UserPage /> },
+        { path: 'dashboard/needs-approval', element: <NeedsApprovalPagePage /> },
+        { path: 'dashboard/language-certificates', element: <LanguageCertificatesPage /> },
+        { path: 'dashboard/reports', element: <GenerateReports /> },
+        { path: '404', element: <Page404 /> },
+        { path: '*', element: <Navigate to="/cls/404" replace /> },
       ],
     },
     {
@@ -82,11 +84,15 @@ export default function Router() {
       element: <LoginPage />,
     },
     {
-      path: '/cls/404',
-      element: <Page404 />,
+      element: <SimpleLayout />,
+      children: [
+        { element: <Navigate to="/cls/dashboard/app" />, index: true },
+        { path: '404', element: <Page404 /> },
+        { path: '*', element: <Navigate to="/cls/404" /> },
+      ],
     },
     {
-      path: '/cls/*',
+      path: '*',
       element: <Navigate to="/cls/404" replace />,
     },
   ]);

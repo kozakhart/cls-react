@@ -8,27 +8,27 @@ const icon = (name) => <SvgColor src={`/assets/icons/navbar/${name}.svg`} sx={{ 
 const navConfig = [
   {
     title: 'dashboard',
-    path: '/dashboard/app',
+    path: '/cls/dashboard/app',
     icon: icon('ic_analytics'),
   },
   {
     title: 'Database',
-    path: '/dashboard/user',
+    path: '/cls/dashboard/user',
     icon: icon('ic_user'),
   },
   {
     title: 'Awaiting Approval',
-    path: '/dashboard/needs-approval',
+    path: '/cls/dashboard/needs-approval',
     icon: icon('ic_user'),
   },
   {
     title: 'Language Certificates',
-    path: '/dashboard/language-certificates',
+    path: '/cls/dashboard/language-certificates',
     icon: icon('ic_user'),
   },
   {
     title: 'Generate Report',
-    path: '/dashboard/reports',
+    path: '/cls/dashboard/reports',
     icon: icon('ic_analytics'),
   },
   // {
