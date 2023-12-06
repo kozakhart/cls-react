@@ -24,16 +24,16 @@ from django.core.management.utils import get_random_secret_key
 SECRET_KEY = get_random_secret_key()
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['18.226.104.24']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
-CORS_ALLOWED_ORIGINS = ['18.226.104.24']
+CORS_ALLOWED_ORIGINS = ['http://localhost:3000']
 CORS_ALLOW_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']  # List of allowed HTTP methods
 CORS_ALLOW_HEADERS = (
     "accept",
@@ -43,7 +43,7 @@ CORS_ALLOW_HEADERS = (
     "x-csrftoken",
     "x-requested-with",
 )
-CSRF_TRUSTED_ORIGINS = ['18.226.104.24']
+CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']
 CSRF_COOKIE_SAMESITE = 'None'
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -56,8 +56,13 @@ INSTALLED_APPS = [
     'knox',
     'axes',
     'myapp',
+    'slat',
+    'mapl',
     'corsheaders',
     'api.apps.ApiConfig',
+    'crispy_forms',
+    'crispy_bootstrap5',
+
 ]
 
 AXES_FAILURE_LIMIT = 3
@@ -72,6 +77,7 @@ MIDDLEWARE = [
         'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'axes.middleware.AxesMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -161,7 +167,8 @@ USE_I18N = True
 
 USE_TZ = True
 
-
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 

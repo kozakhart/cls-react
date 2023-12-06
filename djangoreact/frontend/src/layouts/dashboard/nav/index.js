@@ -124,7 +124,7 @@ export default function Nav({ openNav, onCloseNav }) {
       <NavSection data={navConfig} />
 
       {/* <Box sx={{ px: 2.5, pb: 3, mt: 10 }}> */}
-        <Stack alignItems="center" spacing={3} sx={{ pt: 5, borderRadius: 2, position: 'relative' }}>
+        <Stack alignItems="center" spacing={3} sx={{ pt: 0, borderRadius: 2, position: 'relative' }}>
 
           <Box sx={{ textAlign: 'center' }}>
             <Typography gutterBottom variant="h6">
@@ -134,13 +134,11 @@ export default function Nav({ openNav, onCloseNav }) {
             {/* <Typography variant="body2" sx={{ color: 'text.secondary' }}>
               Click Here
             </Typography> */}
+              <Button href={adminUrl} target="_blank" variant="contained">
+              Admin Backend
+            </Button>
           </Box>
-
-          <Button href={adminUrl} target="_blank" variant="contained">
-            Admin Backend
-          </Button>
         </Stack>
-      {/* </Box> */}
     </Scrollbar>
   );
   

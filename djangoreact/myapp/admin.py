@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.shortcuts import render
-from .models import OPIForm, Languages, Reasons, Degrees, LanguageExperience, ComeToCampusReason, HeardAbout, SemesterOfEntry, Scores, AcademicStatus
+from .models import OPIForm, Languages, Reasons, LanguageExperience, ComeToCampusReason
 from .forms import OPIForm_Forms
 import myapp.filemaker_api.filemaker_api as filemaker
 import myapp.box_api.box_api as box
@@ -19,17 +19,6 @@ class LanguagesAdmin(admin.ModelAdmin):
 
     
 admin.site.register(Languages, LanguagesAdmin)
-
-class DegreesAdmin(admin.ModelAdmin):
-    model = Degrees
-    def save_model(self, request, obj, form, change):        
-        super().save_model(request, obj, form, change)
-
-        return obj.degree
-    def delete_model(self, request, obj):
-
-        obj.delete()
-admin.site.register(Degrees, DegreesAdmin)
 
 class ReasonsAdmin(admin.ModelAdmin):
     model = Reasons
@@ -68,50 +57,6 @@ class ComeToCampusReasonAdmin(admin.ModelAdmin):
 
 admin.site.register(ComeToCampusReason, ComeToCampusReasonAdmin)
 
-class HeardAboutAdmin(admin.ModelAdmin):
-    model = HeardAbout
-    def save_model(self, request, obj, form, change):        
-        super().save_model(request, obj, form, change)
-
-        return obj.heard_about
-    def delete_model(self, request, obj):
-
-        obj.delete()
-
-admin.site.register(HeardAbout, HeardAboutAdmin)
-
-class SemesterOfEntryAdmin(admin.ModelAdmin):
-    model = SemesterOfEntry
-    def save_model(self, request, obj, form, change):        
-        super().save_model(request, obj, form, change)
-
-        return obj.semester
-    def delete_model(self, request, obj):
-
-        obj.delete()
-admin.site.register(SemesterOfEntry, SemesterOfEntryAdmin)
-
-class ScoresAdmin(admin.ModelAdmin):
-    model = Scores
-    def save_model(self, request, obj, form, change):        
-        super().save_model(request, obj, form, change)
-
-        return obj.score
-    def delete_model(self, request, obj):
-
-        obj.delete()
-admin.site.register(Scores, ScoresAdmin)
-
-class AcademicStatusAdmin(admin.ModelAdmin):
-    model = AcademicStatus
-    def save_model(self, request, obj, form, change):        
-        super().save_model(request, obj, form, change)
-
-        return obj.status
-    def delete_model(self, request, obj):
-
-        obj.delete()
-admin.site.register(AcademicStatus, AcademicStatusAdmin)
 
 
 
