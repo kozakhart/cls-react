@@ -54,7 +54,7 @@ CORS_ALLOW_HEADERS = (
     "x-csrftoken",
     "x-requested-with",
 )
-CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']
+CSRF_TRUSTED_ORIGINS = ['http://mylanguage.byu.edu']
 CSRF_COOKIE_SAMESITE = 'None'
 INSTALLED_APPS = [
     'django.contrib.admin',
