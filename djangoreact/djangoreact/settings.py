@@ -183,8 +183,8 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
-STATIC_ROOT = '/var/www/djangoreact/static/'
+STATIC_URL = 'static-django/'
+STATIC_ROOT = '/home/clsdeveloper/cls-react/djangoreact/djangoreact/static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
