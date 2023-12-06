@@ -24,5 +24,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
     path('', include('myapp.urls')),
+    path('thirdyear/', include('slat.urls')),
+    path('mapl/', include('mapl.urls')),
 ]
 #admin.site.login = path('cls/', custom_admin_login)
