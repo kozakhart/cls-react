@@ -56,7 +56,7 @@ export default function LoginForm({ formData, handleFormChange }) {
         },
       });
       if (tokenAuthentication.status === 200) {
-        navigate('/dashboard/app', { replace: true });
+        navigate('/cls/dashboard/app', { replace: true });
         console.log('hello dash')
       }
 

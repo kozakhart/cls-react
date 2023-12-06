@@ -142,7 +142,7 @@ export default function BlogPage() {
           console.log('Error');
         }
       } catch (error) {
-        navigate('/login', { replace: true });
+        navigate('/cls/login', { replace: true });
         console.log(error);
       }
     };

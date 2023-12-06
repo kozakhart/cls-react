@@ -134,13 +134,13 @@ export default function UserPage() {
             setIsLoading(false);
 
       } catch (error) {
-        navigate('/login', { replace: true });
+        navigate('/cls/login', { replace: true });
         console.log(error);
       }
     }
   }
   catch (error) {
-    navigate('/login', { replace: true });
+    navigate('/cls/login', { replace: true });
     console.log(error);
   }
 
