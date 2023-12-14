@@ -49,11 +49,12 @@ const TABLE_HEAD = [
   { id: 'name', label: 'Name', alignRight: false },
   { id: 'byuidtable', label: 'BYU ID', alignRight: false},
   { id: 'languagetable', label: 'Language', alignRight: false },
+  { id: 'reason', label: 'Reason', alignRight: false},
   { id: 'level', label: 'Level', alignRight: false },
-  { id: 'opi', label: 'OPI Score', alignRight: false },
-  { id: 'wpt', label: 'WPT Score', alignRight: false },
-  { id: 'opic', label: 'OPIc Score', alignRight: false },
-  { id: 'award', label: 'Award Certificate', alignRight: false },
+  { id: 'opi', label: 'OPI', alignRight: false },
+  { id: 'wpt', label: 'WPT', alignRight: false },
+  { id: 'opic', label: 'OPIc', alignRight: false },
+  { id: 'award', label: 'Award', alignRight: false },
 ];
 
 // ----------------------------------------------------------------------
@@ -107,6 +108,7 @@ export default function UserPage() {
   const [todaysDate, setTodaysDate] = useState('');
   const [loading, setLoading] = useState(false);
   const [isPopoverOpen, setPopoverOpen] = useState(false);
+  const [isPopoverCustomOpen, setPopoverCustomOpen] = useState(false);
   const [byuidValue, setByuidValue] = useState('None');
   const [languageValue, setLanguageValue] = useState('None');
   const [fullnameValue, setfullnameValue] = useState('');
@@ -196,7 +198,7 @@ export default function UserPage() {
 
   function UserTableRow({ user, handleCheckboxClick, handleOpenMenu }) {
     // console.log(user)
-    const { recordId, firstname, lastname, byuid, netid, language, level, opiScore, opiDate, wptScore, wptDate, opicScore, opicDate 
+    const { recordId, firstname, lastname, byuid, netid, language, reason, level, opiScore, opiDate, wptScore, wptDate, opicScore, opicDate 
     } = user;
     const fullname = `${firstname} ${lastname}`;
     // console.log('recordId:', recordId);
@@ -230,6 +232,7 @@ export default function UserPage() {
           </Stack>
         </TableCell>
         <TableCell align="left">{byuid}</TableCell>
+        <TableCell align="left">{Object.values(reason)}</TableCell>
         <TableCell align="left">{Object.keys(language)[0]}</TableCell>
         <TableCell align="left">{level}</TableCell>
         <TableCell align="left">{getNestedKey(opiScore)} {opiDate}</TableCell>
@@ -241,26 +244,32 @@ export default function UserPage() {
             <Iconify icon={'eva:more-vertical-fill'} />
           </IconButton>
           <Popover
-            open={Boolean(isPopoverOpen)}
-            anchorEl={isPopoverOpen}
-            onClose={isPopoverOpen}
-            anchorOrigin={{ vertical: 'center', horizontal: 'center' }} // Center the anchor
-            transformOrigin={{ vertical: 'top', horizontal: 'center' }}
-            PaperProps={{
-              sx: {
-                p: 1,
-                width: '30%',
-                '& .MuiMenuItem-root': {
-                  px: 1,
-                  typography: 'body2',
-                  borderRadius: 0.75,
+              open={Boolean(isPopoverOpen)}
+              anchorEl={isPopoverOpen}
+              onClose={() => setPopoverOpen(false)}
+              anchorOrigin={{ vertical: 'center', horizontal: 'center' }}
+              transformOrigin={{ vertical: 'top', horizontal: 'center' }}
+              PaperProps={{
+                sx: {
+                  p: 1,
+                  width: '35%',
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  '& .MuiMenuItem-root': {
+                    px: 1,
+                    typography: 'body2',
+                    borderRadius: 0.75,
+                  },
                 },
-              },
-            }}
-          >
+              }}
+              >
           <Container>
           <div style={{ display: 'flex', justifyContent: 'right', paddingBottom: '1vh' }}>
-                <AwardCertificate fullname={'fullnameID'} netid={'netID'}
+                <AwardCertificate fullName={'fullnameID'} byuid={byuid} netid={'netID'} language={'languageID'} level={'levelID'} 
+                opiScore={'opiscoreID'} wptScore={'wptscoreID'} 
+                todaysDate={'todaysDateID'} recordId={recordId}
                 />
                 <MenuItem  style={{fontWeight: 'bold' }} onClick={() => setPopoverOpen(false)}>
                   <Iconify icon={'eva:close-square-outline'} sx={{ ml: 2, mr: 2 }}/>
@@ -425,7 +434,150 @@ export default function UserPage() {
 
         <Card>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-  <div style={{ display: 'flex', alignItems: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+      <Button
+          variant="contained"
+          onClick={() => setPopoverCustomOpen(true)}
+          sx={{
+            margin: '2% !important',
+            height: '48px',
+            width: '130px',
+            marginTop: '10px',
+            position: 'relative', // Set position relative to the button
+          }}
+        >
+      <span style={{ visibility: loading ? 'hidden' : 'visible' }}>Create Custom</span>
+      {loading && (
+        <div
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+          }}
+        >
+          <PulseLoader
+            loading={loading}
+            size={5}
+            aria-label="Loading Spinner"
+            data-testid="loader"
+            sx={{ height: 'inherit' }}
+          />
+        </div>
+      )}
+    </Button>
+      <Popover
+            open={Boolean(isPopoverCustomOpen)}
+            anchorEl={isPopoverCustomOpen}
+            onClose={() => setPopoverCustomOpen(false)}
+            anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            transformOrigin={{ vertical: 'top', horizontal: 'center' }}
+            PaperProps={{
+              sx: {
+                p: 1,
+                width: '35%',
+                position: 'fixed',
+                marginTop: '6vw',
+
+              },
+            }}
+          >
+            <div>
+          <Container>
+          <div style={{ display: 'flex', justifyContent: 'right', paddingBottom: '1vh' }}>
+                <AwardCertificate fullName={'fullnameID'} byuid={'byuID'} netid={'netID'} language={'languageID'} level={'levelID'} 
+                opiScore={'opiscoreID'} wptScore={'wptscoreID'} recordId={'0'}
+                todaysDate={'todaysDateID'}
+                />
+                <MenuItem  style={{fontWeight: 'bold' }} onClick={() => setPopoverCustomOpen(false)}>
+                  <Iconify icon={'eva:close-square-outline'} sx={{ ml: 2, mr: 2 }}/>
+                </MenuItem>
+            </div>
+                <Table>
+                  <TableBody>
+                    <TableRow>
+                        <TableCell>Full Name:</TableCell>
+                        <TableCell>
+                        <EditableCell id='fullnameID'  _onChange={(value) => setfullnameValue(value)}/>
+                        
+                        </TableCell>
+                    </TableRow>
+
+                    <TableRow>
+
+                    <TableCell>BYU ID:</TableCell>
+                        <TableCell>
+                        <EditableCell id='byuID' />
+                        </TableCell>
+                    </TableRow>
+
+                    <TableRow>
+                    <TableCell>Net ID:</TableCell>
+                        <TableCell>
+                        <EditableCell id='netID' />
+                        </TableCell>
+                    </TableRow>
+
+                    <TableRow>
+                    <TableCell>Language:</TableCell>
+                        <TableCell>
+                        <EditableCell id='languageID' />
+                        </TableCell>
+                    </TableRow>
+
+                    <TableRow>
+                        <TableCell>Level:</TableCell>
+                        <TableCell>
+                        <EditableCell id='levelID'  />
+                        </TableCell>
+                    </TableRow>
+
+                    <TableRow>
+                        <TableCell>OPI Score:</TableCell>
+                        <TableCell>
+                        <EditableCell id='opiscoreID'  />
+                        </TableCell>
+                    </TableRow>
+
+                    <TableRow>
+                        <TableCell>WPT Score:</TableCell>
+                        <TableCell>
+                        <EditableCell id='wptscoreID'  />
+                        </TableCell>
+                    </TableRow>
+
+                    <TableRow>
+                        <TableCell>Date Awarded:</TableCell>
+                        <TableCell>
+                        <EditableCell id='todaysDateID' initialValue={todaysDate} />
+                        </TableCell>
+                    </TableRow>
+                    
+                    <TableRow>
+                        <TableCell sx={{borderColor: "white !important"}}/>
+                        <TableCell sx={{borderColor: "white !important"}}/>
+                    </TableRow>
+                    <TableRow>
+                        <TableCell sx={{borderColor: "white !important"}}/>
+                        <TableCell sx={{borderColor: "white !important"}}/>
+                    </TableRow>
+                    <TableRow>
+                        <TableCell sx={{borderColor: "white !important"}}/>
+                        <TableCell sx={{borderColor: "white !important"}}/>
+                    </TableRow>
+                    <TableRow>
+                        <TableCell sx={{borderColor: "white !important"}}/>
+                        <TableCell sx={{borderColor: "white !important"}}/>
+                    </TableRow>
+
+          
+              </TableBody>
+              </Table>
+
+          </Container>
+          </div>
+      </Popover>
+
   <Button
   variant="contained"
   onClick={() => setPopoverOpen(true)}
@@ -468,35 +620,32 @@ export default function UserPage() {
     onFilterName={handleFilterByName} 
   />
 </div>
-
-        <Popover
+          <Popover
             open={Boolean(isPopoverOpen)}
             anchorEl={isPopoverOpen}
-            onClose={isPopoverOpen}
-            anchorOrigin={{ vertical: 'center', horizontal: 'center' }} // Center the anchor
+            onClose={() => setPopoverOpen(false)}
+            anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
             transformOrigin={{ vertical: 'top', horizontal: 'center' }}
             PaperProps={{
               sx: {
                 p: 1,
                 width: '35%',
-                '& .MuiMenuItem-root': {
-                  px: 1,
-                  typography: 'body2',
-                  borderRadius: 0.75,
-                },
+                position: 'fixed',
+                marginTop: '6vw',
+
               },
             }}
           >
           <Container>
-          <div style={{ display: 'flex', justifyContent: 'right', paddingBottom: '1vh' }}>
-                <MenuItem onClick={() => handleSearch()}>
-                <Iconify icon={'eva:search-outline'} sx={{ ml: 2, mr: 2 }}/>
-                {/* <Iconify icon={'eva:email-outline'} sx={{ mr: 5 }}/> */}
-                </MenuItem>
-                <MenuItem  style={{fontWeight: 'bold' }} onClick={() => setPopoverOpen(false)}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', paddingBottom: '1vh' }}>
+              <MenuItem onClick={() => handleSearch()}>
+                  <Iconify icon={'eva:search-outline'} sx={{ ml: 2, mr: 2 }}/>
+              </MenuItem>
+              <MenuItem style={{ fontWeight: 'bold' }} onClick={() => setPopoverOpen(false)}>
                   <Iconify icon={'eva:close-square-outline'} sx={{ ml: 2, mr: 2 }}/>
-                </MenuItem>
-            </div>
+              </MenuItem>
+          </div>
+
                 <Table>
                   <TableBody>
 
