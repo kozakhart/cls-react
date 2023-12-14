@@ -14,10 +14,20 @@ import {
 import { set } from 'lodash';
 import Iconify from '../iconify';
 
-export default function UpdateNotification({netid}) {
+export default function UpdateNotification({ fullName, byuid, netid, language, level, opiScore, wptScore, todaysDate, recordId} ) {
   const [isConfirmationOpen, setConfirmationOpen] = useState(false);
+  const [fullNameValue, setFullName] = useState('');
+  const [byuidValue, setBYUIDValue] = useState(byuid);
   const [netidValue, setNetIDValue] = useState('');
+  const [languageValue, setLanguage] = useState('');
+  const [levelValue, setLevel] = useState('');
+  const [opiScoreValue, setOpiScore] = useState('');
+  const [wptScoreValue, setWptScore] = useState('');
+  const [todaysDateValue, setTodaysDate] = useState('');
+  const [recordIdValue, setrecordId] = useState(recordId);
+
   const [updateData, setUpdateData] = useState(false);
+
 
   const verifyTokenUrl = process.env.REACT_APP_VERIFY_TOKEN_URL;
   const awardCertificateUrl = process.env.REACT_APP_AWARD_CERTIFICATE_URL;
@@ -41,16 +51,52 @@ export default function UpdateNotification({netid}) {
 
   const handleGetAllData = (netid) => {
     const netidElement = document.getElementById(netid);
-    
-    const netidValue = netidElement.value;
+    const byuidElement = document.getElementById(byuid);
+    const fullNameElement = document.getElementById(fullName);
+    const languageElement = document.getElementById(language);
+    const levelElement = document.getElementById(level);
+    const opiScoreElement = document.getElementById(opiScore);
+    const wptScoreElement = document.getElementById(wptScore);
+    const todaysDateElement = document.getElementById(todaysDate);
 
+    const fullNameValue = fullNameElement.value;
+    const netidValue = netidElement.value;
+    try{
+      const byuidValue = byuidElement.value;
+      setBYUIDValue(byuidValue);
+    }
+    catch{
+      console.log("No BYUID");
+    }
+    
+    const languageValue = languageElement.value;
+    const levelValue = levelElement.value;
+    const opiScoreValue = opiScoreElement.value;
+    const wptScoreValue = wptScoreElement.value;
+    const todaysDateValue = todaysDateElement.value;
+
+    setFullName(fullNameValue);
     setNetIDValue(netidValue);
+    setLanguage(languageValue);
+    setLevel(levelValue);
+    setOpiScore(opiScoreValue);
+    setWptScore(wptScoreValue);
+    setTodaysDate(todaysDateValue);
+
   };
-  const navigate = useNavigate();
     
   const handleAwardCertificate = async () => {
+    console.log(fullNameValue, byuidValue, netidValue, languageValue, levelValue, opiScoreValue, wptScoreValue, todaysDateValue, recordIdValue)
     const dataToSend = {
+      FullName: fullNameValue,
+      BYUID: byuidValue,
       NetID: netidValue,
+      Language: languageValue,
+      Level: levelValue,
+      OPIScore: opiScoreValue,
+      WPTScore: wptScoreValue,
+      TodaysDate: todaysDateValue,
+      RecordID: recordIdValue,
       // Other data to send
     };
     
@@ -76,7 +122,6 @@ export default function UpdateNotification({netid}) {
               },
             }
           );
-  
           // Handle the awardCertificateResponse as needed
           console.log(awardCertificateResponse.data);
         } catch (error) {
@@ -110,8 +155,9 @@ export default function UpdateNotification({netid}) {
         </DialogContent>
         <DialogActions>
         <Button onClick={() => {
-            handleGetAllData(netid);
+            handleGetAllData(fullName, byuid, netid, language, level, opiScore, wptScore, todaysDate, recordId);
             handleAwardCertificate();
+            handleConfirmationClose();
           }} color="primary"> Yes
           </Button>
           <Button onClick={handleConfirmationClose} color="primary">
