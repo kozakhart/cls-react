@@ -17,4 +17,5 @@ urlpatterns = [
     path('need-approval-filemaker/', views.need_approval_filemaker, name='need-approval-filemaker'),
     path('login/',views.login_knox,name = "login"),    
     path('get-user-info/', views.get_user_info, name='get-user-info'),
+    path('get-grades/', views.get_student_grades, name='get-grades'),
 ]

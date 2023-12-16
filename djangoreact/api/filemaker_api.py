@@ -53,8 +53,8 @@ def get_all_by_date(token):
     headers["Authorization"] = f"Bearer {token}"
     record_response = requests.get(url, headers=headers)
     
-    print(record_response.status_code)
-    print(record_response.json())
+    print('filemaker: ', record_response.status_code)
+    # print(record_response.json())
     record_response = record_response.json()
     return record_response
 

@@ -605,6 +605,7 @@ def create_pdf_cert(box_client, record_id, full_name, language, level, opi_score
         os.remove(f"{record_id} {full_name} {language.capitalize()} Language Certificate.pdf")
     else:
         print('failed to create student information pdf')
+    return new_file.id
 
 def generate_shareable_link(client, file_id):
     #file_id = '1259828991808'

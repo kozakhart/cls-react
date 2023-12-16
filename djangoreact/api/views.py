@@ -39,8 +39,11 @@ from axes.utils import reset
 
 from datetime import datetime
 from django.utils import timezone
+import api.byu_api.byu_api as byu_api
 
 def verify_user(request):
+    print('verify user')
+    print(request.COOKIES)
     try:
         token = request.COOKIES['token']  # Get the token from the cookie
         token, username = token.split(':')
@@ -221,13 +224,13 @@ def get_certificate_data(request):
         today = datetime.now()
         today = today.strftime("%m/%d/%Y")
         browser = lti.get_browser()
-        try:
-            lti.get_data(browser, formatted_record_date, todate=today, test_type='OPI', byuid=byuid, language=language, kwargs={'firstname':None, 'score': None, 'major': None})
-            lti.get_data(browser, formatted_record_date, todate=today, test_type='WPT', byuid=byuid, language=language, kwargs={'firstname':None, 'score': None, 'major': None})
-            lti.get_data(browser, formatted_record_date, todate=today, test_type='OPIc', byuid=byuid, language=language, kwargs={'firstname':None, 'score': None, 'major': None})
-        except Exception as e:
-            print(e)
-
+        # try:
+        #     lti.get_data(browser, formatted_record_date, todate=today, test_type='OPI', byuid=byuid, language=language, kwargs={'firstname':None, 'score': None, 'major': None})
+        #     lti.get_data(browser, formatted_record_date, todate=today, test_type='WPT', byuid=byuid, language=language, kwargs={'firstname':None, 'score': None, 'major': None})
+        #     lti.get_data(browser, formatted_record_date, todate=today, test_type='OPIc', byuid=byuid, language=language, kwargs={'firstname':None, 'score': None, 'major': None})
+        # except Exception as e:
+        #     print(e)
+        lti.get_all_data(browser, formatted_record_date, formatted_semester_date, byuid=byuid, language=language, kwargs={'firstname':None, 'score': None, 'major': None})
         lti.close_browser(browser)
         data = lti.start_search(formatted_record_date, formatted_semester_date)
 
@@ -249,7 +252,7 @@ def get_certificate_data(request):
         
             opi_score_values = list(student_df['opiScore'].values())
             wpt_score_values = list(student_df['wptScore'].values())
-            print(opi_score_values, wpt_score_values)
+            #print(opi_score_values, wpt_score_values)
 
             if (opi_score_values[0] in level_values[2]) or (wpt_score_values[0] in level_values[2]):
                 level = "Superior"
@@ -271,72 +274,118 @@ def award_certificate(request):
     if status == 200:
         print(request.data)
         #{'dataToSend': {'NetID': 'phart4'}}
+        full_name = request.data['dataToSend']['FullName']
+        byuid = request.data['dataToSend']['BYUID']
         netid = request.data['dataToSend']['NetID']
+        language = request.data['dataToSend']['Language']
+        level = request.data['dataToSend']['Level']
+        opi_score = request.data['dataToSend']['OPIScore']
+        wpt_score = request.data['dataToSend']['WPTScore']
+        formatted_date = request.data['dataToSend']['TodaysDate']
+        record_id = request.data['dataToSend']['RecordID']
+
         box_client = box_api.create_client()
         file_id = box_api.create_pdf_cert(box_client, record_id, full_name, language.upper(), level.upper(), opi_score, wpt_score, formatted_date)
-        shareable_link = box_api.create_shared_link(box_client, file_id)
-        #add box link to emaild
+        shareable_link = box_api.generate_shareable_link(box_client, file_id)
+
         data = {
-            "subject": f'Language Certificate',
+            "subject": f'Language Certificate for {full_name}',
             "importance":"High",
             "body":{
                 "contentType":"HTML",
                 "content":"""
-                <BODY><p style="color:black;font-weight:normal;">{Name},<br><br>
+                <BODY><p style="color:black;font-weight:normal;">{full_name},<br><br>
                 
                 Congratulations on earning your language certificate! Please see the attached certificate.<br><br>
+
+                <a href="{shareable_link}">{shareable_link}</a><br><br>
                 
                 Best,<br><br>
 
                 Center for Language Studies<br> 
                 cls.byu.edu<br> 
                 </p></BODY></HTML>
-                """
-                        },
+                """.format(
+                full_name=full_name,
+                shareable_link=shareable_link,
+                )
+                },
+                        
             "toRecipients":[
                 {
                     "emailAddress":{
-                        "address": netid + "@byu.edu"
+                        "address": 'phart4' + "@byu.edu"
                     }
                 }
             ]
         }
+        # "address": netid + "@byu.edu"
+
         # token = outlook.get_token()
         # message = outlook.create_message(token, data)
         # outlook.send_message(token, message)
+
+        current_date= datetime.now()
+        month = datetime.now().strftime("%B")
+        month_num =current_date.month
+        year = datetime.now().strftime("%Y")
+
+        if month_num >= 1 and month_num <= 4:
+            yearterm = '1'
+        elif month_num >= 5 and month_num <= 6:
+            yearterm = '3'
+        elif month_num >= 7 and month_num <= 8:
+            yearterm = '4'
+        elif month_num >= 9 and month_num <= 12:
+            yearterm = '5'
+        else:
+            yearterm = '0'
+        yearterm = year + yearterm
         data = {
-            "subject": f'Language Certificate for [Name]',
+            "subject": f'Language Certificate for {full_name}',
             "importance":"High",
             "body":{
                 "contentType":"HTML",
                 "content":"""
                 <BODY><p style="color:black;font-weight:normal;">BYU Enrollment Services,<br><br>
                 
-                [Name] has earned their BYU Language Certificate and requires a notation on their transcript. Thank you for your assistance.<br><br>
+                {full_name} has earned their BYU Language Certificate and requires a notation on their transcript. Thank you for your assistance.<br><br>
 
-                Name: [Name]<br>
-                BYUID:[BYUID]<br>
-                Language:[Language]<br>
-                Level:[Level]<br>
-                Month:[Month]<br>
-                Year:[Year]<br>
-                Yearterm:[Yearterm]<br>
+                Name: {full_name}<br>
+                BYUID: {byuid}<br>
+                Language: {language}<br>
+                Level: {level}<br>
+                Month: {month}<br>
+                Year: {year}<br>
+                Yearterm: {yearterm}<br><br>
                 
                 Best,<br><br>
 
+                Mariah Nix<br>
+                Language Assessment Coordinator<br>
                 Center for Language Studies<br> 
                 cls.byu.edu<br> 
                 </p></BODY></HTML>
-                """
+                """.format(
+                        full_name=full_name,
+                        language=language,
+                        level=level,
+                        byuid=byuid,
+                        month=month,
+                        year=year,
+                        yearterm=yearterm,
+                    )
                         },
             "toRecipients":[
                 {
                     "emailAddress":{
-                        "address": "graduation@byu.edu"
+                        "address": "phart4@byu.edu"
                     }
                 }
             ]
         }
+        #"address": "graduation@byu.edu"
+
         # message = outlook.create_message(token, data)
         # outlook.send_message(token, message)
 
@@ -526,5 +575,24 @@ def verify_token_knox(request):
         print('huh')
         return HttpResponse('Token authentication error', status=status.HTTP_401_UNAUTHORIZED)
     
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication])
+def get_student_grades(request):
+    status= verify_user(request).status_code
+    byu_id = request.GET.get('byuid')
+    language = request.GET.get('language')
+    reason = request.GET.get('reason')
 
+    if status == 200:
+        token = request.COOKIES['token']
+        token, username = token.split(':')
+        user = User.objects.filter(username=username).first()
+        if user is not None and user.is_staff:
+            token = byu_api.login()
+            grades = byu_api.get_classes(token, byu_id, language, reason, valid=True)
+            return JsonResponse(grades, safe=False)
+        else:
+            return JsonResponse({'message': 'User is not authenticated'}, status=401)
+    else:
+        return JsonResponse({'message': 'User is not authenticated'}, status=401)
 
