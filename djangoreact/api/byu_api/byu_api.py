@@ -79,7 +79,7 @@ def get_byuid(token, byu_id, net_id, valid):
     return valid
     #print(list)
 
-def get_classes(token, byu_id, language, valid, reason):
+def get_classes(token, byu_id, language, reason, valid):
     #print(token)
     #url = 'https://api.byu.edu:443/byuapi/students/v3/'
     url = f'https://api.byu.edu:443/byuapi/students/v3/{byu_id}/enrolled_class_grades/'
@@ -164,17 +164,17 @@ def get_classes(token, byu_id, language, valid, reason):
             for k in req_lang.values():
                 for grade in transcript:
                     if grade['course_number'] in k:
-                        applicable_courses.append(grade['course_number'])
+                        applicable_courses.append(grade['teaching_area'] + grade['course_number'])
                         passed_reqs += 1
             for k in req_civ.values():
                 for grade in transcript:
                     if grade['course_number'] in k:
-                        applicable_courses.append(grade['course_number'])
+                        applicable_courses.append(grade['teaching_area'] + grade['course_number'])
                         passed_reqs += 1
             for k in req_lit.values():
                 for grade in transcript:
                     if grade['course_number'] in k:
-                        applicable_courses.append(grade['course_number'])
+                        applicable_courses.append(grade['teaching_area'] + " " + grade['course_number'])
                         passed_reqs += 1
             if passed_reqs >= 3:
                 applicable_courses = list(set(applicable_courses))
@@ -189,7 +189,7 @@ def get_classes(token, byu_id, language, valid, reason):
     if reason != 'Language Certificate':
         valid = False
     print(valid)
-    return valid
+    return applicable_courses
 
 def logout(token):
     BYU_PRODUCTION_ID = os.getenv('BYU_PRODUCTION_ID')
@@ -240,22 +240,26 @@ def get_byuid2(token, byu_id):
     return response_API
 
 
-def test(token, byu_id):
+def get_programs(token, byu_id):
     #print(token)
-    #url = 'https://api.byu.edu:443/byuapi/students/v3/052163478'
-    url = f'https://api.byu.edu:443/byuapi/students/v3/?byu_ids={byu_id}&field_sets=basic'
-    #url = f'https://api.byu.edu:443/byuapi/students/v3/{byu_id}/?field_sets=basic'
+    url = f'https://api.byu.edu:443/byuapi/students/v3/?byu_ids={byu_id}&field_sets=programs'
     headers= CaseInsensitiveDict()
     headers["Content-Type"] = "application/json"
     headers["Authorization"] = f"Bearer {token}"
     response_API = requests.get(url, headers=headers, verify=False)
     response_json = response_API.json()
     print(response_API.status_code)
-    if response_API.status_code == 200:
-        api_net_id = response_json['values'][0]['basic']['net_id']['value']
-        print(api_net_id)
+
+    programs = response_json['values'][0]['programs']['values']
+    programs_list = []
+    for program in programs:
+        program_name = program['program_id']['description']
+        program_type = program['program_type']['value']
+        print(program_name, program_type)
+        if 'GE' not in program_type:
+            programs_list.append({program_type:program_name})
+    
+    print(programs_list)
+    return programs_list
 
 
-# token = login()
-
-# logout(token)

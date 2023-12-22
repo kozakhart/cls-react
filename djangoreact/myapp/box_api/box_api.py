@@ -10,7 +10,19 @@ from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey
 import jwt #PyJWT
 from boxsdk import Client
 from django.core.files.storage import FileSystemStorage
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
+
+BOX_USER_ID = os.getenv('BOX_USER_ID')
+BOX_JWT = os.getenv('BOX_JWT')
+BOX_CLIENT_SECRET = os.getenv('BOX_CLIENT_SECRET')
+BOX_CLIENT_ID = os.getenv('BOX_CLIENT_ID')
+BOX_ENTERPRISE_ID = os.getenv('BOX_ENTERPRISE_ID')
+BOX_ACCESS_TOKEN = os.getenv('BOX_ACCESS_TOKEN')
+BOX_RSA_PRIVATE_PASSPHRASE = os.getenv('BOX_RSA_PRIVATE_PASSPHRASE')
+BOX_RSA_PRIVATE_KEY = os.getenv('BOX_RSA_PRIVATE_KEY')
 
 from boxsdk.auth.server_auth import ServerAuth
 
@@ -30,18 +42,18 @@ class JWTAuth(ServerAuth):
             rsa_private_key_file_sys_path: Optional[str] = None,
             #rsa_private_key_passphrase: Optional[Union[str, bytes]] = None,
             store_tokens: Optional[Callable[[str, str], None]] = None,
-            user: Optional[Union[str, 'User']] = '14633286104',
-            jwt_key_id: str = '44lsvjwy',
-            client_secret: str = '7En7KvtU4jGU0VIRcnav2gP0Paz7vNOu',
-            client_id: str = 'ktx5zg2enjwwm5os3klxm4oi9lzc33mw',
-            enterprise_id: Optional[str] = '25517710`',
+            user: Optional[Union[str, 'User']] = BOX_USER_ID,
+            jwt_key_id: str = BOX_JWT,
+            client_secret: str = BOX_CLIENT_SECRET,
+            client_id: str = BOX_CLIENT_ID,
+            enterprise_id: Optional[str] = BOX_ENTERPRISE_ID,
             box_device_id: str = '0',
             box_device_name: str = '',
-            access_token: str = 'AutomationUser_1903599_LOuanhZ4EX@boxdevedition.com',
+            access_token: str = BOX_ACCESS_TOKEN,
             session: Optional['Network'] = None,
             jwt_algorithm: str = 'RS256',
-            rsa_private_key_passphrase: Optional[Union[str, bytes]] = "36170ccb90af8dd702921a7fca4c7fa2",
-            rsa_private_key_data: Union[bytes, IOBase, RSAPrivateKey] = "-----BEGIN ENCRYPTED PRIVATE KEY-----\nMIIFDjBABgkqhkiG9w0BBQ0wMzAbBgkqhkiG9w0BBQwwDgQIKxjEMzG+bm4CAggA\nMBQGCCqGSIb3DQMHBAh6JpjpUp+17wSCBMhp6auF2cz7flxqvRxEE+a11nWlwhRy\nWKncyxzBnpwKQKTn1Y9DQRr0hsKsjdHGPL7FwwTDvMlzaK/do7l8D+EEB0sEBSC5\n2G0KTeclZaIlEYRGr8f/45Le8PydyzuiDOsfe1s5kTeNU1jjZqr+ghHhQ0YPanO5\nwnwyiAZqe0slisWKuKX5P3sy9W3//EW7nNYjytefpLhsxkcnOP+4sWmUVVKi3Iw+\nURJplFnv0pF5wz8FhVNVpha4eNCOo82mHZp6d9XBPQngl+GS7zx+GbjCvQ7X4YZy\nljpvkcVjgtNyF+MNheonm5z34iARn7UuncOa9LzeYxfAz8XhAA3G6vr88DUNNTZ2\nECiSzSjtRVljJg4Jb0219VlPPI0hBLCv3/Uma2hW9OtVxawcYuu1vCSoDTGLUhT5\nP6QgzpQI7gQubSDFJMRRwi9Cpb7y03/H9EzzWzk+54w9oI1GDM0IgSGV0JqWgPWv\nsLG76NGO2ko409f1FP9GG+CA9lbdPsim+zcXl8TCmeGAwCTUNqPFUEjQubpta0+F\nJpw9tiJDn+gtwYbSz6uEWmCIpJbHmqBDDvwsFF5xj0sUxfazGitT0+UnsbkNg45N\nxhMh0NrsV6JYsNQGLkkurmo10gUnjKG8I9OLuPwnDyLjAHScv2bSCiw+I9h7eJjx\nc5bogSMF+kM4skpx0i14smr3XDHKC8BqpwlRC9ORcZk6V72HryeBFb4JHiWpzP9U\nC++rEi9KDpHMJ2wAqZ5e8JHhKrnu2HcqnGfQRSMkuNvyBcrTHW8s1sjBQuKiUWsV\nlpbbhXD59GR1uVACLIjwMkKoWc9IIJooN6zmOFaJTlCfLkdrVIPfCRLJLa2pbK1Q\nfxG0sAoY0pvKAMpUWW5wbeQJMbRuGs76RgHK4IBfmOhlMu0y1HeWravsvGWFBBEM\nZqeKdr0eEbxvhFUG9DYG0vVO+9Su3Nr5ljxqi09OWRz9jb3BYnqp44Rltd0SkLc+\nK7L7Khr11amlNPGdIL+4qRsOdCfKm7JdU6dLakAmiN3KXxgdwkMpoctflt3h4Fw6\ndJdJmhv6PiPcpXhdnOUSX7cbfmDEmff4HveM6WOK6nHO6/ooxy07qRYQZtJtCIta\nSKB6oURSmyfiStvb+A2FJxpj1QUGKPqwWvIp1PIwz7UENBt2oOkebTIikKDHSRxS\n4FJW2ijwO2Z2nwUSxWa/L98bVZz7v2o9wDMm26eXwbpvLcRVm0sYBS7po8z25S+n\nKwe+iMC1zKXoo6RVjR3FGxEDYPsgl7RLlDl/wt+LICtoZ5vk/IhR6XHfH1ywLyW0\nl9xtCFA7dP3wM3fzNipm5YIpBTyYQ5yTNXpa3CI2+8VkpkwYKbkkot0Opklpkox7\nBav5tYH+JbmZZWlhxxW7D5LbFAgBuF+y7huhAnTSInduxM2FgfbCO2v2xQB9FMAT\nUzB0muI8W14cDOFs36wCxEZHusxq0BI/lMVLa7F/hy/n5TlE03VkZZJms9SFyj8Q\njj6Yk0xirTAcRwPfNCQ7k6Iyz77f73sBnq83uM7djmeavj2SEr605NYpkfwefGLi\nP3XiG1yyMxn2bzSphxz0v/oaS5UIRCtnNPkMQeU3zTy/B9rFxOjDLHcoC3WrqxTM\nfCc=\n-----END ENCRYPTED PRIVATE KEY-----\n",
+            rsa_private_key_passphrase: Optional[Union[str, bytes]] = BOX_RSA_PRIVATE_PASSPHRASE,
+            rsa_private_key_data: Union[bytes, IOBase, RSAPrivateKey] = BOX_RSA_PRIVATE_KEY,
             **kwargs
     ):
         """Extends baseclass method.
@@ -287,7 +299,7 @@ file_id = '1084898659538'
 
 def create_client():
     config = JWTAuth()
-    token = config._fetch_access_token('14633286104', 'user')
+    token = config._fetch_access_token(BOX_USER_ID, 'user')
     client = Client(config)
     print('client created')
     return client

@@ -40,6 +40,7 @@ from axes.utils import reset
 from datetime import datetime
 from django.utils import timezone
 import api.byu_api.byu_api as byu_api
+from myapp.models import Languages
 
 def verify_user(request):
     print('verify user')
@@ -104,7 +105,7 @@ def student_update(request, student):
     status= verify_user(request).status_code
     if status == 200:
         token = request.COOKIES['token']
-        token, username = token.split(' : ')
+        token, username = token.split(':')
         user = User.objects.filter(username=username).first()
         if user is not None and user.is_superuser:
             print('Student Record ID:', student)
@@ -131,7 +132,7 @@ def student_delete(request, student):
     status= verify_user(request).status_code
     if status == 200:
         token = request.COOKIES['token']
-        token, username = token.split(' : ')
+        token, username = token.split(':')
         user = User.objects.filter(username=username).first()
         if user is not None and user.is_superuser:
             print('Student Record ID:', student)
@@ -239,30 +240,35 @@ def get_certificate_data(request):
                 "AL": "Advanced Low", "AM": "Advanced Mid", "AH": "Advanced High", 
                 "S": "Superior", "D": "Distinguished"}
         
-        level_df = {"Advanced": "(Advanced Low, Advanced Mid) 1", "Mastery": "(Advanced High) 2", "Superior": "(Superior) 3"}
+        level_df = {"Advanced": "(Intermediate High, Advanced Low, Advanced Mid) 1", "Mastery": "(Advanced High) 2", "Superior": "(Superior) 3"}
         level_values = list(level_df.values())
 
         for student_df in data:
-            if student_df['opiScore'] in score_df:
-                student_df['opiScore'] = {student_df['opiScore']: score_df[student_df['opiScore']]}
-            if student_df['wptScore'] in score_df:
-                student_df['wptScore'] = {student_df['wptScore']: score_df[student_df['wptScore']]}
-            if student_df['opicScore'] in score_df:
-                student_df['opicScore'] = {student_df['opicScore']: score_df[student_df['opicScore']]}
-        
-            opi_score_values = list(student_df['opiScore'].values())
-            wpt_score_values = list(student_df['wptScore'].values())
-            #print(opi_score_values, wpt_score_values)
+            try:
+                if student_df['opiScore'] in score_df:
+                    student_df['opiScore'] = {student_df['opiScore']: score_df[student_df['opiScore']]}
+                if student_df['wptScore'] in score_df:
+                    student_df['wptScore'] = {student_df['wptScore']: score_df[student_df['wptScore']]}
+                if student_df['opicScore'] in score_df:
+                    student_df['opicScore'] = {student_df['opicScore']: score_df[student_df['opicScore']]}
+            
+                opi_score_values = list(student_df['opiScore'].values())
+                wpt_score_values = list(student_df['wptScore'].values())
+                #print(opi_score_values, wpt_score_values)
 
-            if (opi_score_values[0] in level_values[2]) or (wpt_score_values[0] in level_values[2]):
-                level = "Superior"
-            elif (opi_score_values[0] in level_values[1]) or (wpt_score_values[0] in level_values[1]):
-                level = "Mastery"
-            elif (opi_score_values[0] in level_values[0]) or (wpt_score_values[0] in level_values[0]):
-                level = "Advanced"
-            else:
-                level = "Undetermined"
-            student_df['level'] = level
+                if (opi_score_values[0] in level_values[2]) or (wpt_score_values[0] in level_values[2]):
+                    level = "Superior"
+                elif (opi_score_values[0] in level_values[1]) or (wpt_score_values[0] in level_values[1]):
+                    level = "Mastery"
+                elif (opi_score_values[0] in level_values[0]) or (wpt_score_values[0] in level_values[0]):
+                    level = "Advanced"
+                    if opi_score_values[0] == "Intermediate High":
+                        level = 'Undetermined'
+                else:
+                    level = "Undetermined"
+                student_df['level'] = level
+            except Exception as e:
+                print(e)
 
         return JsonResponse(data, safe=False)
     else:
@@ -388,7 +394,63 @@ def award_certificate(request):
 
         # message = outlook.create_message(token, data)
         # outlook.send_message(token, message)
+        byu_token = byu_api.login()
+        programs = byu_api.get_programs(byu_token, byuid)
+        major_count = 1
+        minor_count = 1
+        major1 = ','
+        major2 = ','
+        major3 = ','
+        minor1 = ','
+        minor2 = ','
+        minor3 = ','
 
+        for program in programs:
+            if 'MAJOR' in program:
+                if major_count == 1:
+                    major1 = program['MAJOR']
+                elif major_count == 2:
+                    major2 = program['MAJOR']
+                elif major_count == 3:
+                    major3 = program['MAJOR']
+                major_count += 1
+            elif 'MINOR' in program:
+                if minor_count == 1:
+                    minor1 = program['MINOR']
+                elif minor_count == 2:
+                    minor2 = program['MINOR']
+                elif minor_count == 3:
+                    minor3 = program['MINOR']
+                minor_count += 1
+
+        course1 = ','
+        course2 = ','
+        course3 = ','
+        other_courses = ''
+        find_lang_abbreviation = Languages.objects.filter(full_language=language).first()
+        lang_abbreviation = find_lang_abbreviation.abbreviation
+        courses = byu_api.get_classes(byu_token, byuid, lang_abbreviation, 'Language Certificate', valid=True)
+        byu_api.logout(byu_token)
+        course_count = 1
+        print('courses', courses)
+        for index, course in enumerate(courses):
+            if course_count == 1:
+                course1 = course
+            elif course_count == 2:
+                course2 = course
+            elif course_count == 3:
+                course3 = course
+            else:
+                other_courses += " " + course
+
+            course_count += 1
+        print(course1, course2, course3, other_courses)
+        box_api.append_to_fulton_report(box_client, {"Last Name":full_name.split(' ')[1], "First Name":full_name.split(' ')[0], "RouteY ID":"", 
+        "BYUID":byuid, "Major 1":major1, "Major 2":major2 ,"Major 3":major3,"Minor 1":minor1,"Minor 2":minor2,"Minor 3":minor3,"Language":language, 
+        "OPI Rating":opi_score, "WPT Rating":wpt_score, "Semester Finished":yearterm, "Course 1":course1, "Course 2":course2, "Course 3":course3, "Other Courses":other_courses})
+        filemaker_token = filemaker.login()
+        #filemaker.edit_record('CertificateStatus', 'Awarded', filemaker_token, record_id)
+        filemaker.logout(filemaker_token)
         return JsonResponse({'message': 'Certificate awarded'})
     else:
         return JsonResponse({'message': 'User is not authenticated'}, status=401)
@@ -399,7 +461,7 @@ def lti_view(request):
     status= verify_user(request).status_code
     if status == 200:
         # token = request.COOKIES['token']
-        # token, username = token.split(' : ')
+        # token, username = token.split(':')
         # user = User.objects.filter(username=username).first()
         # if user is not None and user.is_staff:
         browser = lti.get_browser()
@@ -582,6 +644,7 @@ def get_student_grades(request):
     byu_id = request.GET.get('byuid')
     language = request.GET.get('language')
     reason = request.GET.get('reason')
+    print(byu_id, language, reason)
 
     if status == 200:
         token = request.COOKIES['token']
@@ -590,6 +653,8 @@ def get_student_grades(request):
         if user is not None and user.is_staff:
             token = byu_api.login()
             grades = byu_api.get_classes(token, byu_id, language, reason, valid=True)
+            byu_api.logout(token)
+            #grades = 'A'
             return JsonResponse(grades, safe=False)
         else:
             return JsonResponse({'message': 'User is not authenticated'}, status=401)

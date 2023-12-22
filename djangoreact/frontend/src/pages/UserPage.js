@@ -240,6 +240,43 @@ export default function UserPage() {
     const selectedUser = selected.indexOf(recordId) !== -1;
   
     const [isPopoverOpen, setPopoverOpen] = useState(false);
+
+    const handleFrontendUpdate = (updateDataFrontend) => {
+      // Use userData for updating data or pass it to the appropriate function
+      const FirstName = updateDataFrontend.FirstName;
+      const LastName = updateDataFrontend.LastName;
+      const Approved = updateDataFrontend.Approved;
+      const Reason = updateDataFrontend.Reason;
+      const Language = updateDataFrontend.Language;
+      const LanguageOther = updateDataFrontend.LanguageOther;
+      const TestDate1 = updateDataFrontend.TestDate1;
+      const Time1 = updateDataFrontend.Time1;
+      const Time2 = updateDataFrontend.Time2;
+      const TestDate2 = updateDataFrontend.TestDate2;
+      const Time3 = updateDataFrontend.Time3;
+      const Time4 = updateDataFrontend.Time4;
+      const TestScheduled = updateDataFrontend.TestScheduled;
+      const CertificateStatus = updateDataFrontend.CertificateStatus;
+      const ComeToCampus = updateDataFrontend.ComeToCampus;
+      const CannotCome = updateDataFrontend.CannotCome;
+      const Email = updateDataFrontend.Email;
+      const EmailSent = updateDataFrontend.EmailSent;
+      const LTISchedule = updateDataFrontend.LTISchedule;
+      const Phone = updateDataFrontend.Phone;
+      const Scores = updateDataFrontend.Scores;
+      const BYUID = updateDataFrontend.BYUID;
+      const NetID = updateDataFrontend.NetID;
+      const EntryDate = updateDataFrontend.EntryDate;
+      const EntryTime = updateDataFrontend.EntryTime;
+      const Major = updateDataFrontend.Major;
+      const SecondMajor = updateDataFrontend.SecondMajor;
+      const Minor = updateDataFrontend.Minor;
+      const PreviousExperience = updateDataFrontend.PreviousExperience;
+      console.log('second major:', SecondMajor)
+      console.log('updateDataFrontend:', updateDataFrontend)
+      // Your update logic here
+    };
+
     return (      
       <TableRow key={recordId} id={recordId} tabIndex={-1} hover role="checkbox" selected={selectedUser}>
         <TableCell padding="checkbox">
@@ -284,7 +321,8 @@ export default function UserPage() {
                 testdate1ID={'testdate1ID'} time1ID={'time1ID'} time2ID={'time2ID'} testdate2ID={'testdate2ID'} time3ID={'time3ID'} time4ID={'time4ID'} testscheduledID={'testscheduledID'}
                 certificatestatusID={'certificatestatusID'} cometocampusID={'cometocampusID'} cannotcomeID={'cannotcomeID'} emailID={'emailID'} emailsentID={'emailsentID'}
                 ltischeduleID={'ltischeduleID'} phoneID={'phoneID'} scoresID={'scoresID'} byuidID={'byuidID'} netidID={'netidID'} entrydateID={'entrydateID'} entrytimeID={'entrytimeID'}
-                majorID={'majorID'} secondmajorID={'secondmajorID'} minorID={'minorID'} previousexperienceID={'previousexperienceID'} recordId={recordId}
+                majorID={'majorID'} secondmajorID={'secondmajorID'} minorID={'minorID'} previousexperienceID={'previousexperienceID'} recordId={recordId} 
+                handleFrontendUpdate={handleFrontendUpdate}
                 />
                 <DeleteNotification recordId={recordId}/>
                 <MenuItem  style={{fontWeight: 'bold' }} onClick={() => setPopoverOpen(false)}>
@@ -390,8 +428,9 @@ export default function UserPage() {
                         </TableCell>
                     </TableRow>
 
-                    <TableRow>
-                        <TableCell>Certificate Status:</TableCell>
+                    <TableRow title="Possible Entries: 1) NA 2) Unqualified 3) Awarded">
+                        <TableCell>Certificate Status:
+                        </TableCell>
                         <TableCell>
                         <EditableCell id='certificatestatusID' initialValue={CertificateStatus}/>
                         </TableCell>

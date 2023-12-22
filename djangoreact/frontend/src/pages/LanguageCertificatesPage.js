@@ -1,5 +1,5 @@
 import { Helmet } from 'react-helmet-async';
-import { filter, set } from 'lodash';
+import { filter, get, set } from 'lodash';
 import { sentenceCase } from 'change-case';
 import { useEffect, useState } from 'react';
 import PulseLoader from "react-spinners/PulseLoader";
@@ -13,6 +13,7 @@ import {
   Table,
   Stack,
   Paper,
+  Select,
   Button,
   Popover,
   Checkbox,
@@ -85,14 +86,14 @@ function applySortFilter(studentdata, comparator, query) {
   if (query && /\d/.test(query)) {
     // If query is a number, perform numeric comparison
     return studentdata.filter((student) =>
-      (`${student.fieldData.BYUID} ${student.recordId}`).includes(query)
+      (`${student.byuid} ${student.recordId}`).includes(query)
     );
   }
   if (query) {
     console.log('query:', query, studentdata);
     // return array.filter((name) => name.toLowerCase().indexOf(query.toLowerCase()) !== -1);
     return studentdata.filter((student) =>
-      (`${student.fieldData.FirstName.toLowerCase()} ${student.fieldData.LastName.toLowerCase()} ${student.fieldData.Language.toLowerCase()}`).includes(query.toLowerCase())
+      (`${student.firstname.toLowerCase()} ${student.lastname.toLowerCase()}`).includes(query.toLowerCase())
     );
   }
   return stabilizedThis.map((el) => el[0]);
@@ -111,6 +112,7 @@ export default function UserPage() {
   const [isPopoverCustomOpen, setPopoverCustomOpen] = useState(false);
   const [byuidValue, setByuidValue] = useState('None');
   const [languageValue, setLanguageValue] = useState('None');
+  const [studentGrades, setStudentGrades] = useState('');
   const [fullnameValue, setfullnameValue] = useState('');
   const [netidValue, setnetidValue] = useState('');
 
@@ -131,6 +133,8 @@ export default function UserPage() {
 
   const verifyTokenUrl = process.env.REACT_APP_VERIFY_TOKEN_URL;
   const getCertificateDataUrl = process.env.REACT_APP_CERTIFICATE_DATA_URL;
+  const getGradesUrl = process.env.REACT_APP_GET_GRADES_URL;
+
 
   useEffect(() => {
     const getFormattedDate = () => {
@@ -195,6 +199,14 @@ export default function UserPage() {
 
   };
 
+  const closeFirstPopover = () => {
+    console.log(isPopoverOpen, isPopoverCustomOpen);
+    console.log('closeFirstPopover');
+    setPopoverOpen(false);
+    setPopoverCustomOpen(false);
+    console.log(isPopoverOpen, isPopoverCustomOpen);
+  };
+
 
   function UserTableRow({ user, handleCheckboxClick, handleOpenMenu }) {
     // console.log(user)
@@ -218,7 +230,32 @@ export default function UserPage() {
       } 
         return obj ? Object.values(obj)[0] : '';
     };
-
+    const getGrades = (byuID, Language, Reason) => {
+      const csrfToken = Cookies.get('csrftoken');
+      axios.get(getGradesUrl, {
+        params: {
+          byuid: byuID,
+          language: Language,
+          reason: Reason,
+        },
+        withCredentials: true,
+        headers: {
+          'X-CSRFToken': csrfToken,
+        },
+      })
+      .then((response) => {
+        const fetchedData = response.data;
+        console.log('fetchedData:', fetchedData);
+        const grades = fetchedData;
+        setStudentGrades(grades);
+        console.log('grades:', grades);
+        
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    };
+  
     return (      
       <TableRow key={recordId} id={recordId} tabIndex={-1} hover role="checkbox" selected={selectedUser}>
         <TableCell padding="checkbox">
@@ -240,7 +277,11 @@ export default function UserPage() {
         <TableCell align="left">{getNestedKey(opicScore)}</TableCell>
 
         <TableCell align="center">
-          <IconButton size="large" color="inherit" onClick={() => setPopoverOpen(true)}>
+          <IconButton size="large" color="inherit" onClick={() => setPopoverOpen(true)}
+          // onClick={(event) => {
+          //   setPopoverOpen(true); getGrades(byuid, Object.keys(language)[0], reason);
+          // }}
+          >
             <Iconify icon={'eva:more-vertical-fill'} />
           </IconButton>
           <Popover
@@ -267,10 +308,10 @@ export default function UserPage() {
               >
           <Container>
           <div style={{ display: 'flex', justifyContent: 'right', paddingBottom: '1vh' }}>
-                <AwardCertificate fullName={'fullnameID'} byuid={byuid} netid={'netID'} language={'languageID'} level={'levelID'} 
-                opiScore={'opiscoreID'} wptScore={'wptscoreID'} 
-                todaysDate={'todaysDateID'} recordId={recordId}
-                />
+                <AwardCertificate fullName={'fullnameID'} byuid={byuid} netid={'netID'} language={'languageID'} 
+                level={'levelID'} opiScore={'opiscoreID'} wptScore={'wptscoreID'} 
+                todaysDate={'todaysDateID'} recordId={recordId} closeFirstPopover={closeFirstPopover}/>
+                
                 <MenuItem  style={{fontWeight: 'bold' }} onClick={() => setPopoverOpen(false)}>
                   <Iconify icon={'eva:close-square-outline'} sx={{ ml: 2, mr: 2 }}/>
                 </MenuItem>
@@ -326,7 +367,12 @@ export default function UserPage() {
                         <EditableCell id='todaysDateID' initialValue={todaysDate} />
                         </TableCell>
                     </TableRow>
-                    
+
+                    <TableRow>
+                        <TableCell>Grades</TableCell>
+                        <TableCell>{studentGrades}</TableCell>
+                    </TableRow>
+
                     <TableRow>
                         <TableCell sx={{borderColor: "white !important"}}/>
                         <TableCell sx={{borderColor: "white !important"}}/>
@@ -355,6 +401,7 @@ export default function UserPage() {
           
     );
   }
+
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - userList.length) : 0;
 
   const filteredUsers = applySortFilter(studentdata, getComparator(order, orderBy), filterName);
@@ -485,9 +532,9 @@ export default function UserPage() {
             <div>
           <Container>
           <div style={{ display: 'flex', justifyContent: 'right', paddingBottom: '1vh' }}>
-                <AwardCertificate fullName={'fullnameID'} byuid={'byuID'} netid={'netID'} language={'languageID'} level={'levelID'} 
-                opiScore={'opiscoreID'} wptScore={'wptscoreID'} recordId={'0'}
-                todaysDate={'todaysDateID'}
+                <AwardCertificate fullName={'fullnameID'} byuid={'byuID'} netid={'netID'} language={'languageID'} 
+                 level={'levelID'} opiScore={'opiscoreID'} wptScore={'wptscoreID'} recordId={'0'}
+                todaysDate={'todaysDateID'} closeFirstPopover={closeFirstPopover}
                 />
                 <MenuItem  style={{fontWeight: 'bold' }} onClick={() => setPopoverCustomOpen(false)}>
                   <Iconify icon={'eva:close-square-outline'} sx={{ ml: 2, mr: 2 }}/>
@@ -528,21 +575,21 @@ export default function UserPage() {
                     <TableRow>
                         <TableCell>Level:</TableCell>
                         <TableCell>
-                        <EditableCell id='levelID'  />
+                        <EditableCell id='levelID'  initialValue='Advanced'/>
                         </TableCell>
                     </TableRow>
 
                     <TableRow>
                         <TableCell>OPI Score:</TableCell>
                         <TableCell>
-                        <EditableCell id='opiscoreID'  />
+                        <EditableCell id='opiscoreID' initialValue='Advanced Low'/>
                         </TableCell>
                     </TableRow>
 
                     <TableRow>
                         <TableCell>WPT Score:</TableCell>
                         <TableCell>
-                        <EditableCell id='wptscoreID'  />
+                        <EditableCell id='wptscoreID' initialValue='Advanced Low'/>
                         </TableCell>
                     </TableRow>
 
