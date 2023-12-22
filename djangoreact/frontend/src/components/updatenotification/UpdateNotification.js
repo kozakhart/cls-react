@@ -20,7 +20,7 @@ import Iconify from '../iconify';
 //    major, secondmajor, minor, previousexperience 
 export default function UpdateNotification({firstnameID, lastnameID, approvedID, reasonID, languageID, languageotherID, testdate1ID, time1ID, time2ID, testdate2ID, 
   time3ID, time4ID, testscheduledID, certificatestatusID, cometocampusID, cannotcomeID, emailID, emailsentID, ltischeduleID, phoneID, 
-  scoresID, byuidID, netidID, entrydateID, entrytimeID, majorID, secondmajorID, minorID, previousexperienceID, recordId}) {
+  scoresID, byuidID, netidID, entrydateID, entrytimeID, majorID, secondmajorID, minorID, previousexperienceID, recordId, handleFrontendUpdate}) {
   const [isConfirmationOpen, setConfirmationOpen] = useState(false);
   const [firstNameValue, setFirstNameValue] = useState('');
   const [lastNameValue, setLastNameValue] = useState('');
@@ -52,6 +52,7 @@ export default function UpdateNotification({firstnameID, lastnameID, approvedID,
   const [minorValue, setMinorValue] = useState('');
   const [previousexperienceValue, setPreviousExperienceValue] = useState('');
   const [updateData, setUpdateData] = useState(false);
+  const [updateDataFrontend, setUpdateDataFrontend] = useState({});
 
   const updateRecordUrl = `${process.env.REACT_APP_UPDATE_RECORD_URL}${recordId}/`;
   const handleCheckData = () => {
@@ -169,6 +170,13 @@ export default function UpdateNotification({firstnameID, lastnameID, approvedID,
     setSecondMajorValue(secondmajorValue);
     setMinorValue(minorValue);
     setPreviousExperienceValue(previousexperienceValue);
+    setUpdateDataFrontend({FirstName: firstNameValue, LastName: lastNameValue, Approved: approvedValue, Reason: reasonValue, 
+      Language: languageValue, LanguageOther: languageotherValue, TestDate1: testdate1Value, Time1: time1Value, Time2: time2Value, 
+      TestDate2: testdate2Value, Time3: time3Value, Time4: time4Value, TestScheduled: testscheduledValue, CertificateStatus: certificatestatusValue, 
+      ComeToCampus: cometocampusValue, CannotCome: cannotcomeValue, Email: emailValue, EmailSent: emailsentValue, LTISchedule: ltischeduleValue, 
+      Phone: phoneValue, Scores: scoresValue, BYUID: byuidValue, NetID: netidValue, EntryDate: entrydateValue, EntryTime: entrytimeValue, Major: majorValue, 
+      SecondMajor: secondmajorValue, Minor: minorValue, PreviousExperience: previousexperienceValue});
+
   };
   const navigate = useNavigate();
 
@@ -217,6 +225,7 @@ export default function UpdateNotification({firstnameID, lastnameID, approvedID,
     })
       .then((response) => {
         console.log('Data updated successfully:', response);
+          console.log('Data updated successfully:', updateDataFrontend, 'test');
         setConfirmationOpen(false);
         navigate('/cls/dashboard/user', { replace: true });
       })
@@ -252,6 +261,8 @@ export default function UpdateNotification({firstnameID, lastnameID, approvedID,
               time3ID, time4ID, testscheduledID, certificatestatusID, cometocampusID, cannotcomeID, emailID, emailsentID, ltischeduleID, phoneID,
               scoresID, byuidID, netidID, entrydateID, entrytimeID, majorID, secondmajorID, minorID, previousexperienceID);
             handleUpdateData();
+            handleFrontendUpdate(updateDataFrontend);
+          
           }} color="primary"> Yes
           </Button>
           <Button onClick={handleConfirmationClose} color="primary">

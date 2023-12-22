@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import { useNavigate } from 'react-router-dom';
+import PulseLoader from "react-spinners/PulseLoader";
+
 import {
   Container,
   MenuItem,
@@ -12,9 +13,10 @@ import {
   Button,
 } from '@mui/material';
 import { set } from 'lodash';
+import { useNavigate } from 'react-router-dom';
 import Iconify from '../iconify';
 
-export default function UpdateNotification({ fullName, byuid, netid, language, level, opiScore, wptScore, todaysDate, recordId} ) {
+export default function UpdateNotification({ fullName, byuid, netid, language, level, opiScore, wptScore, todaysDate, recordId, closeFirstPopover} ) {
   const [isConfirmationOpen, setConfirmationOpen] = useState(false);
   const [fullNameValue, setFullName] = useState('');
   const [byuidValue, setBYUIDValue] = useState(byuid);
@@ -25,15 +27,17 @@ export default function UpdateNotification({ fullName, byuid, netid, language, l
   const [wptScoreValue, setWptScore] = useState('');
   const [todaysDateValue, setTodaysDate] = useState('');
   const [recordIdValue, setrecordId] = useState(recordId);
+  const [loading, setLoading] = useState(false);
 
   const [updateData, setUpdateData] = useState(false);
 
-
+  const navigate = useNavigate();
   const verifyTokenUrl = process.env.REACT_APP_VERIFY_TOKEN_URL;
   const awardCertificateUrl = process.env.REACT_APP_AWARD_CERTIFICATE_URL;
 
   const handleCheckData = () => {
     // Set the flag to update data
+    setLoading(true);
     setUpdateData(true);
     setConfirmationOpen(true);
   };
@@ -68,7 +72,7 @@ export default function UpdateNotification({ fullName, byuid, netid, language, l
     catch{
       console.log("No BYUID");
     }
-    
+
     const languageValue = languageElement.value;
     const levelValue = levelElement.value;
     const opiScoreValue = opiScoreElement.value;
@@ -124,6 +128,8 @@ export default function UpdateNotification({ fullName, byuid, netid, language, l
           );
           // Handle the awardCertificateResponse as needed
           console.log(awardCertificateResponse.data);
+          setLoading(false);
+          navigate('/cls/dashboard/language-certificates', { replace: true });
         } catch (error) {
           console.error('Error in awarding certificate:', error);
         }
@@ -143,8 +149,18 @@ export default function UpdateNotification({ fullName, byuid, netid, language, l
           handleGetAllData(netid);
         }}
         style={{fontWeight: 'bold' }}>
+          {loading && (
+          <PulseLoader
+            loading={loading}
+            size={5}
+            aria-label="Loading Spinner"
+            data-testid="loader"
+            sx={{ height: 'inherit' }}
+          />
+        )}
         <Iconify icon={'eva:email-outline'} sx={{ mr: 2 }}/>
           Award Certificate
+
         </MenuItem>
       </div>
 
@@ -158,6 +174,7 @@ export default function UpdateNotification({ fullName, byuid, netid, language, l
             handleGetAllData(fullName, byuid, netid, language, level, opiScore, wptScore, todaysDate, recordId);
             handleAwardCertificate();
             handleConfirmationClose();
+            closeFirstPopover();
           }} color="primary"> Yes
           </Button>
           <Button onClick={handleConfirmationClose} color="primary">

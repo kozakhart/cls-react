@@ -149,3 +149,20 @@ def delete_record(record_id, token):
     print(record_response)
     return record_response
     
+def edit_record(field_name, data, token, record_id):
+    url = f'https://clsfilemaker.byu.edu/fmi/data/vLatest/databases/opi/layouts/opi/records/{record_id}'
+    print(url)
+    headers= CaseInsensitiveDict()
+    headers["Content-Type"] = "application/json"
+    headers["Authorization"] = f"Bearer {token}"
+    data=f"""
+    {{ 
+        "fieldData": 
+      {{"{field_name}": "{data}"}}
+    }}
+    """
+    record_response = requests.patch(url, headers=headers, data=data)
+    print(record_id)
+    print(record_response.status_code)
+
+    print('Record edited')
