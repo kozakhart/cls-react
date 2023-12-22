@@ -7,8 +7,5 @@ db.sqlite3
 
 __pycache__/
 venv/
-djangoreact/WPT Test (no grid).xlsx
-djangoreact/OPIc Test.xlsx
-djangoreact/OPI Test.xlsx
 djangoreact\api\byu_api\byu_token.json
 djangoreact\myapp\byu_api\byu_token.json
