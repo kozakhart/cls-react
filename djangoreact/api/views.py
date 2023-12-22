@@ -320,16 +320,16 @@ def award_certificate(request):
             "toRecipients":[
                 {
                     "emailAddress":{
-                        "address": 'phart4' + "@byu.edu"
+                        "address": netid + "@byu.edu"
                     }
                 }
             ]
         }
         # "address": netid + "@byu.edu"
 
-        # token = outlook.get_token()
-        # message = outlook.create_message(token, data)
-        # outlook.send_message(token, message)
+        token = outlook.get_token()
+        message = outlook.create_message(token, data)
+        outlook.send_message(token, message)
 
         current_date= datetime.now()
         month = datetime.now().strftime("%B")
@@ -385,15 +385,15 @@ def award_certificate(request):
             "toRecipients":[
                 {
                     "emailAddress":{
-                        "address": "phart4@byu.edu"
+                        "address": "graduation@byu.edu"
                     }
                 }
             ]
         }
         #"address": "graduation@byu.edu"
 
-        # message = outlook.create_message(token, data)
-        # outlook.send_message(token, message)
+        message = outlook.create_message(token, data)
+        outlook.send_message(token, message)
         byu_token = byu_api.login()
         programs = byu_api.get_programs(byu_token, byuid)
         major_count = 1
@@ -449,7 +449,7 @@ def award_certificate(request):
         "BYUID":byuid, "Major 1":major1, "Major 2":major2 ,"Major 3":major3,"Minor 1":minor1,"Minor 2":minor2,"Minor 3":minor3,"Language":language, 
         "OPI Rating":opi_score, "WPT Rating":wpt_score, "Semester Finished":yearterm, "Course 1":course1, "Course 2":course2, "Course 3":course3, "Other Courses":other_courses})
         filemaker_token = filemaker.login()
-        #filemaker.edit_record('CertificateStatus', 'Awarded', filemaker_token, record_id)
+        filemaker.edit_record('CertificateStatus', 'Awarded', filemaker_token, record_id)
         filemaker.logout(filemaker_token)
         return JsonResponse({'message': 'Certificate awarded'})
     else:
