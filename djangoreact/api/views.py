@@ -43,13 +43,13 @@ import api.byu_api.byu_api as byu_api
 from myapp.models import Languages
 
 def verify_user(request):
-    print('verify user')
-    print(request.COOKIES)
+    # print('verify user')
+    # print(request.COOKIES)
     try:
         token = request.COOKIES['token']  # Get the token from the cookie
         token, username = token.split(':')
 
-        print('token:', token)
+        # print('token:', token)
     except:
         return HttpResponse('Token is not provided', status=status.HTTP_401_UNAUTHORIZED)
     if token is None:
@@ -112,14 +112,25 @@ def student_update(request, student):
             print(request.data)
         
             token = filemaker.login()
-            filemaker.edit_all_fields(scores=request.data['Scores'], testscheduled=request.data['TestScheduled'], agree=request.data['Approved'], entrydate=request.data['EntryDate'], entrytime=request.data['EntryTime'],
-            firstname=request.data['FirstName'], lastname=request.data['LastName'], byuid=request.data['BYUID'], netid=request.data['NetID'], email=request.data['Email'], 
-            reason=request.data['Reason'], language=request.data['Language'], languageother=request.data['LanguageOther'],
-            previousexperience=request.data['PreviousExperience'],major=request.data['Major'],secondmajor=request.data['SecondMajor'],minor=request.data['Minor'],
-            cometocampus=request.data['ComeToCampus'],cannotcome=request.data['CannotCome'],testdate1=request.data['TestDate1'],testdate2=request.data['TestDate2'],time1=request.data['Time1'],time2=request.data['Time2']
-            ,time3=request.data['Time3'],time4=request.data['Time4'], CertificateStatus=request.data['CertificateStatus'],phone=request.data['Phone'],emailsent=request.data['EmailSent'], lti_schedule=request.data['LTISchedule'], 
-            token=token, record_id=request.data['RecordID']
-            )
+            if student == '0':
+                # creates new record
+                filemaker.create_record(scores=request.data['Scores'], testscheduled=request.data['TestScheduled'], approved=request.data['Approved'], entry_date=request.data['EntryDate'], entry_time=request.data['EntryTime'],
+                firstname=request.data['FirstName'], lastname=request.data['LastName'], byuid=request.data['BYUID'], netid=request.data['NetID'], email=request.data['Email'],
+                reason=request.data['Reason'], language=request.data['Language'], language_other=request.data['LanguageOther'],
+                experience=request.data['PreviousExperience'],major=request.data['Major'],second_major=request.data['SecondMajor'],minor=request.data['Minor'],
+                come_to_campus=request.data['ComeToCampus'],cannot_come=request.data['CannotCome'],testdate1=request.data['TestDate1'],testdate2=request.data['TestDate2'],time1=request.data['Time1'],time2=request.data['Time2']
+                ,time3=request.data['Time3'],time4=request.data['Time4'], CertificateStatus=request.data['CertificateStatus'],phone=request.data['Phone'],email_sent=request.data['EmailSent'], lti_schedule=request.data['LTISchedule'],
+                token=token
+                )
+            else:
+                filemaker.edit_all_fields(scores=request.data['Scores'], testscheduled=request.data['TestScheduled'], agree=request.data['Approved'], entrydate=request.data['EntryDate'], entrytime=request.data['EntryTime'],
+                firstname=request.data['FirstName'], lastname=request.data['LastName'], byuid=request.data['BYUID'], netid=request.data['NetID'], email=request.data['Email'], 
+                reason=request.data['Reason'], language=request.data['Language'], languageother=request.data['LanguageOther'],
+                previousexperience=request.data['PreviousExperience'],major=request.data['Major'],secondmajor=request.data['SecondMajor'],minor=request.data['Minor'],
+                cometocampus=request.data['ComeToCampus'],cannotcome=request.data['CannotCome'],testdate1=request.data['TestDate1'],testdate2=request.data['TestDate2'],time1=request.data['Time1'],time2=request.data['Time2']
+                ,time3=request.data['Time3'],time4=request.data['Time4'], CertificateStatus=request.data['CertificateStatus'],phone=request.data['Phone'],emailsent=request.data['EmailSent'], lti_schedule=request.data['LTISchedule'], 
+                token=token, record_id=request.data['RecordID']
+                )
             filemaker.logout(token)
             return Response(f'Student Record ID updated: {student}')
         else:
@@ -320,16 +331,16 @@ def award_certificate(request):
             "toRecipients":[
                 {
                     "emailAddress":{
-                        "address": netid + "@byu.edu"
+                        "address": 'phart4' + "@byu.edu"
                     }
                 }
             ]
         }
         # "address": netid + "@byu.edu"
 
-        token = outlook.get_token()
-        message = outlook.create_message(token, data)
-        outlook.send_message(token, message)
+        # token = outlook.get_token()
+        # message = outlook.create_message(token, data)
+        # outlook.send_message(token, message)
 
         current_date= datetime.now()
         month = datetime.now().strftime("%B")
@@ -385,15 +396,15 @@ def award_certificate(request):
             "toRecipients":[
                 {
                     "emailAddress":{
-                        "address": "graduation@byu.edu"
+                        "address": "phart4@byu.edu"
                     }
                 }
             ]
         }
         #"address": "graduation@byu.edu"
 
-        message = outlook.create_message(token, data)
-        outlook.send_message(token, message)
+        # message = outlook.create_message(token, data)
+        # outlook.send_message(token, message)
         byu_token = byu_api.login()
         programs = byu_api.get_programs(byu_token, byuid)
         major_count = 1
@@ -449,7 +460,7 @@ def award_certificate(request):
         "BYUID":byuid, "Major 1":major1, "Major 2":major2 ,"Major 3":major3,"Minor 1":minor1,"Minor 2":minor2,"Minor 3":minor3,"Language":language, 
         "OPI Rating":opi_score, "WPT Rating":wpt_score, "Semester Finished":yearterm, "Course 1":course1, "Course 2":course2, "Course 3":course3, "Other Courses":other_courses})
         filemaker_token = filemaker.login()
-        filemaker.edit_record('CertificateStatus', 'Awarded', filemaker_token, record_id)
+        #filemaker.edit_record('CertificateStatus', 'Awarded', filemaker_token, record_id)
         filemaker.logout(filemaker_token)
         return JsonResponse({'message': 'Certificate awarded'})
     else:
@@ -610,8 +621,7 @@ def login_knox(request):
         except Exception as e:
             print(e)
             return HttpResponse('Token authentication error', status=status.HTTP_401_UNAUTHORIZED)
-
-    
+ 
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication])
 def verify_token_knox(request):
@@ -661,3 +671,23 @@ def get_student_grades(request):
     else:
         return JsonResponse({'message': 'User is not authenticated'}, status=401)
 
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+def edit_record(request):
+    recordids = request.data.get('recordids')
+    status= verify_user(request).status_code
+    if status == 200:
+        token = request.COOKIES['token']
+        token, username = token.split(':')
+        user = User.objects.filter(username=username).first()
+        if user is not None and user.is_staff:
+            token = filemaker.login()
+            for record in recordids:
+                #print(record)
+                filemaker.edit_record('Approved', 'Yes', token, record)
+            filemaker.logout(token)
+            return JsonResponse({'message': 'Record updated'}, status=200)
+        else:
+            return JsonResponse({'message': 'User is not authenticated'}, status=401)
+    else:
+        return JsonResponse({'message': 'User is not authenticated'}, status=401)
