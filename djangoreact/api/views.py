@@ -288,181 +288,363 @@ def get_certificate_data(request):
 @api_view(['POST'])
 def award_certificate(request):
     status= verify_user(request).status_code
+    print(request.data)
     if status == 200:
-        print(request.data)
         #{'dataToSend': {'NetID': 'phart4'}}
-        full_name = request.data['dataToSend']['FullName']
-        byuid = request.data['dataToSend']['BYUID']
-        netid = request.data['dataToSend']['NetID']
-        language = request.data['dataToSend']['Language']
-        level = request.data['dataToSend']['Level']
-        opi_score = request.data['dataToSend']['OPIScore']
-        wpt_score = request.data['dataToSend']['WPTScore']
-        formatted_date = request.data['dataToSend']['TodaysDate']
-        record_id = request.data['dataToSend']['RecordID']
+        if request.data['type'] == 'award_all':
+            box_client = box_api.create_client()
+            filemaker_token = filemaker.login()
+            byu_token = byu_api.login()
+            token = outlook.get_token()
 
-        box_client = box_api.create_client()
-        file_id = box_api.create_pdf_cert(box_client, record_id, full_name, language.upper(), level.upper(), opi_score, wpt_score, formatted_date)
-        shareable_link = box_api.generate_shareable_link(box_client, file_id)
+            current_date = datetime.now()       
+            month = datetime.now().strftime("%B")
+            month_num =current_date.month
+            year = datetime.now().strftime("%Y")  
 
-        data = {
-            "subject": f'Language Certificate for {full_name}',
-            "importance":"High",
-            "body":{
-                "contentType":"HTML",
-                "content":"""
-                <BODY><p style="color:black;font-weight:normal;">{full_name},<br><br>
-                
-                Congratulations on earning your language certificate! Please see the attached certificate.<br><br>
-
-                <a href="{shareable_link}">{shareable_link}</a><br><br>
-                
-                Best,<br><br>
-
-                Center for Language Studies<br> 
-                cls.byu.edu<br> 
-                </p></BODY></HTML>
-                """.format(
-                full_name=full_name,
-                shareable_link=shareable_link,
-                )
-                },
-                        
-            "toRecipients":[
-                {
-                    "emailAddress":{
-                        "address": 'phart4' + "@byu.edu"
-                    }
-                }
-            ]
-        }
-        # "address": netid + "@byu.edu"
-
-        # token = outlook.get_token()
-        # message = outlook.create_message(token, data)
-        # outlook.send_message(token, message)
-
-        current_date= datetime.now()
-        month = datetime.now().strftime("%B")
-        month_num =current_date.month
-        year = datetime.now().strftime("%Y")
-
-        if month_num >= 1 and month_num <= 4:
-            yearterm = '1'
-        elif month_num >= 5 and month_num <= 6:
-            yearterm = '3'
-        elif month_num >= 7 and month_num <= 8:
-            yearterm = '4'
-        elif month_num >= 9 and month_num <= 12:
-            yearterm = '5'
-        else:
-            yearterm = '0'
-        yearterm = year + yearterm
-        data = {
-            "subject": f'Language Certificate for {full_name}',
-            "importance":"High",
-            "body":{
-                "contentType":"HTML",
-                "content":"""
-                <BODY><p style="color:black;font-weight:normal;">BYU Enrollment Services,<br><br>
-                
-                {full_name} has earned their BYU Language Certificate and requires a notation on their transcript. Thank you for your assistance.<br><br>
-
-                Name: {full_name}<br>
-                BYUID: {byuid}<br>
-                Language: {language}<br>
-                Level: {level}<br>
-                Month: {month}<br>
-                Year: {year}<br>
-                Yearterm: {yearterm}<br><br>
-                
-                Best,<br><br>
-
-                Mariah Nix<br>
-                Language Assessment Coordinator<br>
-                Center for Language Studies<br> 
-                cls.byu.edu<br> 
-                </p></BODY></HTML>
-                """.format(
-                        full_name=full_name,
-                        language=language,
-                        level=level,
-                        byuid=byuid,
-                        month=month,
-                        year=year,
-                        yearterm=yearterm,
-                    )
-                        },
-            "toRecipients":[
-                {
-                    "emailAddress":{
-                        "address": "phart4@byu.edu"
-                    }
-                }
-            ]
-        }
-        #"address": "graduation@byu.edu"
-
-        # message = outlook.create_message(token, data)
-        # outlook.send_message(token, message)
-        byu_token = byu_api.login()
-        programs = byu_api.get_programs(byu_token, byuid)
-        major_count = 1
-        minor_count = 1
-        major1 = ','
-        major2 = ','
-        major3 = ','
-        minor1 = ','
-        minor2 = ','
-        minor3 = ','
-
-        for program in programs:
-            if 'MAJOR' in program:
-                if major_count == 1:
-                    major1 = program['MAJOR']
-                elif major_count == 2:
-                    major2 = program['MAJOR']
-                elif major_count == 3:
-                    major3 = program['MAJOR']
-                major_count += 1
-            elif 'MINOR' in program:
-                if minor_count == 1:
-                    minor1 = program['MINOR']
-                elif minor_count == 2:
-                    minor2 = program['MINOR']
-                elif minor_count == 3:
-                    minor3 = program['MINOR']
-                minor_count += 1
-
-        course1 = ','
-        course2 = ','
-        course3 = ','
-        other_courses = ''
-        find_lang_abbreviation = Languages.objects.filter(full_language=language).first()
-        lang_abbreviation = find_lang_abbreviation.abbreviation
-        courses = byu_api.get_classes(byu_token, byuid, lang_abbreviation, 'Language Certificate', valid=True)
-        byu_api.logout(byu_token)
-        course_count = 1
-        print('courses', courses)
-        for index, course in enumerate(courses):
-            if course_count == 1:
-                course1 = course
-            elif course_count == 2:
-                course2 = course
-            elif course_count == 3:
-                course3 = course
+            if month_num >= 1 and month_num <= 4:
+                yearterm = '1'
+            elif month_num >= 5 and month_num <= 6:
+                yearterm = '3'
+            elif month_num >= 7 and month_num <= 8:
+                yearterm = '4'
+            elif month_num >= 9 and month_num <= 12:
+                yearterm = '5'
             else:
-                other_courses += " " + course
+                yearterm = '0'
+            yearterm = year + yearterm       
+            
+            filtered_students = [student for student in request.data['students'] if student['recordId'] in request.data['recordids']]
 
-            course_count += 1
-        print(course1, course2, course3, other_courses)
-        box_api.append_to_fulton_report(box_client, {"Last Name":full_name.split(' ')[1], "First Name":full_name.split(' ')[0], "RouteY ID":"", 
-        "BYUID":byuid, "Major 1":major1, "Major 2":major2 ,"Major 3":major3,"Minor 1":minor1,"Minor 2":minor2,"Minor 3":minor3,"Language":language, 
-        "OPI Rating":opi_score, "WPT Rating":wpt_score, "Semester Finished":yearterm, "Course 1":course1, "Course 2":course2, "Course 3":course3, "Other Courses":other_courses})
-        filemaker_token = filemaker.login()
-        #filemaker.edit_record('CertificateStatus', 'Awarded', filemaker_token, record_id)
-        filemaker.logout(filemaker_token)
-        return JsonResponse({'message': 'Certificate awarded'})
+            for student in filtered_students:
+                full_name = student['firstname'] + ' ' + student['lastname']
+                byuid = student['byuid']
+                netid = student['netid']
+                language = student['language'].values()
+                language = list(language)[0]
+                level = student['level']
+                opi_score = student['opiScore'].values()
+                opi_score = list(opi_score)[0]
+                wpt_score = student['wptScore'].values()
+                wpt_score = list(wpt_score)[0]
+                record_id = student['recordId']
+                formatted_date = current_date.strftime("%m/%d/%Y")
+
+                file_id = box_api.create_pdf_cert(box_client, record_id, full_name, language.upper(), level.upper(), opi_score, wpt_score, formatted_date)
+                shareable_link = box_api.generate_shareable_link(box_client, file_id)
+                data = {
+                "subject": f'Language Certificate for {full_name}',
+                "importance":"High",
+                "body":{
+                    "contentType":"HTML",
+                    "content":"""
+                    <BODY><p style="color:black;font-weight:normal;">{full_name},<br><br>
+                    
+                    Congratulations on earning your language certificate! Please see the attached certificate.<br><br>
+
+                    <a href="{shareable_link}">{shareable_link}</a><br><br>
+                    
+                    Best,<br><br>
+
+                    Center for Language Studies<br> 
+                    cls.byu.edu<br> 
+                    </p></BODY></HTML>
+                    """.format(
+                    full_name=full_name,
+                    shareable_link=shareable_link,
+                    )
+                    },
+                            
+                "toRecipients":[
+                    {
+                        "emailAddress":{
+                            "address": netid + "@byu.edu"
+                        }
+                    }
+                ]
+            }
+                # "address": netid + "@byu.edu"
+
+                
+                message = outlook.create_message(token, data)
+                outlook.send_message(token, message)
+
+                data = {
+                    "subject": f'Language Certificate for {full_name}',
+                    "importance":"High",
+                    "body":{
+                        "contentType":"HTML",
+                        "content":"""
+                        <BODY><p style="color:black;font-weight:normal;">BYU Enrollment Services,<br><br>
+                        
+                        {full_name} has earned their BYU Language Certificate and requires a notation on their transcript. Thank you for your assistance.<br><br>
+
+                        Name: {full_name}<br>
+                        BYUID: {byuid}<br>
+                        Language: {language}<br>
+                        Level: {level}<br>
+                        Month: {month}<br>
+                        Year: {year}<br>
+                        Yearterm: {yearterm}<br><br>
+                        
+                        Best,<br><br>
+
+                        Mariah Nix<br>
+                        Language Assessment Coordinator<br>
+                        Center for Language Studies<br> 
+                        cls.byu.edu<br> 
+                        </p></BODY></HTML>
+                        """.format(
+                                full_name=full_name,
+                                language=language,
+                                level=level,
+                                byuid=byuid,
+                                month=month,
+                                year=year,
+                                yearterm=yearterm,
+                            )
+                                },
+                    "toRecipients":[
+                        {
+                            "emailAddress":{
+                                "address": "graduation@byu.edu"
+                            }
+                        }
+                    ]
+                }
+                #"address": "graduation@byu.edu"
+
+                message = outlook.create_message(token, data)
+                outlook.send_message(token, message)
+                programs = byu_api.get_programs(byu_token, byuid)
+                major_count = 1
+                minor_count = 1
+                major1 = ','
+                major2 = ','
+                major3 = ','
+                minor1 = ','
+                minor2 = ','
+                minor3 = ','
+
+                for program in programs:
+                    if 'MAJOR' in program:
+                        if major_count == 1:
+                            major1 = program['MAJOR']
+                        elif major_count == 2:
+                            major2 = program['MAJOR']
+                        elif major_count == 3:
+                            major3 = program['MAJOR']
+                        major_count += 1
+                    elif 'MINOR' in program:
+                        if minor_count == 1:
+                            minor1 = program['MINOR']
+                        elif minor_count == 2:
+                            minor2 = program['MINOR']
+                        elif minor_count == 3:
+                            minor3 = program['MINOR']
+                        minor_count += 1
+
+                course1 = ','
+                course2 = ','
+                course3 = ','
+                other_courses = ''
+                find_lang_abbreviation = Languages.objects.filter(full_language=language).first()
+                lang_abbreviation = find_lang_abbreviation.abbreviation
+                courses = byu_api.get_classes(byu_token, byuid, lang_abbreviation, 'Language Certificate', valid=True)
+                course_count = 1
+                print('courses', courses)
+                for index, course in enumerate(courses):
+                    if course_count == 1:
+                        course1 = course
+                    elif course_count == 2:
+                        course2 = course
+                    elif course_count == 3:
+                        course3 = course
+                    else:
+                        other_courses += " " + course
+
+                    course_count += 1
+                print(course1, course2, course3, other_courses)
+                box_api.append_to_fulton_report(box_client, {"Last Name":full_name.split(' ')[1], "First Name":full_name.split(' ')[0], "RouteY ID":"", 
+                "BYUID":byuid, "Major 1":major1, "Major 2":major2 ,"Major 3":major3,"Minor 1":minor1,"Minor 2":minor2,"Minor 3":minor3,"Language":language, 
+                "OPI Rating":opi_score, "WPT Rating":wpt_score, "Semester Finished":yearterm, "Course 1":course1, "Course 2":course2, "Course 3":course3, "Other Courses":other_courses})
+                filemaker.edit_record('CertificateStatus', 'Awarded', filemaker_token, record_id)
+            filemaker.logout(filemaker_token)
+            byu_api.logout(byu_token)
+            return JsonResponse({'message': 'All certificates awarded'})
+        else: 
+            full_name = request.data['dataToSend']['FullName']
+            byuid = request.data['dataToSend']['BYUID']
+            netid = request.data['dataToSend']['NetID']
+            language = request.data['dataToSend']['Language']
+            level = request.data['dataToSend']['Level']
+            opi_score = request.data['dataToSend']['OPIScore']
+            wpt_score = request.data['dataToSend']['WPTScore']
+            formatted_date = request.data['dataToSend']['TodaysDate']
+            record_id = request.data['dataToSend']['RecordID']
+
+            box_client = box_api.create_client()
+            file_id = box_api.create_pdf_cert(box_client, record_id, full_name, language.upper(), level.upper(), opi_score, wpt_score, formatted_date)
+            shareable_link = box_api.generate_shareable_link(box_client, file_id)
+
+            data = {
+                "subject": f'Language Certificate for {full_name}',
+                "importance":"High",
+                "body":{
+                    "contentType":"HTML",
+                    "content":"""
+                    <BODY><p style="color:black;font-weight:normal;">{full_name},<br><br>
+                    
+                    Congratulations on earning your language certificate! Please see the attached certificate.<br><br>
+
+                    <a href="{shareable_link}">{shareable_link}</a><br><br>
+                    
+                    Best,<br><br>
+
+                    Center for Language Studies<br> 
+                    cls.byu.edu<br> 
+                    </p></BODY></HTML>
+                    """.format(
+                    full_name=full_name,
+                    shareable_link=shareable_link,
+                    )
+                    },
+                            
+                "toRecipients":[
+                    {
+                        "emailAddress":{
+                            "address": netid + "@byu.edu"
+                        }
+                    }
+                ]
+            }
+            # "address": netid + "@byu.edu"
+
+            token = outlook.get_token()
+            message = outlook.create_message(token, data)
+            outlook.send_message(token, message)
+
+            current_date= datetime.now()
+            month = datetime.now().strftime("%B")
+            month_num =current_date.month
+            year = datetime.now().strftime("%Y")
+
+            if month_num >= 1 and month_num <= 4:
+                yearterm = '1'
+            elif month_num >= 5 and month_num <= 6:
+                yearterm = '3'
+            elif month_num >= 7 and month_num <= 8:
+                yearterm = '4'
+            elif month_num >= 9 and month_num <= 12:
+                yearterm = '5'
+            else:
+                yearterm = '0'
+            yearterm = year + yearterm
+            data = {
+                "subject": f'Language Certificate for {full_name}',
+                "importance":"High",
+                "body":{
+                    "contentType":"HTML",
+                    "content":"""
+                    <BODY><p style="color:black;font-weight:normal;">BYU Enrollment Services,<br><br>
+                    
+                    {full_name} has earned their BYU Language Certificate and requires a notation on their transcript. Thank you for your assistance.<br><br>
+
+                    Name: {full_name}<br>
+                    BYUID: {byuid}<br>
+                    Language: {language}<br>
+                    Level: {level}<br>
+                    Month: {month}<br>
+                    Year: {year}<br>
+                    Yearterm: {yearterm}<br><br>
+                    
+                    Best,<br><br>
+
+                    Mariah Nix<br>
+                    Language Assessment Coordinator<br>
+                    Center for Language Studies<br> 
+                    cls.byu.edu<br> 
+                    </p></BODY></HTML>
+                    """.format(
+                            full_name=full_name,
+                            language=language,
+                            level=level,
+                            byuid=byuid,
+                            month=month,
+                            year=year,
+                            yearterm=yearterm,
+                        )
+                            },
+                "toRecipients":[
+                    {
+                        "emailAddress":{
+                            "address": "graduation@byu.edu"
+                        }
+                    }
+                ]
+            }
+            #"address": "graduation@byu.edu"
+
+            message = outlook.create_message(token, data)
+            outlook.send_message(token, message)
+            byu_token = byu_api.login()
+            programs = byu_api.get_programs(byu_token, byuid)
+            major_count = 1
+            minor_count = 1
+            major1 = ','
+            major2 = ','
+            major3 = ','
+            minor1 = ','
+            minor2 = ','
+            minor3 = ','
+
+            for program in programs:
+                if 'MAJOR' in program:
+                    if major_count == 1:
+                        major1 = program['MAJOR']
+                    elif major_count == 2:
+                        major2 = program['MAJOR']
+                    elif major_count == 3:
+                        major3 = program['MAJOR']
+                    major_count += 1
+                elif 'MINOR' in program:
+                    if minor_count == 1:
+                        minor1 = program['MINOR']
+                    elif minor_count == 2:
+                        minor2 = program['MINOR']
+                    elif minor_count == 3:
+                        minor3 = program['MINOR']
+                    minor_count += 1
+
+            course1 = ','
+            course2 = ','
+            course3 = ','
+            other_courses = ''
+            find_lang_abbreviation = Languages.objects.filter(full_language=language).first()
+            lang_abbreviation = find_lang_abbreviation.abbreviation
+            courses = byu_api.get_classes(byu_token, byuid, lang_abbreviation, 'Language Certificate', valid=True)
+            byu_api.logout(byu_token)
+            course_count = 1
+            print('courses', courses)
+            for index, course in enumerate(courses):
+                if course_count == 1:
+                    course1 = course
+                elif course_count == 2:
+                    course2 = course
+                elif course_count == 3:
+                    course3 = course
+                else:
+                    other_courses += " " + course
+
+                course_count += 1
+            print(course1, course2, course3, other_courses)
+            box_api.append_to_fulton_report(box_client, {"Last Name":full_name.split(' ')[1], "First Name":full_name.split(' ')[0], "RouteY ID":"", 
+            "BYUID":byuid, "Major 1":major1, "Major 2":major2 ,"Major 3":major3,"Minor 1":minor1,"Minor 2":minor2,"Minor 3":minor3,"Language":language, 
+            "OPI Rating":opi_score, "WPT Rating":wpt_score, "Semester Finished":yearterm, "Course 1":course1, "Course 2":course2, "Course 3":course3, "Other Courses":other_courses})
+            filemaker_token = filemaker.login()
+            filemaker.edit_record('CertificateStatus', 'Awarded', filemaker_token, record_id)
+            filemaker.logout(filemaker_token)
+            return JsonResponse({'message': 'Certificate awarded'})
     else:
         return JsonResponse({'message': 'User is not authenticated'}, status=401)
 
@@ -670,7 +852,7 @@ def get_student_grades(request):
             return JsonResponse({'message': 'User is not authenticated'}, status=401)
     else:
         return JsonResponse({'message': 'User is not authenticated'}, status=401)
-
+import time
 @api_view(['POST'])
 @authentication_classes([TokenAuthentication])
 def edit_record(request):
@@ -681,11 +863,12 @@ def edit_record(request):
         token, username = token.split(':')
         user = User.objects.filter(username=username).first()
         if user is not None and user.is_staff:
-            token = filemaker.login()
+            #token = filemaker.login()
             for record in recordids:
-                #print(record)
-                filemaker.edit_record('Approved', 'Yes', token, record)
-            filemaker.logout(token)
+                print(record)
+                time.sleep(.1)
+                #filemaker.edit_record('Approved', 'Yes', token, record)
+            #filemaker.logout(token)
             return JsonResponse({'message': 'Record updated'}, status=200)
         else:
             return JsonResponse({'message': 'User is not authenticated'}, status=401)
