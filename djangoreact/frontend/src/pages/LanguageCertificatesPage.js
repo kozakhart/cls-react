@@ -44,7 +44,7 @@ import Label from '../components/label';
 import Iconify from '../components/iconify';
 import Scrollbar from '../components/scrollbar';
 // sections
-import { UserListHead, UserListToolbar } from '../sections/@dashboard/needsapproval';
+import { UserListHead, UserListToolbar } from '../sections/@dashboard/languagecertificates';
 
 const TABLE_HEAD = [
   { id: 'name', label: 'Name', alignRight: false },
@@ -100,12 +100,18 @@ function applySortFilter(studentdata, comparator, query) {
 }
 
 export default function UserPage() {
+  const currentDate = new Date();
+  const sixMonthsAgo = new Date(currentDate);
+  const oneYearAgo = new Date(currentDate);
+  sixMonthsAgo.setMonth(currentDate.getMonth() - 6);
+  oneYearAgo.setFullYear(currentDate.getFullYear() - 1);
+
   const [studentdata, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isChecked, setIsChecked] = useState(false);
   const [userList, setUserList] = useState([]);
-  const [recordDate, setrecordDate] = useState(new Date());
-  const [semesterDate, setsemesterDate] = useState(new Date());
+  const [recordDate, setrecordDate] = useState(oneYearAgo);
+  const [semesterDate, setsemesterDate] = useState(sixMonthsAgo);
   const [todaysDate, setTodaysDate] = useState('');
   const [loading, setLoading] = useState(false);
   const [isPopoverOpen, setPopoverOpen] = useState(false);
@@ -159,10 +165,8 @@ export default function UserPage() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      console.log('userList:', userList);
       const newSelecteds = userList.map((n) => n);
       setSelected(newSelecteds);
-      console.log('newSelecteds:', newSelecteds); 
       return;
     }
     setSelected([]);
@@ -665,6 +669,8 @@ export default function UserPage() {
     numSelected={selected.length} 
     filterName={filterName}
     onFilterName={handleFilterByName} 
+    recordIds={selected}
+    userList={filteredUsers}
   />
 </div>
           <Popover
