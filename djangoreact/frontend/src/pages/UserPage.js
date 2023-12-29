@@ -549,7 +549,12 @@ export default function UserPage() {
   const filteredUsers = applySortFilter(studentdata, getComparator(order, orderBy), filterName);
   console.log('filteredUsers:', filteredUsers);
   const isNotFound = !filteredUsers.length && !!filterName;
-
+  const [isPopoverOpen2, setPopoverOpen2] = useState(false);
+  // const [anchorEl2, setAnchorEl2] = useState(null);
+  const handlePopoverOpen2 = (event) => {
+    setPopoverOpen2(true);
+    console.log('event.currentTarget:', event.currentTarget)
+  };
   return (
     <>
       <Helmet>
@@ -561,9 +566,250 @@ export default function UserPage() {
           <Typography variant="h4" gutterBottom>
             Database
           </Typography>
-          <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
+          <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />} onClick={handlePopoverOpen2}>
             New User
           </Button>
+          <Popover
+            open={Boolean(isPopoverOpen2)}
+            anchorEl={isPopoverOpen2}
+            onClose={isPopoverOpen2}
+            anchorOrigin={{ vertical: 'center', horizontal: 'center' }} // Center the anchor
+            transformOrigin={{ vertical: 'top', horizontal: 'center' }}
+            PaperProps={{
+              sx: {
+                p: 1,
+                width: '25%',
+                '& .MuiMenuItem-root': {
+                  px: 1,
+                  typography: 'body2',
+                  borderRadius: 0.75,
+                },
+              },
+            }}
+          >
+          <Container>
+          <div style={{ display: 'flex', justifyContent: 'left', paddingBottom: '1vh' }}>
+                <UpdateNotification firstnameID={'firstnameID'} lastnameID={'lastnameID'} approvedID={'approvedID'} reasonID={'reasonID'} languageID={'languageID'} languageotherID={'languageotherID'}
+                testdate1ID={'testdate1ID'} time1ID={'time1ID'} time2ID={'time2ID'} testdate2ID={'testdate2ID'} time3ID={'time3ID'} time4ID={'time4ID'} testscheduledID={'testscheduledID'}
+                certificatestatusID={'certificatestatusID'} cometocampusID={'cometocampusID'} cannotcomeID={'cannotcomeID'} emailID={'emailID'} emailsentID={'emailsentID'}
+                ltischeduleID={'ltischeduleID'} phoneID={'phoneID'} scoresID={'scoresID'} byuidID={'byuidID'} netidID={'netidID'} entrydateID={'entrydateID'} entrytimeID={'entrytimeID'}
+                majorID={'majorID'} secondmajorID={'secondmajorID'} minorID={'minorID'} previousexperienceID={'previousexperienceID'} recordId='0' 
+                />
+                <MenuItem  style={{fontWeight: 'bold' }} onClick={() => setPopoverOpen2(false)}>
+                  X
+                </MenuItem>
+            </div>
+                <Table>
+                  <TableBody>
+                    <TableRow>
+                        <TableCell>First Name:</TableCell>
+                        <TableCell>
+                        <EditableCell id='firstnameID' initialValue='' />
+                        </TableCell>
+                    </TableRow>
+                  
+                    <TableRow>
+                        <TableCell>Last Name:</TableCell>
+                        <TableCell>
+                        <EditableCell id='lastnameID' initialValue=''/>
+                        </TableCell>
+                    </TableRow>
+
+                    <TableRow title="Possible Entries: 1) Yes 2) No">
+                        <TableCell>Approved:</TableCell>
+                        <TableCell>
+                        <EditableCell id='approvedID' initialValue='Yes'/>
+                        </TableCell>
+                    </TableRow>
+
+                    <TableRow title="Ex: 1) SPAN 491 2) Language Certificate">
+                        <TableCell>Reason:</TableCell>
+                        <TableCell>
+                        <EditableCell id='reasonID' initialValue='Language Certificate'/>
+                        </TableCell>
+                    </TableRow>
+
+                    <TableRow title="BYU Language Abbreviation ex: SPAN, GERM, CHIN.
+                    Use 'Other' for less commonly taught languages.">
+                        <TableCell>Language:</TableCell>
+                        <TableCell>
+                        <EditableCell id='languageID' initialValue='SPAN'/>
+                        </TableCell>
+                    </TableRow>
+                    <TableRow title="Specify 'Other' Languages Here.">
+                        <TableCell>Language Other:</TableCell>
+                        <TableCell>
+                        <EditableCell id='languageotherID' initialValue='None'/>
+                        </TableCell>
+                    </TableRow>
+
+                    <TableRow title="Possible Entries: 1) Yes 2) No">
+                        <TableCell>Test Scheduled:</TableCell>
+                        <TableCell>
+                        <EditableCell id='testscheduledID' initialValue='No'/>
+                        </TableCell>
+                    </TableRow>
+
+                    <TableRow>
+                        <TableCell>LTI Schedule:</TableCell>
+                        <TableCell>
+                        <EditableCell id='ltischeduleID' initialValue='None'/>
+                        </TableCell>
+                    </TableRow>
+
+                    <TableRow title="Format as 01/01/2000">
+                        <TableCell>Test Date 1:</TableCell>
+                        <TableCell>
+                        <EditableCell id='testdate1ID' initialValue='MM/DD/YYYY'/>
+                        </TableCell>
+                    </TableRow>
+
+                    <TableRow title="Uses 24hr clock. Format as 15:00:00 (hour, minute, second).">
+                        <TableCell>Time 1:</TableCell>
+                        <TableCell>
+                        <EditableCell id='time1ID' initialValue='HH:MM:SS'/>
+                        </TableCell>
+                    </TableRow>
+
+                    <TableRow title="Uses 24hr clock. Format as 15:00:00 (hour, minute, second).">
+                        <TableCell>Time 2:</TableCell>
+                        <TableCell>
+                        <EditableCell id='time2ID' initialValue='HH:MM:SS'/>  
+                        </TableCell>
+                    </TableRow>
+
+                    <TableRow title="Format as 01/01/2000">
+                        <TableCell>Test Date 2:</TableCell>
+                        <TableCell>
+                        <EditableCell id='testdate2ID' initialValue='MM/DD/YYYY'/>
+                        </TableCell>
+                    </TableRow>
+
+                    <TableRow title="Uses 24hr clock. Format as 15:00:00 (hour, minute, second).">
+                        <TableCell>Time 3:</TableCell>
+                        <TableCell>
+                        <EditableCell id='time3ID' initialValue='HH:MM:SS'/>
+                        </TableCell>
+                    </TableRow>
+
+                    <TableRow title="Uses 24hr clock. Format as 15:00:00 (hour, minute, second).">
+                        <TableCell>Time 4:</TableCell>
+                        <TableCell>
+                        <EditableCell id='time4ID' initialValue='HH:MM:SS'/>
+                        </TableCell>
+                    </TableRow>
+
+                    <TableRow title="Possible Entries: 1) NA 2) Unqualified 3) Awarded">
+                        <TableCell>Certificate Status:
+                        </TableCell>
+                        <TableCell>
+                        <EditableCell id='certificatestatusID' initialValue='NA'/>
+                        </TableCell>
+                    </TableRow>
+
+                    <TableRow title="Possible Entries: 1) Yes 2) No">
+                        <TableCell>Come To Campus:</TableCell>
+                        <TableCell>
+                        <EditableCell id='cometocampusID' initialValue='Yes'/>
+                        </TableCell>
+                    </TableRow>
+
+                    <TableRow title="Specifies why the student cannot attend in-person.">
+                        <TableCell>Cannot Come:</TableCell>
+                        <TableCell>
+                        <EditableCell id='cannotcomeID' initialValue='NA'/>
+                        </TableCell>
+                    </TableRow>
+
+                    <TableRow>
+                        <TableCell>Email:</TableCell>
+                        <TableCell>
+                        <EditableCell id='emailID' initialValue=''/>
+                        </TableCell>
+                    </TableRow>
+
+                    <TableRow>
+                        <TableCell>Email Sent:</TableCell>
+                        <TableCell>
+                        <EditableCell id='emailsentID' initialValue='No'/>
+                        </TableCell>
+                    </TableRow>
+
+                    <TableRow>
+                        <TableCell>Phone:</TableCell>
+                        <TableCell>
+                        <EditableCell id='phoneID' initialValue=''/>
+                        </TableCell>
+                    </TableRow>
+
+                    <TableRow>
+                        <TableCell>Scores:</TableCell>
+                        <TableCell>
+                        <EditableCell id='scoresID' initialValue=''/>
+                        </TableCell>
+                    </TableRow>
+
+                    <TableRow>
+                        <TableCell>BYU ID:</TableCell>
+                        <TableCell>
+                        <EditableCell id='byuidID' initialValue=''/>
+                        </TableCell>
+                    </TableRow>
+
+                    <TableRow>
+                        <TableCell>Net ID:</TableCell>
+                        <TableCell>
+                        <EditableCell id='netidID' initialValue=''/>
+                        </TableCell>
+                    </TableRow>
+
+                    <TableRow title="Format as 01/01/2000">
+                        <TableCell>Entry Date:</TableCell>
+                        <TableCell>
+                        <EditableCell id='entrydateID' initialValue='MM/DD/YYYY'/>
+                        </TableCell>
+                    </TableRow>
+
+                    <TableRow title="Uses 24hr clock. Format as 15:00:00 (hour, minute, second).">
+                        <TableCell>Entry Time:</TableCell>
+                        <TableCell>
+                        <EditableCell id='entrytimeID' initialValue='00:00:00'/>  
+                        </TableCell>
+                    </TableRow>
+
+                    <TableRow>
+                        <TableCell>Major:</TableCell>
+                        <TableCell>
+                        <EditableCell id='majorID' initialValue=''/>
+                        </TableCell>
+                    </TableRow>
+
+                    <TableRow>
+                        <TableCell>Second Major:</TableCell>
+                        <TableCell>
+                        <EditableCell id='secondmajorID' initialValue=''/>
+                        </TableCell>
+                    </TableRow>
+
+                    <TableRow>
+                        <TableCell>Minor:</TableCell>
+                        <TableCell>
+                        <EditableCell id='minorID' initialValue=''/>
+                        </TableCell>
+                    </TableRow>
+
+                    <TableRow title="How did they learn the language?">
+                        <TableCell>Previous Experience:</TableCell>
+                        <TableCell>
+                        <EditableCell id='previousexperienceID' initialValue='Mission'/>
+                        </TableCell>
+                    </TableRow>
+                    
+              </TableBody>
+              </Table>
+
+          </Container>
+        </Popover>
         </Stack>
 
         <Card>

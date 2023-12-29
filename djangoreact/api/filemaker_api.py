@@ -166,3 +166,31 @@ def edit_record(field_name, data, token, record_id):
     print(record_response.status_code)
 
     print('Record edited')
+
+def create_record(scores, testscheduled, approved, entry_date, entry_time, firstname, lastname, byuid,
+netid, email, reason, language, language_other, experience, major, second_major, minor, come_to_campus,
+cannot_come, testdate1, testdate2, time1, time2, time3, time4, CertificateStatus, phone, email_sent, lti_schedule, token):
+    url = 'https://clsfilemaker.byu.edu/fmi/data/vLatest/databases/opi/layouts/opi/records'
+    headers= CaseInsensitiveDict()
+    headers["Content-Type"] = "application/json"
+    headers["Authorization"] = f"Bearer {token}"
+    data=f"""
+    {{ "fieldData":
+     {{ "Scores": "{scores}", "TestScheduled":"{testscheduled}", "Approved":"{approved}", "EntryTime": "{entry_time}", 
+        "EntryDate":"{entry_date}", "FirstName":"{firstname}", "Lastname":"{lastname}", "BYUID":"{byuid}",
+        "NetID": "{netid}", "Email":"{email}", "Reason":"{reason}", "Language":"{language}",
+        "LanguageOther": "{language_other}", "PreviousExperience":"{experience}", "Major":"{major}", "SecondMajor":"{second_major}",
+        "Minor": "{minor}", "ComeToCampus":"{come_to_campus}", "CannotCome":"{cannot_come}", "TestDate1":"{testdate1}", 
+        "TestDate2": "{testdate2}", "Time1":"{time1}", "Time2":"{time2}", "Time3":"{time3}",
+        "Time4": "{time4}", "CertificateStatus":"{CertificateStatus}", "Phone":"{phone}", "EmailSent":"{email_sent}", "LTISchedule":"{lti_schedule}"
+        }}
+    }}
+    """
+    response_API = requests.post(url, headers=headers, data=data)
+    response_API = response_API.json()
+    print(response_API)
+    print('Record Created Successfully')
+    record_id = response_API['response']['recordId']
+    print(record_id)
+    return record_id
+

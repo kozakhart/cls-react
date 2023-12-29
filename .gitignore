@@ -7,5 +7,6 @@ db.sqlite3
 
 __pycache__/
 venv/
-djangoreact\api\byu_api\byu_token.json
-djangoreact\myapp\byu_api\byu_token.json
+djangoreact/djangoreact/settings.py
+djangoreact/myapp/byu_api/byu_token.json
+djangoreact/api/byu_api/byu_token.json

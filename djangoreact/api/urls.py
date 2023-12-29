@@ -18,4 +18,5 @@ urlpatterns = [
     path('login/',views.login_knox,name = "login"),    
     path('get-user-info/', views.get_user_info, name='get-user-info'),
     path('get-grades/', views.get_student_grades, name='get-grades'),
+    path('edit-record/', views.edit_record, name='edit-record'),
 ]

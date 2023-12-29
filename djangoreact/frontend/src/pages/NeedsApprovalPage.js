@@ -116,7 +116,6 @@ export default function UserPage() {
         });
         if (response.status === 200) {
       try {
-        const csrfToken = Cookies.get('csrftoken');
       const response = await axios.get(needApprovalUrl, {
         withCredentials: true,
         headers: {
@@ -191,7 +190,7 @@ export default function UserPage() {
       console.log('userList:', userList);
       const newSelecteds = userList.map((n) => n);
       setSelected(newSelecteds);
-      console.log('newSelecteds:', newSelecteds); 
+      console.log('Selected:', newSelecteds); 
       return;
     }
     setSelected([]);
@@ -529,7 +528,7 @@ export default function UserPage() {
           numSelected={selected.length} 
           filterName={filterName}
           onFilterName={handleFilterByName} 
-
+          recordIds={selected}
           />
           <Typography variant="subtitle2" sx={{ px: 4, py: 0 }}>
             {filteredUsers.length} Students found

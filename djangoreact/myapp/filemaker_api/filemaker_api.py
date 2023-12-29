@@ -34,8 +34,8 @@ def login():
     return token
 
 def create_record(scores, approved, entry_date, entry_time, firstname, lastname, byuid,
-netid, email, reason, language, language_other, experience, major, second_major, minor, come_to_campus,
-cannot_come, testdate1, testdate2, time1, time2, time3, time4, CertificateStatus, phone, token):
+    netid, email, reason, language, language_other, experience, major, second_major, minor, come_to_campus,
+    cannot_come, testdate1, testdate2, time1, time2, time3, time4, CertificateStatus, phone, token):
     url = 'https://clsfilemaker.byu.edu/fmi/data/vLatest/databases/opi/layouts/opi/records'
     headers= CaseInsensitiveDict()
     headers["Content-Type"] = "application/json"
