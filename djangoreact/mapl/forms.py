@@ -21,16 +21,34 @@ class MAPLForm_Forms(forms.ModelForm):
         self.fields['institution_from_date'].required = False
         self.fields['institution_to_date'].required = False
         self.fields['degree'].required = False
+        self.fields['coursework_explanation'].required = False
         self.fields['graduation_date'].required = False
 
     class Meta:
         model = MAPLForm
-        fields = ('firstname', 'middlename', 'lastname', 'email', 'byuid', 'phone', 'major', 'heard_about', 'semester_of_entry', 'gpa', 'location_of_experience', 'opi_score', 'opi_date', 'wpt_score', 'wpt_date', 'alt_score', 'alt_date', 'art_score', 'art_date', 'other_test_name', 'other_test_score', 'other_test_date', 'institution_name', 'institution_location', 'institution_from_date', 'institution_to_date', 'degree', 'graduation_date', 'recommender_name_1', 'recommender_title_1', 'recommender_institution_1', 'recommender_email_1', 'recommender_phone_1', 'recommender_name_2', 'recommender_title_2', 'recommender_institution_2', 'recommender_email_2', 'recommender_phone_2', 'statement_of_purpose', 'student_signature', 'student_date', 'academic_status')
-        labels = {'firstname':'', 'middlename':'', 'lastname':'', 'email':'', 'byuid':'', 'phone':'', 'major':'', 'heard_about':'', 'semester_of_entry':'', 'gpa':'', 'location_of_experience':'', 'opi_score':'', 'opi_date':'', 'wpt_score':'', 'wpt_date':'', 'alt_score':'', 'alt_date':'', 'art_score':'', 'art_date':'', 'other_test_name':'', 'other_test_score':'', 'other_test_date':'', 'institution_name':'', 'institution_location':'', 'institution_from_date':'', 'institution_to_date':'', 'degree':'', 'graduation_date':'', 'recommender_name_1':'', 'recommender_title_1':'', 'recommender_institution_1':'', 'recommender_email_1':'', 'recommender_phone_1':'', 'recommender_name_2':'', 'recommender_title_2':'', 'recommender_institution_2':'', 'recommender_email_2':'', 'recommender_phone_2':'', 'statement_of_purpose':'', 'student_signature':'', 'student_date':'', 'academic_status':''}
+        fields = ('firstname', 'middlename', 'lastname', 'language', 'email', 'byuid', 'phone', 'major', 'heard_about', 
+                  'semester_of_entry', 'gpa', 'location_of_experience', 'opi_score', 'opi_date', 'wpt_score', 'wpt_date', 
+                  'alt_score', 'alt_date', 'art_score', 'art_date', 'other_test_name', 'other_test_score', 'other_test_date', 
+                  'institution_name', 'institution_location', 'institution_from_date', 'institution_to_date', 'degree', 
+                  'bachelors_completion', 'coursework_explanation',
+                  'graduation_date', 'recommender_name_1', 'recommender_title_1', 'recommender_institution_1', 
+                  'recommender_email_1', 'recommender_phone_1', 'recommender_name_2', 'recommender_title_2', 
+                  'recommender_institution_2', 'recommender_email_2', 'recommender_phone_2', 'statement_of_purpose', 
+                  'student_signature', 'student_date', 'academic_status')
+        labels = {'firstname':'', 'middlename':'', 'lastname':'', 'language':'', 'email':'', 'byuid':'', 'phone':'', 
+                  'major':'', 'heard_about':'', 'semester_of_entry':'', 'gpa':'', 'location_of_experience':'', 'opi_score':'', 
+                  'opi_date':'', 'wpt_score':'', 'wpt_date':'', 'alt_score':'', 'alt_date':'', 'art_score':'', 'art_date':'', 
+                  'other_test_name':'', 'other_test_score':'', 'other_test_date':'', 'institution_name':'', 'institution_location':'', 
+                  'institution_from_date':'', 'institution_to_date':'', 'degree':'', 'bachelors_completion':'', 'coursework_explanation':'',
+                  'graduation_date':'', 'recommender_name_1':'', 'recommender_title_1':'', 'recommender_institution_1':'', 
+                  'recommender_email_1':'', 'recommender_phone_1':'', 'recommender_name_2':'', 'recommender_title_2':'', 
+                  'recommender_institution_2':'', 'recommender_email_2':'', 'recommender_phone_2':'', 'statement_of_purpose':'', 
+                  'student_signature':'', 'student_date':'', 'academic_status':''}
         widgets = {
             'firstname': forms.TextInput(attrs={'class':'formbox, input-class', 'placeholder': 'First Name', 'name':'firstname'}),
             'middlename': forms.TextInput(attrs={'class':'formbox, input-class', 'placeholder': 'Middle Name', 'name':'middlename'}),
             'lastname': forms.TextInput(attrs={'class':'formbox, input-class', 'placeholder': 'Last Name', 'name':'lastname'}),
+            'language': forms.Select(attrs={'class':'formbox, input-class', 'placeholder': 'What language are you taking?', 'name':'language'}),
             'email': forms.TextInput(attrs={'class':'formbox, input-class', 'placeholder': 'Email', 'name':'email'}),
             'byuid': forms.TextInput(attrs={'class':'formbox, input-class', 'placeholder': 'BYU ID', 'name':'byuid'}),
             'phone': forms.TextInput(attrs={'class':'formbox, input-class', 'placeholder': 'Phone', 'name':'phone'}),
@@ -55,6 +73,8 @@ class MAPLForm_Forms(forms.ModelForm):
             'institution_from_date': forms.DateInput(attrs={'type':'date', 'class':'formbox, input-class', 'placeholder': 'From', 'name':'institution_from_date'}),
             'institution_to_date': forms.DateInput(attrs={'type':'date', 'class':'formbox, input-class', 'placeholder': 'To', 'name':'institution_to_date'}),
             'degree': forms.Select(attrs={'class':'formbox, input-class', 'placeholder': 'Degree', 'name':'degree'}),
+            'bachelors_completion': forms.Select(attrs={'class':'formbox, input-class', 'placeholder': "Will you have all of your coursework for your Bachelor's degree completed before beginning the MAPL program?", 'name':'bachelors_completion'}),
+            'coursework_explanation': forms.TextInput(attrs={'class':'formbox, input-class', 'default':'NA', 'placeholder': "Coursework to finish", 'name':'coursework_explanation'}),
             'graduation_date': forms.DateInput(attrs={'type':'date', 'class':'formbox, input-class', 'placeholder': 'Graduation Date', 'name':'graduation_date'}),
             'recommender_name_1': forms.TextInput(attrs={'class':'formbox, input-class', 'placeholder': 'Recommender Name', 'name':'recommender_name_1'}),
             'recommender_title_1': forms.TextInput(attrs={'class':'formbox, input-class', 'placeholder': 'Title', 'name':'recommender_title_1'}),

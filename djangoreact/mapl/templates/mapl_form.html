@@ -47,7 +47,7 @@
                 <ul style="margin-bottom: 0px;">
                     <li>Demographic information, contact information including email address and phone numbers, test scores, recommendation information, educational background, and other pertinent information in order to fully assess the applicant's qualifications for program acceptance.</ll>
                     <li>You will need to complete a Statement of Purpose than can be completed online or uploaded as an attachment. Please review the application in its entirety prior to beginning the process in order to become familiar with all the steps.</li>
-                    <li>You must already have been accepted as a Chinese Flagship program participant.</li>
+                    <li>You must already have been accepted as a Chinese/Arabic Flagship program participant.</li>
                 </ul>
                 <p>Once all application information is entered correctly and completely, your online application will be submitted to the MAPL Program Committee for their review. If any errors are found or if there is missing information, our office will contact you. We may also contact you for a personal interview as part of the admissions process.</p>
             </div>
@@ -62,8 +62,11 @@
               <p>Email*</p>
               {{ form.email|as_crispy_field }}
             </div>
+
               <div class="outerbox">
                 <h3>Other Information</h3>
+                <p>Language</p>
+                {{ form.language|as_crispy_field }}
                 <p>BYU Student ID*</p>
                 {{ form.byuid|as_crispy_field }}
                 <p>Phone Number*</p>
@@ -123,11 +126,15 @@
                 {{ form.degree|as_crispy_field }}
                 <p>Graduation Date</p>
                 {{ form.graduation_date|as_crispy_field }}
+                <p>Will you have all of your coursework for your Bachelor's degree completed before beginning the MAPL program?</p>
+                {{ form.bachelors_completion|as_crispy_field }}
+                <p>If no, please tell us about the coursework you need to finish.</p>
+                {{ form.coursework_explanation|as_crispy_field }}
               </div>
 
               <div class="outerbox">
                 <h3>Recommendations</h3>
-                <p>Please enter the name, phone number, institution and email address of each individual who will submit a recommendation on your behalf for this application. Two recommendations are required. One recommender should be a Chinese faculty member who can specifically address the applicant's Chinese languuage proficiency as well as suitability to the purposes of the MAPL Program. The second recommendation should be from an instructor in your major.</p>
+                <p>Please enter the name, phone number, institution and email address of each individual who will submit a recommendation on your behalf for this application. Two recommendations are required. One recommender should be a Chinese/Arabic faculty member who can specifically address the applicant's languuage proficiency as well as suitability to the purposes of the MAPL Program. The second recommendation should be from an instructor in your major.</p>
                 <h4 class="indent"><u>Recommender #1</u></h4>
                 <p>Name</p>
                 {{ form.recommender_name_1|as_crispy_field }}

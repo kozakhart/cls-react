@@ -57,3 +57,23 @@ class DegreesAdmin(admin.ModelAdmin):
 
         obj.delete()
 admin.site.register(Degrees, DegreesAdmin)
+
+class LanguageAdmin(admin.ModelAdmin):
+    model = Language
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        return obj.language
+    def delete_model(self, request, obj):
+
+        obj.delete()
+admin.site.register(Language, LanguageAdmin)
+
+class BachelorsCompletionAdmin(admin.ModelAdmin):
+    model = BachelorsCompletion
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        return obj.degree_completion
+    def delete_model(self, request, obj):
+
+        obj.delete()
+admin.site.register(BachelorsCompletion, BachelorsCompletionAdmin)
