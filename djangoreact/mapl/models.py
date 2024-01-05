@@ -1,6 +1,13 @@
 from django.db import models
 
 # Create your models here.
+class Language(models.Model):
+    language = models.CharField(max_length=100)
+    class Meta:
+        verbose_name_plural = "Languages"
+    def __str__(self):
+        return self.language
+    
 class HeardAbout(models.Model):
     heard_about = models.CharField(max_length=100)
     class Meta:
@@ -14,6 +21,14 @@ class Degrees(models.Model):
         verbose_name_plural = "Degrees"
     def __str__(self):
         return self.degree
+    
+class BachelorsCompletion(models.Model):
+    degree_completion = models.CharField(max_length=100)
+    class Meta:
+        verbose_name_plural = "Will Bachelor's Be Completed?"
+
+    def __str__(self):
+        return self.degree_completion
     
 class SemesterOfEntry(models.Model):
     semester = models.CharField(max_length=100)
@@ -40,6 +55,7 @@ class MAPLForm(models.Model):
     firstname = models.CharField(max_length=100)
     middlename = models.CharField(max_length=100)
     lastname = models.CharField(max_length=100)
+    language = models.ForeignKey('Language', on_delete=models.CASCADE)
     email = models.EmailField(max_length=100)
     byuid = models.CharField(max_length=9)
     phone = models.CharField(max_length=100)
@@ -66,7 +82,9 @@ class MAPLForm(models.Model):
     institution_from_date = models.DateField()
     institution_to_date = models.DateField()
     degree = models.ForeignKey('Degrees', on_delete=models.CASCADE)
+    bachelors_completion = models.ForeignKey('BachelorsCompletion', on_delete=models.CASCADE)
     graduation_date = models.DateField()
+    coursework_explanation = models.CharField(max_length=100, default='')
     recommender_name_1 = models.CharField(max_length=100)
     recommender_title_1 = models.CharField(max_length=100)
     recommender_institution_1 = models.CharField(max_length=100)

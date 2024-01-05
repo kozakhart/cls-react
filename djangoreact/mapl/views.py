@@ -34,6 +34,10 @@ def mapl_form(request):
         academic_status = AcademicStatus.objects.get(pk=academic_status_id)
         academic_status = str(academic_status)
         gpa = (request.POST.get('gpa', False))
+
+        language_id = (request.POST.get('language', False))
+        language = str(Language.objects.get(pk=language_id))
+
         opi_score_id = (request.POST.get('opi_score', False))
         if opi_score_id != '':
             opi_score = Scores.objects.get(pk=opi_score_id)
@@ -114,6 +118,16 @@ def mapl_form(request):
             degree = str(degree)
         else:
             degree = "None"
+
+        bachelors_completion_id = (request.POST.get('bachelors_completion', False))
+        if bachelors_completion_id != '':
+            bachelors_completion = Degrees.objects.get(pk=bachelors_completion_id)
+            bachelors_completion = str(bachelors_completion)
+        else:
+            bachelors_completion = "None"
+
+        coursework_explanation = request.POST.get('coursework_explanation', False)
+
         raw_graduation_date = (request.POST.get('graduation_date', False))
         if raw_graduation_date != '':
             format_graduation_date = datetime.strptime(raw_graduation_date, '%Y-%m-%d').date()
@@ -140,7 +154,14 @@ def mapl_form(request):
         statement_of_purpose = request.FILES['statement_of_purpose']
 
         client = box_api.create_client()
-        box_api.create_mapl_application(firstname=firstname, middlename=middlename, lastname=lastname, byuid=byuid, email=email, phone=phone, major=major, heard_about=heard_about, semester_of_entry=semester_of_entry, academic_status=academic_status, gpa=gpa, opi_score=opi_score, opi_date=opi_date, wpt_score=wpt_score, wpt_date=wpt_date, alt_score=alt_score, alt_date=alt_date, art_score=art_score, art_date=art_date, other_test_name=other_test_name, other_test_score=other_test_score, other_test_date=other_test_date, institution_name=institution_name, institution_location=institution_location, institution_from_date=institution_from_date, institution_to_date=institution_to_date, degree=degree, graduation_date=graduation_date, recommender_name_1=recommender_name_1, recommender_title_1=recommender_title_1, recommender_institution_1=recommender_institution_1, recommender_email_1=recommender_email_1, recommender_phone_1=recommender_phone_1, recommender_name_2=recommender_name_2, recommender_title_2=recommender_title_2, recommender_institution_2=recommender_institution_2, recommender_email_2=recommender_email_2, recommender_phone_2=recommender_phone_2, student_signature=student_signature, signature_date=signature_date, location_of_experience=location_of_experience)
+        box_api.create_mapl_application(firstname=firstname, middlename=middlename, lastname=lastname, language=language, byuid=byuid, 
+            email=email, phone=phone, major=major, heard_about=heard_about, semester_of_entry=semester_of_entry, 
+            academic_status=academic_status, gpa=gpa, opi_score=opi_score, opi_date=opi_date, wpt_score=wpt_score, wpt_date=wpt_date, 
+            alt_score=alt_score, alt_date=alt_date, art_score=art_score, art_date=art_date, other_test_name=other_test_name, 
+            other_test_score=other_test_score, other_test_date=other_test_date, institution_name=institution_name, institution_location=institution_location, 
+            institution_from_date=institution_from_date, institution_to_date=institution_to_date, degree=degree, bachelors_completion=bachelors_completion, 
+            coursework_explanation=coursework_explanation, graduation_date=graduation_date, recommender_name_1=recommender_name_1, recommender_title_1=recommender_title_1, recommender_institution_1=recommender_institution_1, recommender_email_1=recommender_email_1, recommender_phone_1=recommender_phone_1, recommender_name_2=recommender_name_2, recommender_title_2=recommender_title_2, recommender_institution_2=recommender_institution_2, recommender_email_2=recommender_email_2, recommender_phone_2=recommender_phone_2, student_signature=student_signature, signature_date=signature_date, location_of_experience=location_of_experience)
+        
         mapl_folder = '219592459094'
         student_name = firstname + ' ' + lastname
 
@@ -148,7 +169,7 @@ def mapl_form(request):
         files = []
         files.append("/tmp/" + statement_of_purpose.name)
         files.append("/tmp/" + f"{firstname} {lastname} MAPL Application.pdf")
-        box_api.upload_files(client=client, student_name=student_name, files=files, slat_folder=mapl_folder)        
+        box_api.upload_files(client=client, student_name=student_name, language=language, files=files, folder=mapl_folder)        
         #region
         # finished_date = datetime.strptime(request.POST['testdate1'], '%Y-%m-%d')
 
@@ -173,12 +194,16 @@ def mapl_form(request):
         semester_of_entry = SemesterOfEntry.objects.all()
         scores = Scores.objects.all()
         academic_status = AcademicStatus.objects.all()
+        bachelors_completion = BachelorsCompletion.objects.all()
+        language = Language.objects.all()
 
         context = {'form': form, 
                 heard_about: 'heard_about',
                 semester_of_entry: 'semester_of_entry',
                 scores: 'scores',
-                academic_status: 'academic_status'
+                academic_status: 'academic_status',
+                language: 'language',
+                bachelors_completion: 'bachelors_completion' 
                 }
     
         return render(request, 'mapl_form.html', context)

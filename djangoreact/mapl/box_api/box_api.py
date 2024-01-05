@@ -308,11 +308,12 @@ def create_folder(client, student_name, slat_folder):
     student_folder = client.folder(slat_folder).create_subfolder(student_name)
     print('folder created')
 
-def upload_files(client, student_name, files, slat_folder):
-    student_folder = client.folder(slat_folder).create_subfolder(student_name)
-    all_items = client.folder(slat_folder).get_items()
+def upload_files(client, student_name, language, files, folder):
+    title = student_name + " " + language
+    student_folder = client.folder(folder).create_subfolder(title)
+    all_items = client.folder(folder).get_items()
     for item in all_items:
-        if student_name in item.name:
+        if title in item.name:
             folder_id = item.id
             print(folder_id)
     for f in files:
@@ -398,14 +399,14 @@ def upload_files_cert(client, student_name, files, cert_folder):
 
 
 
-def create_mapl_application(firstname, middlename, lastname, email, byuid, phone, major, heard_about, semester_of_entry, 
+def create_mapl_application(firstname, middlename, lastname, language, email, byuid, phone, major, heard_about, semester_of_entry, 
                             academic_status, gpa, opi_score, opi_date, wpt_score, wpt_date, alt_score, alt_date, 
                             art_score, art_date, other_test_name, other_test_score, other_test_date, 
                             institution_name, institution_location, institution_from_date, institution_to_date, 
-                            degree, graduation_date, recommender_name_1, recommender_title_1, recommender_institution_1, 
+                            degree, bachelors_completion, coursework_explanation, graduation_date, recommender_name_1, recommender_title_1, recommender_institution_1, 
                             recommender_email_1, recommender_phone_1, recommender_name_2, recommender_title_2, recommender_institution_2, 
                             recommender_email_2, recommender_phone_2, student_signature, signature_date, location_of_experience):
-    
+
     def wrap_text(canvas, text, x, y, max_width, max_height, font_name, font_size):
         text_object = canvas.beginText(x, y)
         text_object.setFont(font_name, font_size)
@@ -441,72 +442,82 @@ def create_mapl_application(firstname, middlename, lastname, email, byuid, phone
     pdfmetrics.registerFont(TTFont('TimesNewRoman', 'myapp/box_api/times_new_roman.ttf'))
 
 
-    packet = io.BytesIO()
-    can = canvas.Canvas(packet, pagesize=letter)
-    can.setFillColorRGB(0, 0, 0)
-    can.setFont('TimesNewRoman', 14)
-    can.drawString(210, 644, firstname)
-    can.drawString(210, 618, middlename)
-    can.drawString(210, 590, lastname)
+    packet_1 = io.BytesIO()
+    can_1 = canvas.Canvas(packet_1, pagesize=letter)
+    can_1.setFillColorRGB(0, 0, 0)
+    can_1.setFont('TimesNewRoman', 14)
+    can_1.drawString(210, 644, firstname)
+    can_1.drawString(210, 615, middlename)
+    can_1.drawString(210, 588, lastname)
+    can_1.drawString(210, 561, language)
 
-    can.drawString(210, 563, email)
-    can.drawString(210, 536, byuid)
-    can.drawString(210, 510, phone)
-    can.drawString(210, 483, major)
-    can.drawString(210, 423, heard_about)
-    can.drawString(210, 380, semester_of_entry)
-    can.drawString(210, 337, academic_status)
-    can.drawString(210, 308, gpa)
-    can.drawString(210, 281, opi_score)
-    can.drawString(210, 255, opi_date)
-    can.drawString(210, 228, wpt_score)
-    can.drawString(210, 201, wpt_date)
-    can.drawString(210, 174, alt_score)
-    can.drawString(210, 147, alt_date)
-    can.drawString(210, 120, art_score)
-    can.drawString(210, 93, art_date)
+    can_1.drawString(210, 534, email)
+    can_1.drawString(210, 507, byuid)
+    can_1.drawString(210, 479, phone)
+    can_1.drawString(210, 452, major)
+    can_1.drawString(210, 388, heard_about)
+    can_1.drawString(210, 343, semester_of_entry)
+    can_1.drawString(210, 302, academic_status)
+    can_1.drawString(210, 274, gpa)
+    can_1.drawString(210, 246, opi_score)
+    can_1.drawString(210, 219, opi_date)
+    can_1.drawString(210, 191, wpt_score)
+    can_1.drawString(210, 162, wpt_date)
+    can_1.drawString(210, 135, alt_score)
+    can_1.drawString(210, 108, alt_date)
 
-    can.save()
-    packet.seek(0)
-    page_1 = PdfReader(packet)
-
-
-    packet = io.BytesIO()
-    can = canvas.Canvas(packet, pagesize=letter)
-    can.setFillColorRGB(0, 0, 0)
-    can.setFont('TimesNewRoman', 13.5)
-    can.drawString(113, 700, "Other Test")
-    can.drawString(210, 700, other_test_name)
-
-    can.drawString(210, 657, other_test_score)
-    can.drawString(210, 629, other_test_date)
-    can.drawString(210, 586, institution_name)
-    can.drawString(210, 559, institution_location)
-    can.drawString(210, 531, institution_from_date)
-    can.drawString(210, 505, institution_to_date)
-    can.drawString(210, 477, degree)
-    can.drawString(210, 434, graduation_date)
-    can.drawString(210, 390, recommender_name_1)
-    can.drawString(210, 363, recommender_title_1)
-    can.drawString(210, 336, recommender_institution_1)
-    can.drawString(210, 308, recommender_email_1)
-    can.drawString(210, 281, recommender_phone_1)
-    can.drawString(210, 238, recommender_name_2)
-    can.drawString(210, 210, recommender_title_2)
-    can.drawString(210, 184, recommender_institution_2)   
-    can.drawString(210, 157, recommender_email_2)
-    can.drawString(210, 130, recommender_phone_2)
-    can.drawString(210, 103, student_signature)
-    can.drawString(210, 76, signature_date)
-    can.save()
-    packet.seek(0)
-    page_2 = PdfReader(packet)
+    can_1.save()
+    packet_1.seek(0)
+    page_1 = PdfReader(packet_1)
 
 
-    packet = io.BytesIO()
-    can = canvas.Canvas(packet, pagesize=letter)
-    can.setFillColorRGB(0, 0, 0)
-    can.setFont('TimesNewRoman', 14)
+    packet_2 = io.BytesIO()
+    can_2 = canvas.Canvas(packet_2, pagesize=letter)
+    can_2.setFillColorRGB(0, 0, 0)
+    can_2.setFont('TimesNewRoman', 13.5)
+
+    can_2.drawString(210, 672, art_score)
+    can_2.drawString(210, 644, art_date)
+    can_2.drawString(210, 599, other_test_name)
+    can_2.drawString(210, 556, other_test_score)
+    can_2.drawString(210, 511, other_test_date)
+
+    can_2.drawString(210, 464, institution_name)
+    can_2.drawString(210, 436, institution_location)
+    can_2.drawString(210, 408, institution_from_date)
+    can_2.drawString(210, 382, institution_to_date)
+    can_2.drawString(210, 354, degree)
+    can_2.drawString(210, 310, bachelors_completion)
+    can_2.drawString(210, 265, coursework_explanation)
+    can_2.drawString(210, 220, graduation_date)
+    can_2.drawString(210, 177, recommender_name_1)
+    can_2.drawString(210, 149, recommender_title_1)
+    can_2.drawString(210, 121, recommender_institution_1)
+    can_2.drawString(210, 93, recommender_email_1)
+    can_2.save()
+    packet_2.seek(0)
+    page_2 = PdfReader(packet_2)
+
+    packet_3 = io.BytesIO()
+    can_3 = canvas.Canvas(packet_3, pagesize=letter)
+    can_3.setFillColorRGB(0, 0, 0)
+    can_3.setFont('TimesNewRoman', 14)
+    can_3.drawString(210, 670, recommender_phone_1)
+    can_3.drawString(210, 625, recommender_name_2)
+    can_3.drawString(210, 597, recommender_title_2)
+    can_3.drawString(210, 569, recommender_institution_2)   
+    can_3.drawString(210, 542, recommender_email_2)
+    can_3.drawString(210, 515, recommender_phone_2)
+    can_3.drawString(210, 487, student_signature)
+    can_3.drawString(210, 459, signature_date)
+    can_3.save()
+    packet_3.seek(0)
+    page_3 = PdfReader(packet_3)
+
+    packet_4 = io.BytesIO()
+    can_4 = canvas.Canvas(packet_4, pagesize=letter)
+    can_4.setFillColorRGB(0, 0, 0)
+    can_4.setFont('TimesNewRoman', 14)
 
     # Define the wrapping area
     x = 100
@@ -514,40 +525,42 @@ def create_mapl_application(firstname, middlename, lastname, email, byuid, phone
     max_width = 450
     max_height = 800
 
-    wrap_text(can, location_of_experience, x, y, max_width, max_height, "Times-Roman", 12)
+    wrap_text(can_4, location_of_experience, x, y, max_width, max_height, "Times-Roman", 12)
 
-    can.save()
-    packet.seek(0)
-    page_3 = PdfReader(packet)
-
+    can_4.save()
+    packet_4.seek(0)
+    page_4 = PdfReader(packet_4)
     # read your existing PDF
-    pdf_path = os.path.abspath("myapp/box_api/MAPL_Application_Template.pdf")
+
+    pdf_path = os.path.abspath("mapl/box_api/MAPL_Application_Template_New.pdf")
     #pdf_path = os.path.abspath(r"C:\Users\kozak\Code\cls-opi-aws\myapp\box_api\MAPL_Application_Template.pdf")
 
-    print(pdf_path)
     existing_pdf = PdfReader(open(pdf_path, "rb"))
     output = PdfWriter()
     # add the "watermark" (which is the new pdf) on the existing page
-    page = existing_pdf.pages[0]
-    page.merge_page(page_1.pages[0])
-    output.add_page(page)
+    output_page_1 = existing_pdf.pages[0]
+    output_page_1.merge_page(page_1.pages[0])
+    output.add_page(output_page_1)
 
     # add the "watermark" (which is the new pdf) on the existing page
-    page = existing_pdf.pages[1]
-    page.merge_page(page_2.pages[0])
-    output.add_page(page)
+    output_page_2 = existing_pdf.pages[1]
+    output_page_2.merge_page(page_2.pages[0])
+    output.add_page(output_page_2)
 
-    page = existing_pdf.pages[2]
-    page.merge_page(page_3.pages[0])
-    output.add_page(page)
+    output_page_3 = existing_pdf.pages[2]
+    output_page_3.merge_page(page_3.pages[0])
+    output.add_page(output_page_3)
+
+    output_page_4 = existing_pdf.pages[3]
+    output_page_4.merge_page(page_4.pages[0])
+    output.add_page(output_page_4)
     # finally, write "output" to a real file
     #outputStream = open(f"{full_name} Language Certificate.pdf", "wb+")
-    outputStream = open(f"{firstname} MAPL Application.pdf", "wb+")
+    outputStream = open(f"{firstname} {lastname} MAPL Application.pdf", "wb+")
     output.write(outputStream)
 
     FileSystemStorage(location="/tmp").save(f"{firstname} {lastname} MAPL Application.pdf", outputStream)
     outputStream.close()
-
 
     if os.path.exists(f"{firstname} {lastname} MAPL Application.pdf"):
         os.remove(f"{firstname} {lastname} MAPL Application.pdf")
