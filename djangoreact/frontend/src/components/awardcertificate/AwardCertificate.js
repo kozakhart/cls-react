@@ -118,7 +118,8 @@ export default function UpdateNotification({ fullName, byuid, netid, language, l
         try {
           const awardCertificateResponse = await axios.post(
             awardCertificateUrl,
-            { dataToSend },
+            { type: 'award_one',
+            dataToSend },
             {
               withCredentials: true,
               headers: {
