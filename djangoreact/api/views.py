@@ -288,9 +288,7 @@ def get_certificate_data(request):
 @api_view(['POST'])
 def award_certificate(request):
     status= verify_user(request).status_code
-    print(request.data)
     if status == 200:
-        #{'dataToSend': {'NetID': 'phart4'}}
         if request.data['type'] == 'award_all':
             box_client = box_api.create_client()
             filemaker_token = filemaker.login()
@@ -523,11 +521,11 @@ def award_certificate(request):
             token = outlook.get_token()
             message = outlook.create_message(token, data)
             outlook.send_message(token, message)
+            date_obj = datetime.strptime(formatted_date, "%m/%d/%Y")
 
-            current_date= datetime.now()
-            month = datetime.now().strftime("%B")
-            month_num =current_date.month
-            year = datetime.now().strftime("%Y")
+            month = date_obj.strftime("%B")
+            year = date_obj.strftime("%Y")
+            month_num = date_obj.month
 
             if month_num >= 1 and month_num <= 4:
                 yearterm = '1'
@@ -540,6 +538,7 @@ def award_certificate(request):
             else:
                 yearterm = '0'
             yearterm = year + yearterm
+
             data = {
                 "subject": f'Language Certificate for {full_name}',
                 "importance":"High",
@@ -625,7 +624,6 @@ def award_certificate(request):
             courses = byu_api.get_classes(byu_token, byuid, lang_abbreviation, 'Language Certificate', valid=True)
             byu_api.logout(byu_token)
             course_count = 1
-            print('courses', courses)
             for index, course in enumerate(courses):
                 if course_count == 1:
                     course1 = course
@@ -637,7 +635,7 @@ def award_certificate(request):
                     other_courses += " " + course
 
                 course_count += 1
-            print(course1, course2, course3, other_courses)
+
             box_api.append_to_fulton_report(box_client, {"Last Name":full_name.split(' ')[1], "First Name":full_name.split(' ')[0], "RouteY ID":"", 
             "BYUID":byuid, "Major 1":major1, "Major 2":major2 ,"Major 3":major3,"Minor 1":minor1,"Minor 2":minor2,"Minor 3":minor3,"Language":language, 
             "OPI Rating":opi_score, "WPT Rating":wpt_score, "Semester Finished":yearterm, "Course 1":course1, "Course 2":course2, "Course 3":course3, "Other Courses":other_courses})
