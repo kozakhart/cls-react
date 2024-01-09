@@ -116,7 +116,8 @@ def get_classes(token, byu_id, language, reason, valid):
                 print(teaching_area + ' ' + course_number)
                 print('student qualifies for seminar')
                 valid = True
-                return valid
+                reason_grade = reason + ' ' + response_API['values'][counter]['grade']['value']
+                return reason_grade
             grade = response_API['values'][counter]['grade']['value']
             counter += 1
 
