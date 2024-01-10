@@ -49,8 +49,8 @@ import { UserListHead, UserListToolbar } from '../sections/@dashboard/languagece
 const TABLE_HEAD = [
   { id: 'name', label: 'Name', alignRight: false },
   { id: 'byuidtable', label: 'BYU ID', alignRight: false},
-  { id: 'languagetable', label: 'Language', alignRight: false },
   { id: 'reason', label: 'Reason', alignRight: false},
+  { id: 'languagetable', label: 'Language', alignRight: false },
   { id: 'level', label: 'Level', alignRight: false },
   { id: 'opi', label: 'OPI', alignRight: false },
   { id: 'wpt', label: 'WPT', alignRight: false },

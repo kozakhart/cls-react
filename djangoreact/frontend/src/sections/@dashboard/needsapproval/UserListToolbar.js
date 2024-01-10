@@ -120,8 +120,18 @@ export default function UserListToolbar({ numSelected, filterName, onFilterName,
       }}
     >
       {numSelected > 0 ? (
-        <Typography component="div" variant="subtitle1">
-          {numSelected} selected
+          <Typography component="div" variant="subtitle1">
+          <StyledSearch
+          sx={{ marginRight: 5}}
+            value={filterName}
+            onChange={onFilterName}
+            placeholder="Filter students..."
+            startAdornment={
+              <InputAdornment position="start">
+                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled', width: 20, height: 20 }} />
+              </InputAdornment>
+            }
+          />
         </Typography>
       ) : (
         <StyledSearch
@@ -137,7 +147,11 @@ export default function UserListToolbar({ numSelected, filterName, onFilterName,
       )}
       {numSelected > 0 ? (
       <Tooltip title="Approve Selected">
+
                <IconButton onClick={() => handleClick(recordIds)}>
+                <Typography >
+               {numSelected} selected
+                </Typography>
                 <Iconify icon="eva:checkmark-circle-outline" sx={{ color: 'green' }} />
                 <Dialog open={isConfirmationOpen}>
                   <DialogTitle>Confirmation</DialogTitle>
