@@ -251,7 +251,7 @@ def get_certificate_data(request):
                 "AL": "Advanced Low", "AM": "Advanced Mid", "AH": "Advanced High", 
                 "S": "Superior", "D": "Distinguished"}
         
-        level_df = {"Advanced": "(Intermediate High, Advanced Low, Advanced Mid) 1", "Mastery": "(Advanced High) 2", "Superior": "(Superior) 3"}
+        level_df = {"Advanced": "(Intermediate High, Advanced Low, Advanced Mid) 1", "Mastery": "(Advanced High) 2", "Professional": "(Superior) 3"}
         level_values = list(level_df.values())
 
         for student_df in data:
@@ -268,7 +268,7 @@ def get_certificate_data(request):
                 #print(opi_score_values, wpt_score_values)
 
                 if (opi_score_values[0] in level_values[2]) or (wpt_score_values[0] in level_values[2]):
-                    level = "Superior"
+                    level = "Professional"
                 elif (opi_score_values[0] in level_values[1]) or (wpt_score_values[0] in level_values[1]):
                     level = "Mastery"
                 elif (opi_score_values[0] in level_values[0]) or (wpt_score_values[0] in level_values[0]):
