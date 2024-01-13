@@ -9,33 +9,9 @@ from pathlib import Path
 
 load_dotenv()
 
-def check_token():
-    base_path = Path(__file__).parent
-    file_path = (base_path / "../byu_api/byu_token.json").resolve()
-    with open(file_path, "r") as json_token:
-        json_token = json.load(json_token)
-        token = json_token[0]['token']
-    url = f'https://api.byu.edu:443/byuapi/students/v3/'
-    headers= CaseInsensitiveDict()
-    headers["Content-Type"] = "application/json"
-    headers["Authorization"] = f"Bearer {token}"
-    response_API = requests.get(url, headers=headers, verify=False)
-    print(response_API.status_code)
-    if response_API.status_code == 200:
-        return token
-    else:
-        return False
-
 def login():
     BYU_PRODUCTION_ID = os.getenv('BYU_PRODUCTION_ID')
     BYU_PRODUCTION_SECRET = os.getenv('BYU_PRODUCTION_SECRET')
-    check = check_token()
-    if check:
-        token = check
-        print("token= " + token)
-        return token
-    base_path = Path(__file__).parent
-    file_path = (base_path / "../byu_api/byu_token.json").resolve()
 
     url = 'https://api.byu.edu:443/token/'
     data = {'grant_type': 'client_credentials'}
@@ -45,14 +21,7 @@ def login():
     response_API = requests.post(url, data=data, verify=False, allow_redirects=False, auth=(client_id, client_secret)).json()
     print(response_API)
     token = response_API['access_token']
-    print(token)
-    with open(file_path, "w") as outfile:
-        list = []
-        dic = {'token':token}
-        list.append(dic)
-        jsonString = json.dumps(list)
-        outfile.write(jsonString)
-        outfile.close()
+
     return token
 
 def get_byuid(token, byu_id, net_id, valid):
@@ -262,5 +231,3 @@ def get_programs(token, byu_id):
     
     print(programs_list)
     return programs_list
-
-
