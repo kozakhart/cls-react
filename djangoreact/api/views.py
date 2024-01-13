@@ -9,9 +9,12 @@ from django.contrib.auth.models import User
 from knox.models import AuthToken
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from io import BytesIO
 # Create your views here.
 from rest_framework import status
+import os
 from rest_framework import generics
+import zipfile
 
 from .models import Students
 from .serializers import StudentSerializer
@@ -853,22 +856,68 @@ def get_student_grades(request):
 import time
 @api_view(['POST'])
 @authentication_classes([TokenAuthentication])
-def edit_record(request):
-    recordids = request.data.get('recordids')
+def edit_records(request):
     status= verify_user(request).status_code
     if status == 200:
+        recordids = request.data.get('recordids')
         token = request.COOKIES['token']
         token, username = token.split(':')
         user = User.objects.filter(username=username).first()
         if user is not None and user.is_staff:
-            #token = filemaker.login()
+            token = filemaker.login()
             for record in recordids:
-                print(record)
-                time.sleep(.1)
-                #filemaker.edit_record('Approved', 'Yes', token, record)
-            #filemaker.logout(token)
+                filemaker.edit_record('Approved', 'Yes', token, record)
+            filemaker.logout(token)
             return JsonResponse({'message': 'Record updated'}, status=200)
         else:
             return JsonResponse({'message': 'User is not authenticated'}, status=401)
     else:
         return JsonResponse({'message': 'User is not authenticated'}, status=401)
+    
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+def qualtrics_reports(request):
+    if request.method == 'POST' and request.FILES.getlist('files'):
+        status= verify_user(request).status_code
+        if status == 200:
+            files = request.FILES.getlist('files')
+            qualtrics_token = request.data.get('qualtricsToken')
+            print(qualtrics_token)
+
+            output = BytesIO()
+            zip_filename = 'reports.zip'  # Set your desired ZIP filename
+            zip_filepath = os.path.join(os.getcwd(), zip_filename)
+
+            # Separate BytesIO object for writing to the file
+            with BytesIO() as file_output:
+                with zipfile.ZipFile(file_output, 'w', zipfile.ZIP_DEFLATED) as f:
+                    for file in files:
+                        # Your file processing logic here
+                        # download the file
+                        file_content = file.read()
+                        print(f"Received file: {file.name}")
+
+                        f.writestr(file.name, file_content)
+
+                # Move the cursor to the beginning of the BytesIO
+                file_output.seek(0)
+
+                # Write the BytesIO content to the file
+                with open(zip_filepath, 'wb') as zip_file:
+                    zip_file.write(file_output.read())
+
+            # Move the cursor to the beginning of the BytesIO
+            output.seek(0)
+
+            # Create a FileResponse with the ZIP file
+            with open(zip_filepath, 'rb') as zip_file:
+                response = HttpResponse(zip_file.read(), content_type='application/zip')
+                response['Content-Disposition'] = 'attachment; filename="reports.zip"'
+
+            os.remove(zip_filepath)
+            return response
+
+        else:
+            return JsonResponse({'message': 'User is not authenticated'}, status=401)
+    else:
+        return JsonResponse({'error': 'Invalid request'})
