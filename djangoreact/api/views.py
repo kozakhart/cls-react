@@ -482,11 +482,14 @@ def award_certificate(request):
             opi_score = request.data['dataToSend']['OPIScore']
             wpt_score = request.data['dataToSend']['WPTScore']
             formatted_date = request.data['dataToSend']['TodaysDate']
-            certificate_type = request.data['dataToSend']['CertificateType']
+            cert_type = str(request.data['dataToSend']['CertificateType'])
+            if cert_type == 'True':
+                wpt_score = 'N/A'
+                
             record_id = request.data['dataToSend']['RecordID']
 
             box_client = box_api.create_client()
-            file_id = box_api.create_pdf_cert(box_client, record_id, full_name, language.upper(), level.upper(), opi_score, wpt_score, formatted_date, str(certificate_type))
+            file_id = box_api.create_pdf_cert(box_client, record_id, full_name, language.upper(), level.upper(), opi_score, wpt_score, formatted_date, cert_type)
             shareable_link = box_api.generate_shareable_link(box_client, file_id)
 
             data = {
