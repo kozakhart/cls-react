@@ -11,12 +11,14 @@ NavSection.propTypes = {
   data: PropTypes.array,
 };
 
-export default function NavSection({ data = [], ...other }) {
+export default function NavSection({ data = [], groups, ...other }) {
   return (
     <Box {...other}>
       <List disablePadding sx={{ p: 1 }}>
-        {data.map((item) => (
-          <NavItem key={item.title} item={item} />
+      {data.map((item) => (
+          groups.some((group) => item.groups.includes(group)) && (
+            <NavItem key={item.title} item={item} />
+          )
         ))}
       </List>
     </Box>

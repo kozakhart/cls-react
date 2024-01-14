@@ -39,7 +39,7 @@ Nav.propTypes = {
 export default function Nav({ openNav, onCloseNav }) {
   const { pathname } = useLocation();
   const [username, setUsername] = useState('');
-  const [groups, setGroups] = useState('');
+  const [groups, setGroups] = useState([]);
 
   const isDesktop = useResponsive('up', 'lg');
 
@@ -61,18 +61,15 @@ export default function Nav({ openNav, onCloseNav }) {
           setGroups(response.data.groups);
         }
       } catch (error) {
-        // Handle errors, e.g., display an error message or take appropriate action
         console.error(error);
       }
     };
   
-    // Fetch user information whenever the route changes
     fetchData();
   
     if (openNav) {
       onCloseNav();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname, openNav]);
   const renderContent = (
     <Scrollbar
@@ -114,14 +111,14 @@ export default function Nav({ openNav, onCloseNav }) {
               </Typography>
 
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                {groups}
+                {groups[0]}
               </Typography>
             </Box>
           </StyledAccount>
         </Link>
       </Box>
 
-      <NavSection data={navConfig} />
+      <NavSection data={navConfig} groups={groups}/>
 
       {/* <Box sx={{ px: 2.5, pb: 3, mt: 10 }}> */}
         <Stack alignItems="center" spacing={3} sx={{ pt: 0, borderRadius: 2, position: 'relative' }}>

@@ -13,6 +13,7 @@ import Page404 from './pages/Page404';
 import NeedsApprovalPagePage from './pages/NeedsApprovalPage';
 import DashboardAppPage from './pages/DashboardAppPage';
 import LanguageCertificatesPage from './pages/LanguageCertificatesPage';
+import QualtricsReports from './pages/QualtricsReports';
 
 
 // ----------------------------------------------------------------------
@@ -74,6 +75,7 @@ export default function Router() {
         { path: 'dashboard/user', element: <UserPage /> },
         { path: 'dashboard/needs-approval', element: <NeedsApprovalPagePage /> },
         { path: 'dashboard/language-certificates', element: <LanguageCertificatesPage /> },
+        { path: 'dashboard/qualtrics-reports', element: <QualtricsReports />},
         { path: 'dashboard/reports', element: <GenerateReports /> },
         { path: '404', element: <Page404 /> },
         { path: '*', element: <Navigate to="/cls/404" replace /> },
