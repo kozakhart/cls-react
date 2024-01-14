@@ -45,7 +45,7 @@
     "@faker-js/faker": "^7.6.0",
     "@iconify/react": "^4.1.0",
     "@mui/lab": "^5.0.0-alpha.103",
-    "@mui/material": "^5.11.10",
+    "@mui/material": "^5.15.4",
     "apexcharts": "^3.37.0",
     "axios": "^1.5.1",
     "change-case": "^4.1.2",
@@ -66,6 +66,7 @@
     "react-router-dom": "^6.8.1",
     "react-scripts": "^5.0.1",
     "react-spinners": "^0.13.8",
+    "regenerator-runtime": "^0.14.1",
     "simplebar-react": "^3.2.1",
     "web-vitals": "^3.1.1"
   },

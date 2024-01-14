@@ -40,12 +40,12 @@ const NOTIFICATIONS = [
   // },
   {
     id: faker.datatype.uuid(),
-    title: 'You have new message',
-    description: '5 unread messages',
+    title: 'You have a new message',
+    description: 'Test Notification',
     avatar: null,
     type: 'chat_message',
     createdAt: sub(new Date(), { days: 1, hours: 3, minutes: 30 }),
-    isUnRead: true,
+    isUnRead: false,
   },
   // {
   //   id: faker.datatype.uuid(),

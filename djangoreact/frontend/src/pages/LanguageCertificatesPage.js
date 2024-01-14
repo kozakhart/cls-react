@@ -152,6 +152,7 @@ export default function UserPage() {
     };
 
     setTodaysDate(getFormattedDate());
+
   }, []);
   const handleOpenMenu = (event) => {
     setOpen(event.currentTarget);
@@ -204,13 +205,9 @@ export default function UserPage() {
   };
 
   const closeFirstPopover = () => {
-    console.log(isPopoverOpen, isPopoverCustomOpen);
-    console.log('closeFirstPopover');
     setPopoverOpen(false);
     setPopoverCustomOpen(false);
-    console.log(isPopoverOpen, isPopoverCustomOpen);
   };
-
 
   function UserTableRow({ user, handleCheckboxClick, handleOpenMenu }) {
     // console.log(user)
@@ -313,8 +310,8 @@ export default function UserPage() {
           <Container>
           <div style={{ display: 'flex', justifyContent: 'right', paddingBottom: '1vh' }}>
                 <AwardCertificate fullName={'fullnameID'} byuid={byuid} netid={'netID'} language={'languageID'} 
-                level={'levelID'} opiScore={'opiscoreID'} wptScore={'wptscoreID'} 
-                todaysDate={'todaysDateID'} recordId={recordId} closeFirstPopover={closeFirstPopover}/>
+                level={'levelID'} opiScore={'opiscoreID'} wptScore={'wptscoreID'} recordId={recordId}
+                todaysDate={'todaysDateID'} certificateType={'true'} closeFirstPopover={closeFirstPopover}/>
                 
                 <MenuItem  style={{fontWeight: 'bold' }} onClick={() => setPopoverOpen(false)}>
                   <Iconify icon={'eva:close-square-outline'} sx={{ ml: 2, mr: 2 }}/>
@@ -538,7 +535,7 @@ export default function UserPage() {
           <div style={{ display: 'flex', justifyContent: 'right', paddingBottom: '1vh' }}>
                 <AwardCertificate fullName={'fullnameID'} byuid={'byuID'} netid={'netID'} language={'languageID'} 
                  level={'levelID'} opiScore={'opiscoreID'} wptScore={'wptscoreID'} recordId={'0'}
-                todaysDate={'todaysDateID'} closeFirstPopover={closeFirstPopover}
+                todaysDate={'todaysDateID'} certificateType={'opiOnlyID'} closeFirstPopover={closeFirstPopover}
                 />
                 <MenuItem  style={{fontWeight: 'bold' }} onClick={() => setPopoverCustomOpen(false)}>
                   <Iconify icon={'eva:close-square-outline'} sx={{ ml: 2, mr: 2 }}/>
@@ -605,8 +602,8 @@ export default function UserPage() {
                     </TableRow>
                     
                     <TableRow>
-                        <TableCell sx={{borderColor: "white !important"}}/>
-                        <TableCell sx={{borderColor: "white !important"}}/>
+                        <TableCell>OPI Only Certificate</TableCell>
+                        <Checkbox id="opiOnlyID" initialValue={false}/>
                     </TableRow>
                     <TableRow>
                         <TableCell sx={{borderColor: "white !important"}}/>
@@ -724,7 +721,7 @@ export default function UserPage() {
                           />
                         </TableCell>
                     </TableRow>
-                    <TableRow>
+                    {/* <TableRow>
                         <TableCell>Language</TableCell>
                         <TableCell>
                         <EditableCell initialValue='None' _onChange={(value) => setLanguageValue(value)}/>
@@ -735,7 +732,7 @@ export default function UserPage() {
                         <TableCell>
                         <EditableCell initialValue='None' _onChange={(value) => setByuidValue(value)}/>
                         </TableCell>
-                    </TableRow>
+                    </TableRow> */}
                     <TableRow>
                         <TableCell sx={{borderColor: "white !important"}}/>
                         <TableCell sx={{borderColor: "white !important"}}/>

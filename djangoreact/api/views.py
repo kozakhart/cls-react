@@ -482,10 +482,11 @@ def award_certificate(request):
             opi_score = request.data['dataToSend']['OPIScore']
             wpt_score = request.data['dataToSend']['WPTScore']
             formatted_date = request.data['dataToSend']['TodaysDate']
+            certificate_type = request.data['dataToSend']['CertificateType']
             record_id = request.data['dataToSend']['RecordID']
 
             box_client = box_api.create_client()
-            file_id = box_api.create_pdf_cert(box_client, record_id, full_name, language.upper(), level.upper(), opi_score, wpt_score, formatted_date)
+            file_id = box_api.create_pdf_cert(box_client, record_id, full_name, language.upper(), level.upper(), opi_score, wpt_score, formatted_date, str(certificate_type))
             shareable_link = box_api.generate_shareable_link(box_client, file_id)
 
             data = {
@@ -853,7 +854,7 @@ def get_student_grades(request):
             return JsonResponse({'message': 'User is not authenticated'}, status=401)
     else:
         return JsonResponse({'message': 'User is not authenticated'}, status=401)
-import time
+
 @api_view(['POST'])
 @authentication_classes([TokenAuthentication])
 def edit_records(request):
@@ -908,7 +909,6 @@ def qualtrics_reports(request):
 
             # Move the cursor to the beginning of the BytesIO
             output.seek(0)
-
             # Create a FileResponse with the ZIP file
             with open(zip_filepath, 'rb') as zip_file:
                 response = HttpResponse(zip_file.read(), content_type='application/zip')

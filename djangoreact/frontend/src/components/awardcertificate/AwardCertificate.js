@@ -16,7 +16,7 @@ import { set } from 'lodash';
 import { useNavigate } from 'react-router-dom';
 import Iconify from '../iconify';
 
-export default function UpdateNotification({ fullName, byuid, netid, language, level, opiScore, wptScore, todaysDate, recordId, closeFirstPopover} ) {
+export default function UpdateNotification({ fullName, byuid, netid, language, level, opiScore, wptScore, todaysDate, recordId, certificateType, closeFirstPopover} ) {
   const [isConfirmationOpen, setConfirmationOpen] = useState(false);
   const [fullNameValue, setFullName] = useState('');
   const [byuidValue, setBYUIDValue] = useState(byuid);
@@ -27,9 +27,11 @@ export default function UpdateNotification({ fullName, byuid, netid, language, l
   const [wptScoreValue, setWptScore] = useState('');
   const [todaysDateValue, setTodaysDate] = useState('');
   const [recordIdValue, setrecordId] = useState(recordId);
+  const [certificateTypeValue, setCertificateType] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const [updateData, setUpdateData] = useState(false);
+  const [awardedConfirmation, setAwardedConfirmation] = useState(false);
 
   const navigate = useNavigate();
   const verifyTokenUrl = process.env.REACT_APP_VERIFY_TOKEN_URL;
@@ -44,8 +46,18 @@ export default function UpdateNotification({ fullName, byuid, netid, language, l
 
   const handleConfirmationClose = () => {
     setConfirmationOpen(false);
+    setLoading(false);
   };
 
+  const handleAwardedConfirmation = () => {
+    setAwardedConfirmation(true);
+  }
+  const handleAwardedConfirmationClose = () => {
+    setAwardedConfirmation(false);
+    closeFirstPopover();
+    navigate('/cls/dashboard/language-certificates', { replace: true });
+
+  }
   useEffect(() => {
     if (updateData) {
       handleGetAllData(netid);
@@ -62,6 +74,7 @@ export default function UpdateNotification({ fullName, byuid, netid, language, l
     const opiScoreElement = document.getElementById(opiScore);
     const wptScoreElement = document.getElementById(wptScore);
     const todaysDateElement = document.getElementById(todaysDate);
+    const certificateTypeElement = document.getElementById(certificateType);
 
     const fullNameValue = fullNameElement.value;
     const netidValue = netidElement.value;
@@ -78,6 +91,14 @@ export default function UpdateNotification({ fullName, byuid, netid, language, l
     const opiScoreValue = opiScoreElement.value;
     const wptScoreValue = wptScoreElement.value;
     const todaysDateValue = todaysDateElement.value;
+    try{
+      const certificateTypeValue = certificateTypeElement.checked;
+      setCertificateType(certificateTypeValue);
+    }
+    catch{
+      console.log("No certificate type");
+    }
+
 
     setFullName(fullNameValue);
     setNetIDValue(netidValue);
@@ -90,7 +111,7 @@ export default function UpdateNotification({ fullName, byuid, netid, language, l
   };
     
   const handleAwardCertificate = async () => {
-    console.log(fullNameValue, byuidValue, netidValue, languageValue, levelValue, opiScoreValue, wptScoreValue, todaysDateValue, recordIdValue)
+    console.log(fullNameValue, byuidValue, netidValue, languageValue, levelValue, opiScoreValue, wptScoreValue, todaysDateValue, recordIdValue, certificateTypeValue)
     const dataToSend = {
       FullName: fullNameValue,
       BYUID: byuidValue,
@@ -101,6 +122,7 @@ export default function UpdateNotification({ fullName, byuid, netid, language, l
       WPTScore: wptScoreValue,
       TodaysDate: todaysDateValue,
       RecordID: recordIdValue,
+      CertificateType: certificateTypeValue,
       // Other data to send
     };
     
@@ -129,8 +151,12 @@ export default function UpdateNotification({ fullName, byuid, netid, language, l
           );
           // Handle the awardCertificateResponse as needed
           console.log(awardCertificateResponse.data);
-          setLoading(false);
-          navigate('/cls/dashboard/language-certificates', { replace: true });
+          if (awardCertificateResponse.status === 200) {
+            setLoading(false);
+            setAwardedConfirmation(true);
+
+          }
+          
         } catch (error) {
           console.error('Error in awarding certificate:', error);
         }
@@ -171,15 +197,30 @@ export default function UpdateNotification({ fullName, byuid, netid, language, l
           Are you sure you want to send this certificate to {netidValue}@byu.edu?
         </DialogContent>
         <DialogActions>
-        <Button onClick={() => {
-            handleGetAllData(fullName, byuid, netid, language, level, opiScore, wptScore, todaysDate, recordId);
-            handleAwardCertificate();
-            handleConfirmationClose();
-            closeFirstPopover();
-          }} color="primary"> Yes
+          <Button
+            onClick={() => {
+              handleGetAllData(fullName, byuid, netid, language, level, opiScore, wptScore, todaysDate, recordId, certificateType);
+              handleAwardCertificate();
+              handleConfirmationClose();
+            }}
+            color="primary"
+          >
+            Yes
           </Button>
           <Button onClick={handleConfirmationClose} color="primary">
             No
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={awardedConfirmation} onClose={handleAwardedConfirmationClose}>
+        <DialogTitle>Confirmation</DialogTitle>
+        <DialogContent>
+          Certificate awarded.
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleAwardedConfirmationClose} color="primary">
+            OK
           </Button>
         </DialogActions>
       </Dialog>
