@@ -507,7 +507,7 @@ def opi_form(request):
             email = netid + '@byu.edu'
             CertificateStatus = 'None'
             success = 'Sent for ' + firstname
-            approved = 'Yes'
+            approved = 'Waiting'
 
             #send slack message if applicable
             if reason == 'Individual Request' or \
