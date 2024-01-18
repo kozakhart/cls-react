@@ -8,7 +8,9 @@ from django.contrib.auth import authenticate, login as auth_login
 from axes.decorators import axes_dispatch
 from axes.signals import user_login_failed
 from axes.utils import reset
-
+from django.contrib import admin
+admin.site.site_header = 'CLS Admin'
+admin.site.site_title = 'CLS Admin'
 @axes_dispatch
 def custom_admin_login(request):
     if request.method == 'POST':

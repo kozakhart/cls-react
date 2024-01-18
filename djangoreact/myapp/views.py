@@ -509,10 +509,6 @@ def opi_form(request):
             success = 'Sent for ' + firstname
             if language.full_language == 'Other':
                 approved = 'No'
-            elif 'SPAN' in language.abbreviation:
-                approved = 'No'
-            elif '4' in reason or reason == 'Language Certificate':
-                approved = 'Waiting'
             else:
                 approved = 'No'
             record_id = filemaker.create_record(scores, approved, entry_date, entry_time, firstname, lastname, byuid,
@@ -533,7 +529,6 @@ def opi_form(request):
             'SLaT' in reason or \
             'LSR' in reason or \
             'Research' in reason or \
-            'SPAN' in reason or \
             'Study Abroad' in reason or \
             language.full_language == 'Other': 
                 if firstname == 'test' or firstname == 'Test' or lastname == 'Person' or lastname == 'person':
@@ -541,7 +536,7 @@ def opi_form(request):
                 elif language.full_language == 'Other':
                     slack_str = f'A student requires your assistance. \nReason: Other Language \nRecord ID: {record_id} '
                     slack_message.send_slack_message(slack_str)  
-                elif ('SPAN' in reason) or ('Research' in reason) or ('Individual Request' in reason) or ('Study Abroad' in reason) or ('LASER' in reason) or ('SLaT' in reason):
+                elif ('Research' in reason) or ('Individual Request' in reason) or ('Study Abroad' in reason) or ('LASER' in reason) or ('SLaT' in reason):
                     slack_str = f'A student requires your assistance. \nReason: {reason} \nRecord ID: {record_id} '
                     slack_message.send_slack_message(slack_str)          
                 elif come_to_campus == 'No':
@@ -576,6 +571,21 @@ def opi_form(request):
         experience = LanguageExperience.objects.all()
         come_to_campus_reason  = ComeToCampusReason.objects.all()
 
+        ### start of testing block
+        # byu_id = "052163478"
+        # language_abbre = "RUSS"
+        # if language_abbre != "None":
+        #     byu_token = byu_api.login()
+        #     valid_type_language_courses = Courses.objects.filter(language_abbreviation=language_abbre, type_language=True).values('byu_course_key')
+        #     valid_type_culture_courses = Courses.objects.filter(language_abbreviation=language_abbre, type_civilization_culture=True).values('byu_course_key')
+        #     valid_type_literature_courses = Courses.objects.filter(language_abbreviation=language_abbre, type_literature=True).values('byu_course_key')
+        #     reason = "Language Certificate"
+        #     seminar_filter = Reasons.objects.filter(reason=reason).first()
+
+        #     byu_api.test2(byu_token, valid_type_language_courses, valid_type_culture_courses, valid_type_literature_courses, seminar_filter, byu_id, language_abbre, reason)
+        #     byu_api.logout(byu_token)
+
+        ### end of testing block
         context = {'form': form, 
                    'languages': languages,
                      'reasons': reasons,
