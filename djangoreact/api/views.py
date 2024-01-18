@@ -870,7 +870,7 @@ def edit_records(request):
         if user is not None and user.is_staff:
             token = filemaker.login()
             for record in recordids:
-                filemaker.edit_record('Approved', 'Yes', token, record)
+                filemaker.edit_record('Approved', 'Waiting', token, record)
             filemaker.logout(token)
             return JsonResponse({'message': 'Record updated'}, status=200)
         else:
