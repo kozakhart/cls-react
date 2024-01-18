@@ -510,7 +510,7 @@ def opi_form(request):
             if language.full_language == 'Other':
                 approved = 'No'
             else:
-                approved = 'No'
+                approved = 'Yes'
             record_id = filemaker.create_record(scores, approved, entry_date, entry_time, firstname, lastname, byuid,
             netid, email, reason, language.abbreviation, language_other, experience, major, second_major, minor, come_to_campus,
             cannot_come, testdate1, testdate2, time1, time2, time3, time4, CertificateStatus, phone, filemaker_token)
