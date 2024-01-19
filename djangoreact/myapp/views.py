@@ -525,6 +525,9 @@ def opi_form(request):
             'Study Abroad' in reason or \
             language.full_language == 'Other': 
                 approved='No'
+                record_id = filemaker.create_record(scores, approved, entry_date, entry_time, firstname, lastname, byuid,
+                    netid, email, reason, language.abbreviation, language_other, experience, major, second_major, minor, come_to_campus,
+                    cannot_come, testdate1, testdate2, time1, time2, time3, time4, CertificateStatus, phone, filemaker_token)
                 if firstname == 'test' or firstname == 'Test' or lastname == 'Person' or lastname == 'person':
                     pass
                 elif language.full_language == 'Other':
@@ -539,16 +542,11 @@ def opi_form(request):
                 else:
                     slack_str = f'A student has sent in an OPI request that requires your attention. \nReason: {reason} \nRecord ID: {record_id} '
                     slack_message.send_slack_message(slack_str)
-            # else:
-            #     #temp fix for end of semester:
-            #     if firstname == 'test' or firstname == 'Test' or lastname == 'Person' or lastname == 'person':
-            #         pass
-            #     else:
-            #         slack_str = f'A student has sent in an OPI request that requires your attention. \nReason: {reason} \nRecord ID: {record_id} '
-            #         slack_message.send_slack_message(slack_str)
-            record_id = filemaker.create_record(scores, approved, entry_date, entry_time, firstname, lastname, byuid,
-            netid, email, reason, language.abbreviation, language_other, experience, major, second_major, minor, come_to_campus,
-            cannot_come, testdate1, testdate2, time1, time2, time3, time4, CertificateStatus, phone, filemaker_token)
+
+            else:
+                record_id = filemaker.create_record(scores, approved, entry_date, entry_time, firstname, lastname, byuid,
+                    netid, email, reason, language.abbreviation, language_other, experience, major, second_major, minor, come_to_campus,
+                    cannot_come, testdate1, testdate2, time1, time2, time3, time4, CertificateStatus, phone, filemaker_token)
             filemaker.logout(filemaker_token)
             return HttpResponse(success)
         else:
