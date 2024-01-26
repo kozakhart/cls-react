@@ -908,7 +908,7 @@ def qualtrics_reports(request):
                         report_type = 'wpt_report.pdf'
                         files.remove(file)
                 for file in files:
-                    args.append(file)
+                    args.append(file.read())
                 
                 print(args)
                 folder_path = '/home/clsdeveloper/laser-ltiscores-autoreports/'
