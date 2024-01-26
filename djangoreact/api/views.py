@@ -922,7 +922,8 @@ def qualtrics_reports(request):
                 # Check if activation was successful
                 if result_activate.returncode == 0:
                     print("renv is activated.")
-
+                    snapshot_command = 'Rscript -e "renv::snapshot()"'
+                    result_snapshot = subprocess.run(snapshot_command, shell=True, capture_output=True, text=True)
                     # Generate lockfile
                     # Now, restore the packages and execute the R script with arguments
                     install_command = 'Rscript -e "renv::restore()"'
