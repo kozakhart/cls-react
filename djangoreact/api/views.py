@@ -911,7 +911,7 @@ def qualtrics_reports(request):
                     args.append(file.read())
                 
                 print(args)
-                folder_path = '/home/clsdeveloper/laser-ltiscores-autoreports/'
+                folder_path = '/home/clsdeveloper/laser-ltiscores-autoreports'
                 file_name = "Reports.R"
                 file_path = os.path.join(folder_path, file_name)
 
