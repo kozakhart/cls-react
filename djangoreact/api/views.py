@@ -44,6 +44,9 @@ from datetime import datetime
 from django.utils import timezone
 import api.byu_api.byu_api as byu_api
 from myapp.models import Languages
+import subprocess
+from django.core.files import File
+
 
 def verify_user(request):
     # print('verify user')
@@ -884,41 +887,88 @@ def qualtrics_reports(request):
     if request.method == 'POST' and request.FILES.getlist('files'):
         status= verify_user(request).status_code
         if status == 200:
-            files = request.FILES.getlist('files')
-            qualtrics_token = request.data.get('qualtricsToken')
-            print(qualtrics_token)
+            try:
+                args = []
+                report_type = ''
+                qualtrics_token = request.data.get('qualtricsToken')
+                args.append(qualtrics_token)
 
-            output = BytesIO()
-            zip_filename = 'reports.zip'  # Set your desired ZIP filename
-            zip_filepath = os.path.join(os.getcwd(), zip_filename)
+                files = request.FILES.getlist('files')
+                for file in files:
+                    if 'OPIc' in file.name:
+                        args.append(file)
+                        report_type = 'opic_report.pdf'
+                        files.remove(file)
+                    elif 'OPI' in file.name:
+                        args.append(file)
+                        report_type = 'opi_report.pdf'
+                        files.remove(file)
+                    elif 'WPT' in file.name:
+                        args.append(file)
+                        report_type = 'wpt_report.pdf'
+                        files.remove(file)
+                for file in files:
+                    args.append(file)
+                
+                print(args)
+                folder_path = '/home/clsdeveloper/laser-ltiscores-autoreports/'
+                file_name = "Reports.R"
+                file_path = os.path.join(folder_path, file_name)
 
-            # Separate BytesIO object for writing to the file
-            with BytesIO() as file_output:
-                with zipfile.ZipFile(file_output, 'w', zipfile.ZIP_DEFLATED) as f:
-                    for file in files:
-                        # Your file processing logic here
-                        # download the file
-                        file_content = file.read()
-                        print(f"Received file: {file.name}")
+                # Activate renv environment
+                activate_command = f'Rscript -e "renv::activate(\'{folder_path}\')"'
+                result_activate = subprocess.run(activate_command, shell=True, capture_output=True, text=True)
 
-                        f.writestr(file.name, file_content)
+                # Check if activation was successful
+                if result_activate.returncode == 0:
+                    print("renv is activated.")
 
-                # Move the cursor to the beginning of the BytesIO
-                file_output.seek(0)
+                    # Generate lockfile
+                    # Now, restore the packages and execute the R script with arguments
+                    install_command = 'Rscript -e "renv::restore()"'
+                    result_install = subprocess.run(install_command, shell=True, capture_output=True, text=True)
 
-                # Write the BytesIO content to the file
-                with open(zip_filepath, 'wb') as zip_file:
-                    zip_file.write(file_output.read())
+                        # Check if installation was successful
+                    if result_install.returncode == 0:
+                        print("Packages installed successfully.")
 
-            # Move the cursor to the beginning of the BytesIO
-            output.seek(0)
-            # Create a FileResponse with the ZIP file
-            with open(zip_filepath, 'rb') as zip_file:
-                response = HttpResponse(zip_file.read(), content_type='application/zip')
-                response['Content-Disposition'] = 'attachment; filename="reports.zip"'
+                            # Now, execute the R script with arguments
+                        execute_command = ['Rscript', file_path] + args
+                        result_execute = subprocess.run(execute_command, capture_output=True, text=True)
 
-            os.remove(zip_filepath)
-            return response
+                            # Check if execution was successful
+                        if result_execute.returncode == 0:
+                                # Print the standard output
+                            print(f"Output of {file_path}:\n{result_execute.stdout}")
+                        else:
+                                # Print the error message if execution fails
+                            print(f"Error executing {file_path}:\n{result_execute.stderr}")
+                    else:
+                        print("Error installing packages:")
+                        print(result_install.stderr)
+                else:
+                    print("Error activating renv:")
+                    print(result_activate.stderr)
+
+                file_path = os.path.join(folder_path, report_type)
+
+                with open(file_path, 'rb') as file:
+                    django_file = File(file)
+                    file_content = django_file.read()
+
+                zip_buffer = BytesIO()
+
+                with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+                    zip_file.writestr(os.path.basename(file_path), file_content)
+                zip_buffer.seek(0)
+
+                response = HttpResponse(zip_buffer.read(), content_type='application/zip')
+                response['Content-Disposition'] = f'attachment; filename="{os.path.basename(file_path)}.zip"'
+
+                return response
+            except Exception as e:
+                print(e)
+                return Response({'message': 'Error generating report'}, status=400)
 
         else:
             return JsonResponse({'message': 'User is not authenticated'}, status=401)

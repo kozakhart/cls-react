@@ -45,6 +45,7 @@ export default function BlogPage() {
   const verifyTokenUrl = process.env.REACT_APP_VERIFY_TOKEN_URL;
   const getQualtricsUrl = process.env.REACT_APP_QUALTRICS_URL;
 
+  const [isLoading, setIsLoading] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [qualtricsToken, setQualtricsToken] = useState('');
   const [response, setResponse] = useState(''); // server response
@@ -60,6 +61,7 @@ export default function BlogPage() {
   
 
 const handleFileUpload = () => {
+    setIsLoading(true);
     const formData = new FormData();
 
     selectedFiles.forEach(file => {
@@ -107,9 +109,15 @@ const handleFileUpload = () => {
         } else {
           console.log('Error');
         }
+        setIsLoading(false);
       } catch (error) {
-        navigate('/cls/login', { replace: true });
-        console.log(error);
+        setIsLoading(false);
+          if (error.response && error.response.status === 400) {
+            console.log('Bad Request:', error.response.data);
+          } else {
+            navigate('/cls/login', { replace: true });
+            console.log(error);
+          }
       }
     };
     fetchData();
@@ -163,7 +171,25 @@ const handleFileUpload = () => {
         onClick={handleFileUpload}
         sx = {{ ml: 2 }}
       >
-        2. Upload CSV Files
+        <span style={{ visibility: isLoading ? 'hidden' : 'visible' }}>2. Upload CSV Files</span>
+        {isLoading && (
+          <div
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+            }}
+          >
+            <PulseLoader
+              loading={isLoading}
+              size={5}
+              aria-label="Loading Spinner"
+              data-testid="loader"
+              sx={{ height: 'inherit' }}
+            />
+          </div>
+        )}
       </Button>
     </Box>
       </Container>

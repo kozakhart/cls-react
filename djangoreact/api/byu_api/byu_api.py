@@ -17,9 +17,7 @@ def login():
     data = {'grant_type': 'client_credentials'}
     client_id = BYU_PRODUCTION_ID
     client_secret = BYU_PRODUCTION_SECRET
-    print(client_id, client_secret)
     response_API = requests.post(url, data=data, verify=False, allow_redirects=False, auth=(client_id, client_secret)).json()
-    print(response_API)
     token = response_API['access_token']
 
     return token

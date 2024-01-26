@@ -227,7 +227,7 @@ export default function UpdateNotification({firstnameID, lastnameID, approvedID,
         console.log('Data updated successfully:', response);
           console.log('Data updated successfully:', updateDataFrontend, 'test');
         setConfirmationOpen(false);
-        navigate('/cls/dashboard/user', { replace: true });
+        // navigate('/cls/dashboard/user', { replace: true });
       })
       .catch((error) => {
         console.error('Error updating data:', error);

@@ -7,6 +7,12 @@ from dotenv import load_dotenv
 import json
 from pathlib import Path
 
+# byu_api.py
+
+# Now you should be able to import your models
+
+# Your script continues...
+
 load_dotenv()
 
 def login():
@@ -17,9 +23,7 @@ def login():
     data = {'grant_type': 'client_credentials'}
     client_id = BYU_PRODUCTION_ID
     client_secret = BYU_PRODUCTION_SECRET
-    print(client_id, client_secret)
     response_API = requests.post(url, data=data, verify=False, allow_redirects=False, auth=(client_id, client_secret)).json()
-    print(response_API)
     token = response_API['access_token']
 
     return token
@@ -49,19 +53,15 @@ def get_byuid(token, byu_id, net_id, valid):
     #print(list)
 
 def get_classes(token, byu_id, language, valid, reason):
-    #print(token)
-    #url = 'https://api.byu.edu:443/byuapi/students/v3/'
     url = f'https://api.byu.edu:443/byuapi/students/v3/{byu_id}/enrolled_class_grades/'
     headers= CaseInsensitiveDict()
     headers["Content-Type"] = "application/json"
     headers["Authorization"] = f"Bearer {token}"
     response_API = requests.get(url, headers=headers, verify=False).json()
-    #response_API = requests.get(url, headers=headers, verify=False)
     x = True
     counter = 0
     transcript = []
     dic = {}
-    #print(response_API)
     if reason == 'Individual Request' or \
         'FLAS' in reason or \
         'Study Abroad' in reason or \
@@ -224,7 +224,87 @@ def test(token, byu_id):
         api_net_id = response_json['values'][0]['basic']['net_id']['value']
         print(api_net_id)
 
+def test2(token, valid_type_language_courses, valid_type_culture_courses, valid_type_literature_courses, seminar_filter, byu_id, language_abbre, reason):
+    print(f'filter', seminar_filter.seminar)
+    valid = False
+    url = f'https://api.byu.edu:443/byuapi/students/v3/{byu_id}/enrolled_class_grades/'
+    headers= CaseInsensitiveDict()
+    headers["Content-Type"] = "application/json"
+    headers["Authorization"] = f"Bearer {token}"
+    response_API = requests.get(url, headers=headers, verify=False).json()
+    student_transcript = []
+    for student_data in response_API['values']:
+        teaching_area = student_data['teaching_area']['value']
+        course_number = student_data['course_number']['value']
+        grade = student_data['grade']['value']
+        student_transcript.append([{'course': teaching_area + ' ' + course_number}, {'grade': grade}])
+    # handle seminar students
+    if seminar_filter.seminar == True:
+        for sublist in student_transcript:
+            for item in sublist:
+                course_number = item.get['course']
+                if course_number in reason:
+                    valid = True
+                    return valid
+                else:
+                    valid = False
+    else:
+        print('not in seminar')
+
+    # # handle language certificate students
+    if reason == 'Language Certificate':
+        counted_language_courses = set()
+        counted_civilization_courses = set()
+        counted_literature_courses = set()
+        for sublist in student_transcript:
+            print(sublist)
+            for course in sublist:
+                print(course)
+                if any(course.get('course') == lang_course.get('byu_course_key') for lang_course in valid_type_language_courses):
+                    counted_language_courses.add(course.get('course'))
+                if any(course.get('course') == lang_course.get('byu_course_key') for lang_course in valid_type_culture_courses):
+                    counted_civilization_courses.add(course.get('course'))
+                if any(course.get('course') == lang_course.get('byu_course_key') for lang_course in valid_type_literature_courses):
+                    counted_literature_courses.add(course.get('course'))
+    #counted_civilization_courses.remove('RUSS 330')
+
+        language_met = len(counted_language_courses)
+        civilization_met = len(counted_civilization_courses)
+        culture_met = len(counted_literature_courses)
+        total = language_met + civilization_met + culture_met
+        if total >= 3 and language_met >= 1 and civilization_met >= 1 and culture_met >= 1:
+            print(total)
+            valid = True
+
+        print(counted_language_courses, counted_civilization_courses, counted_literature_courses)      
+        print(language_met, civilization_met, culture_met)
+        if valid:
+            print("Congratulations! You have met the requirements for the certificate.")
+        else:
+            print("Sorry, you have not fulfilled all the requirements for the certificate.")
+            valid = False
+            
+    if reason != 'Language Certificate' and seminar_filter.seminar == False:
+        valid = None
+    # get a way to validate rest of reasons dynamically
+    return valid
+
+    if reason == 'Individual Request' or \
+        'FLAS' in reason or \
+        'Study Abroad' in reason or \
+        'CLS_Instructor' in reason or \
+        'LaSER' in reason or \
+        'MAPL' in reason or \
+        'Research' in reason or \
+        'Dual Immersion' in reason or \
+        'Program Applicant' in reason or \
+        'SLaT' in reason or \
+        'LSR' in reason or \
+        'Research' in reason: 
+        #send notification to Mariah
+        valid = True
+        return valid
+    
 
 # token = login()
-
 # logout(token)
