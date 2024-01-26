@@ -896,15 +896,15 @@ def qualtrics_reports(request):
                 files = request.FILES.getlist('files')
                 for file in files:
                     if 'OPIc' in file.name:
-                        args.append(file)
+                        args.append(file.read())
                         report_type = 'opic_report.pdf'
                         files.remove(file)
                     elif 'OPI' in file.name:
-                        args.append(file)
+                        args.append(file.read())
                         report_type = 'opi_report.pdf'
                         files.remove(file)
                     elif 'WPT' in file.name:
-                        args.append(file)
+                        args.append(file.read())
                         report_type = 'wpt_report.pdf'
                         files.remove(file)
                 for file in files:
