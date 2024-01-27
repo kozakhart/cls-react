@@ -7,4 +7,5 @@ db.sqlite3
 
 __pycache__/
 venv/
+**/migrations/*.py
 djangoreact/djangoreact/settings.py

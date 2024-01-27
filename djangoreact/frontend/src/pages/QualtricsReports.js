@@ -20,6 +20,7 @@ import {
   Grid,
 TextField,
 IconButton,
+InputAdornment,
 Box
 } from '@mui/material';
 import DatePicker from "react-datepicker";
@@ -48,6 +49,8 @@ export default function BlogPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [qualtricsToken, setQualtricsToken] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+
   const [response, setResponse] = useState(''); // server response
   const qualtricsTokenChange = (event) => {
     setQualtricsToken(event.target.value);
@@ -137,13 +140,25 @@ const handleFileUpload = () => {
           </Typography>
         </Stack>
         <Box>
+          
       <TextField
+        name="token"
         label="Enter Qualtrics Token"
         variant="outlined"
         margin="normal"
         fullWidth
+        type={showPassword ? 'text' : 'password'}
         value={qualtricsToken}
         onChange={qualtricsTokenChange}
+        InputProps={{
+          endAdornment: (
+            <InputAdornment position="end">
+              <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                <Iconify icon={showPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'} />
+              </IconButton>
+            </InputAdornment>
+          ),
+        }}
       />
     <Button
         component="label"
