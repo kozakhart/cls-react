@@ -922,6 +922,10 @@ def qualtrics_reports(request):
                 # Check if activation was successful
                 if result_activate.returncode == 0:
                     print("renv is activated.")
+                    install_tinytex_command = 'Rscript -e "if (!requireNamespace(\'tinytex\', quietly = TRUE)) install.packages(\'tinytex\')"'
+                    result_install_tinytex = subprocess.run(install_tinytex_command, shell=True, capture_output=True, text=True)
+
+                    
                     snapshot_command = 'Rscript -e "renv::snapshot()"'
                     result_snapshot = subprocess.run(snapshot_command, shell=True, capture_output=True, text=True)
                     # Generate lockfile
