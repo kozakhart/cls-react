@@ -950,7 +950,8 @@ def qualtrics_reports(request):
                             print(f"Error executing {file_path}:\n{result_execute.stderr}")
                     else:
                         print("Error installing packages:")
-                        print(result_install.stderr)
+                        #print(result_install.stderr)
+                        print(result_activate.stderr)
                 else:
                     print("Error activating renv:")
                     print(result_activate.stderr)
@@ -962,9 +963,19 @@ def qualtrics_reports(request):
                     file_content = django_file.read()
 
                 zip_buffer = BytesIO()
+    
+    # List all files in the directory with .csv extension
+                csv_files = [f for f in os.listdir(folder_path) if f.endswith('.csv')]
 
                 with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
                     zip_file.writestr(os.path.basename(file_path), file_content)
+                    for csv_file in csv_files:
+                        csv_file_path = os.path.join(folder_path, csv_file)
+                        with open(csv_file_path, 'rb') as file:
+                            file_content = file.read()
+                        zip_file.writestr(os.path.basename(csv_file_path), file_content)
+                        os.remove(csv_file_path)
+                        
                 zip_buffer.seek(0)
 
                 response = HttpResponse(zip_buffer.read(), content_type='application/zip')
