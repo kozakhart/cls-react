@@ -922,19 +922,19 @@ def qualtrics_reports(request):
                 # Check if activation was successful
                 if result_activate.returncode == 0:
                     print("renv is activated.")
-                    install_tinytex_command = 'Rscript -e "if (!requireNamespace(\'tinytex\', quietly = TRUE)) install.packages(\'tinytex\')"'
-                    result_install_tinytex = subprocess.run(install_tinytex_command, shell=True, capture_output=True, text=True)
+                    # install_tinytex_command = 'Rscript -e "if (!requireNamespace(\'tinytex\', quietly = TRUE)) install.packages(\'tinytex\')"'
+                    # result_install_tinytex = subprocess.run(install_tinytex_command, shell=True, capture_output=True, text=True)
 
                     
-                    snapshot_command = 'Rscript -e "renv::snapshot()"'
-                    result_snapshot = subprocess.run(snapshot_command, shell=True, capture_output=True, text=True)
-                    # Generate lockfile
-                    # Now, restore the packages and execute the R script with arguments
-                    install_command = 'Rscript -e "renv::restore()"'
-                    result_install = subprocess.run(install_command, shell=True, capture_output=True, text=True)
+                    # snapshot_command = 'Rscript -e "renv::snapshot()"'
+                    # result_snapshot = subprocess.run(snapshot_command, shell=True, capture_output=True, text=True)
+                    # # Generate lockfile
+                    # # Now, restore the packages and execute the R script with arguments
+                    # install_command = 'Rscript -e "renv::restore()"'
+                    # result_install = subprocess.run(install_command, shell=True, capture_output=True, text=True)
 
-                        # Check if installation was successful
-                    if result_install.returncode == 0:
+                    # if result_install.returncode == 0:
+                    if result_activate.returncode == 0:
                         print("Packages installed successfully.")
 
                             # Now, execute the R script with arguments
