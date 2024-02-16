@@ -40,6 +40,7 @@ class Reasons(models.Model):
     seminar = models.BooleanField(default=False, help_text="Check this box if reason is a seminar course")
     accept = models.BooleanField(default=False, help_text="Auto accept submission: Check this box if you want to automatically accept this reason upon submission. Students still have to be approved by you to have their test scheduled.")
     approve = models.BooleanField(default=False, help_text="Auto Approval: Check this box if you want to automatically approve this reason upon submission. Students will not have to be approved by you to have their test scheduled. This is not recommended for most reasons.")
+    reject = models.BooleanField(default=False, help_text="Auto Reject: Check this box if you want to automatically reject this reason upon submission. Students will not have to be approved by you to have their test scheduled. This is not recommended for most reasons.")
     notification = models.BooleanField(default=False, help_text="Check this box if you want to be notified when someone submits this reason upon submission")
     notification_message = models.TextField(default="A student has sent in an OPI request that requires your attention.", help_text="Enter the message you want to send to the person who submits this reason. This automatically includes the reason and student record ID at the end of the message.")
     class Meta:
