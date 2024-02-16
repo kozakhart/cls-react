@@ -1,6 +1,19 @@
 from django.db import models
 import myapp.model_choices as mc
 
+class Courses(models.Model):
+
+    byu_course_key = models.CharField(max_length=100, help_text="Enter the BYU course key for this course. Example: RUSS 321, SPAN 323R")
+    language = models.CharField(max_length=100, help_text="Enter what language this course is for. Example: Russian, Spanish")
+    language_abbreviation = models.CharField(max_length=100, help_text="Enter the abbreviation for the language. Example: RUSS, SPAN")
+    type_language = models.BooleanField(default=False, help_text="Check this box if this course is a language course")
+    type_civilization_culture = models.BooleanField(default=False, help_text="Check this box if this course is a civilization/culture course")
+    type_literature = models.BooleanField(default=False, help_text="Check this box if this course is a literature course")
+    class Meta:
+        verbose_name_plural = "Courses"
+    def __str__(self):
+        return self.byu_course_key
+    
 class Languages(models.Model):
     full_language = models.CharField(max_length=100)
     abbreviation = models.CharField(max_length=100)
@@ -24,6 +37,11 @@ class ComeToCampusReason(models.Model):
 
 class Reasons(models.Model):
     reason = models.CharField(max_length=100)
+    seminar = models.BooleanField(default=False, help_text="Check this box if reason is a seminar course")
+    accept = models.BooleanField(default=False, help_text="Auto accept submission: Check this box if you want to automatically accept this reason upon submission. Students still have to be approved by you to have their test scheduled.")
+    approve = models.BooleanField(default=False, help_text="Auto Approval: Check this box if you want to automatically approve this reason upon submission. Students will not have to be approved by you to have their test scheduled. This is not recommended for most reasons.")
+    notification = models.BooleanField(default=False, help_text="Check this box if you want to be notified when someone submits this reason upon submission")
+    notification_message = models.TextField(default="A student has sent in an OPI request that requires your attention.", help_text="Enter the message you want to send to the person who submits this reason. This automatically includes the reason and student record ID at the end of the message.")
     class Meta:
         verbose_name_plural = "Reasons"
     def __str__(self):

@@ -381,7 +381,7 @@ def opi_form(request):
 
         google_calendar.main()
 
-        valid = True
+        valid = False
         now = datetime.now()
 
         #region contains all request values
@@ -481,10 +481,18 @@ def opi_form(request):
                 valid == False
                 return response
             k += 1
+        email = netid + '@byu.edu'
+        CertificateStatus = 'None'
+        success = 'Sent for ' + firstname
 
+        #check if student is actually a student
         byu_token = byu_api.login()
         valid_student = byu_api.get_byuid(byu_token, byuid, netid, valid)
+        if not valid_student:
+            response = JsonResponse({"error": "Your BYU student information is incorrect. Please verify your BYU ID and NET ID and make sure that there is not a space at the end of your NET ID."})
 
+
+        #check if student has already submitted a test request for the requested language
         try:
             filemaker_token = filemaker.login()
             test = filemaker.find_record('BYUID', byuid, filemaker_token)
@@ -497,67 +505,78 @@ def opi_form(request):
         except KeyError:
             #this student is clear to submit a test request
             pass
-        if language.full_language != "Other":
-            print(type(language.abbreviation))
-            print(byuid, language.abbreviation, reason, valid)
-            valid_classes = byu_api.get_classes(byu_token, byuid, language.abbreviation, valid, reason)
-        logout = byu_api.logout(byu_token)
-        if (language.full_language == "Other" and valid_student == True) or (valid_student == True and valid == True and valid_classes == True):
 
-            email = netid + '@byu.edu'
-            CertificateStatus = 'None'
-            success = 'Sent for ' + firstname
-            approved = 'Waiting'
+        ### start of testing block
 
-            #send slack message if applicable
-            if reason == 'Individual Request' or \
-            'FLAS' in reason or \
-            'Study Abroad' in reason or \
-            'CLS_Instructor' in reason or \
-            'LASER' in reason or \
-            'MAPL' in reason or \
-            'Research' in reason or \
-            'Dual Immersion' in reason or \
-            'Program Applicant' in reason or \
-            'SLaT' in reason or \
-            'LSR' in reason or \
-            'Research' in reason or \
-            'Study Abroad' in reason or \
-            language.full_language == 'Other': 
-                approved='No'
-                record_id = filemaker.create_record(scores, approved, entry_date, entry_time, firstname, lastname, byuid,
-                    netid, email, reason, language.abbreviation, language_other, experience, major, second_major, minor, come_to_campus,
-                    cannot_come, testdate1, testdate2, time1, time2, time3, time4, CertificateStatus, phone, filemaker_token)
-                if firstname == 'test' or firstname == 'Test' or lastname == 'Person' or lastname == 'person':
-                    pass
-                elif language.full_language == 'Other':
-                    slack_str = f'A student requires your assistance. \nReason: Other Language \nRecord ID: {record_id} '
-                    slack_message.send_slack_message(slack_str)  
-                elif ('Research' in reason) or ('Individual Request' in reason) or ('Study Abroad' in reason) or ('LASER' in reason) or ('SLaT' in reason):
-                    slack_str = f'A student requires your assistance. \nReason: {reason} \nRecord ID: {record_id} '
-                    slack_message.send_slack_message(slack_str)          
-                elif come_to_campus == 'No':
-                    slack_str = f'A student cannot come to campus to take their OPI test and requires your attention. \nReason: {cannot_come} \nRecord ID: {record_id} '
-                    slack_message.send_slack_message(slack_str)
-                else:
-                    slack_str = f'A student has sent in an OPI request that requires your attention. \nReason: {reason} \nRecord ID: {record_id} '
-                    slack_message.send_slack_message(slack_str)
+        # get all data here
+        # reason = "SPAN 491"
+        # language_abbre = "RUSS"
+        # byu_id = "052163478"
+        # record_id = "123"
 
-            else:
-                record_id = filemaker.create_record(scores, approved, entry_date, entry_time, firstname, lastname, byuid,
-                    netid, email, reason, language.abbreviation, language_other, experience, major, second_major, minor, come_to_campus,
-                    cannot_come, testdate1, testdate2, time1, time2, time3, time4, CertificateStatus, phone, filemaker_token)
-            filemaker.logout(filemaker_token)
-            return HttpResponse(success)
+        # is the reason automatically approved by the backend?
+        backend_accept = Reasons.objects.filter(reason=reason).values('accept').first()['accept']
+        backend_approve = Reasons.objects.filter(reason=reason).values('approve').first()['approve']
+        language_abbre = language.abbreviation
+        if backend_approve == True or backend_accept == True:
+            valid = True
         else:
-            print('it faileeeedddd')
-            response = JsonResponse({"error":"There was an error submitting your request."})
-            if not valid_student:
-                response = JsonResponse({"error": "Your BYU student information is incorrect. Please verify your BYU ID and NET ID and make sure that there is not a space at the end of your NET ID."})
-            if not valid_classes:
-                response = JsonResponse({"error": "You have not yet completed the required language courses to qualify for the OPI. Please verify your course selection. Additionally, students often put the incorrect reason for taking the test. For example, sometimes students enter 'Language Certificate', when really they should be putting their seminar class as the reason for taking the OPI test."})
-            response.status_code = 403
-            return response
+            # check language cert reason
+            byu_token = byu_api.login()
+            if reason == 'Language Certificate':
+                valid_type_language_courses = Courses.objects.filter(language_abbreviation=language_abbre, type_language=True).values('byu_course_key')
+                valid_type_culture_courses = Courses.objects.filter(language_abbreviation=language_abbre, type_civilization_culture=True).values('byu_course_key')
+                valid_type_literature_courses = Courses.objects.filter(language_abbreviation=language_abbre, type_literature=True).values('byu_course_key')
+                lang_cert_response = byu_api.check_language_cert_reason(byu_token, byuid, valid_type_language_courses, valid_type_culture_courses, valid_type_literature_courses)
+                if lang_cert_response == False:
+                    response = JsonResponse({"error": "You have not yet completed the required language courses to qualify for the OPI. Please verify your course selection. Additionally, students often put the incorrect reason for taking the test. For example, sometimes students enter 'Language Certificate', when really they should be putting their seminar class as the reason for taking the OPI test."})
+                    response.status_code = 403
+                    return response
+
+            # check if seminar is the reason
+            seminar_filter = Reasons.objects.filter(reason=reason).first()
+            print(seminar_filter)
+            if seminar_filter.seminar == True:
+                valid = byu_api.check_seminar_reason(byu_token, byuid, seminar_filter, reason)
+                if valid == False:
+                    response = JsonResponse({"error": "You have not yet completed the required language courses to qualify for the OPI. Please verify your course selection. Additionally, students often put the incorrect reason for taking the test. For example, sometimes students enter 'Language Certificate', when really they should be putting their seminar class as the reason for taking the OPI test."})
+                    response.status_code = 403
+                    return response
+        # all other cases need to be manually approved
+        if language == 'Other':
+            valid = False
+        if valid == False:
+            approved = 'No'
+        if valid == True:
+            approved = 'Waiting'
+        if backend_approve == 'False' and backend_accept == 'True':
+            approved = 'No'
+            print('valid=', valid)
+        print('approved', approved)
+        # record_id = filemaker.create_record(scores, approved, entry_date, entry_time, firstname, lastname, byuid,
+        #             netid, email, reason, language_abbre, language_other, experience, major, second_major, minor, come_to_campus,
+        #             cannot_come, testdate1, testdate2, time1, time2, time3, time4, CertificateStatus, phone, filemaker_token)
+        print('created your record!')
+        record_id = '123'
+        # does a notification need to be sent to slack?
+        backend_notification = Reasons.objects.filter(reason=reason).values('notification').first()['notification']
+        if backend_notification == True:
+            message = Reasons.objects.filter(reason=reason).values('notification_message').first()['notification_message']
+            slack_str = f'{message} \nReason: {reason} \nRecord ID: {record_id}'
+            #slack_message.send_slack_message(slack_str)
+        if come_to_campus == 'No':
+            slack_str = f"A student cannot come to campus to take their OPI test and requires your attention. \nReason: {reason} \nRecord ID: {record_id}"
+            #slack_message.send_slack_message(come_to_campus_string)
+        if language.full_language == 'Other':
+            slack_str = f"A student has requested to take an OPI test in a language that is not listed in the database. Please verify the language and approve the request. \nReason: {reason} \nRecord ID: {record_id}"
+            #slack_message.send_slack_message(other_language_string)
+        print(slack_str)
+        ### end of testing block
+       
+        logout = byu_api.logout(byu_token)
+
+        filemaker.logout(filemaker_token)
+        return HttpResponse(success)
         
     else:
         form = OPIForm_Forms()
@@ -566,21 +585,6 @@ def opi_form(request):
         experience = LanguageExperience.objects.all()
         come_to_campus_reason  = ComeToCampusReason.objects.all()
 
-        ### start of testing block
-        # byu_id = "052163478"
-        # language_abbre = "RUSS"
-        # if language_abbre != "None":
-        #     byu_token = byu_api.login()
-        #     valid_type_language_courses = Courses.objects.filter(language_abbreviation=language_abbre, type_language=True).values('byu_course_key')
-        #     valid_type_culture_courses = Courses.objects.filter(language_abbreviation=language_abbre, type_civilization_culture=True).values('byu_course_key')
-        #     valid_type_literature_courses = Courses.objects.filter(language_abbreviation=language_abbre, type_literature=True).values('byu_course_key')
-        #     reason = "Language Certificate"
-        #     seminar_filter = Reasons.objects.filter(reason=reason).first()
-
-        #     byu_api.test2(byu_token, valid_type_language_courses, valid_type_culture_courses, valid_type_literature_courses, seminar_filter, byu_id, language_abbre, reason)
-        #     byu_api.logout(byu_token)
-
-        ### end of testing block
         context = {'form': form, 
                    'languages': languages,
                      'reasons': reasons,
