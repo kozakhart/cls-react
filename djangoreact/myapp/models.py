@@ -29,7 +29,7 @@ class LanguageExperience(models.Model):
         return self.experience
 
 class ComeToCampusReason(models.Model):
-    campusreason = models.CharField(max_length=100)
+    campusreason = models.CharField(default="None", max_length=100)
     class Meta:
         verbose_name_plural = "Campus Reasons"
     def __str__(self):
