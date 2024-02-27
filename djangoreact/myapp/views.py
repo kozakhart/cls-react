@@ -576,7 +576,6 @@ def opi_form(request):
         if language.full_language == 'Other':
             slack_str = f"A student has requested to take an OPI test in a language that is not listed in the database. Please verify the language and approve the request. \nReason: {reason} \nRecord ID: {record_id}"
             slack_message.send_slack_message(slack_str)
-        print(slack_str)
         ### end of testing block
        
         logout = byu_api.logout(byu_token)
