@@ -305,6 +305,78 @@ def test2(token, valid_type_language_courses, valid_type_culture_courses, valid_
         valid = True
         return valid
     
+def check_language_cert_reason(token, byu_id, valid_type_language_courses, valid_type_culture_courses, valid_type_literature_courses):
+    valid = False
+    url = f'https://api.byu.edu:443/byuapi/students/v3/{byu_id}/enrolled_class_grades/'
+    headers= CaseInsensitiveDict()
+    headers["Content-Type"] = "application/json"
+    headers["Authorization"] = f"Bearer {token}"
+    response_API = requests.get(url, headers=headers, verify=False).json()
+    student_transcript = []
+    for student_data in response_API['values']:
+        teaching_area = student_data['teaching_area']['value']
+        course_number = student_data['course_number']['value']
+        grade = student_data['grade']['value']
+        student_transcript.append([{'course': teaching_area + ' ' + course_number}, {'grade': grade}])
 
+    counted_language_courses = set()
+    counted_civilization_courses = set()
+    counted_literature_courses = set()
+    for sublist in student_transcript:
+        print(sublist)
+        for course in sublist:
+            print(course)
+            if any(course.get('course') == lang_course.get('byu_course_key') for lang_course in valid_type_language_courses):
+                counted_language_courses.add(course.get('course'))
+            if any(course.get('course') == lang_course.get('byu_course_key') for lang_course in valid_type_culture_courses):
+                counted_civilization_courses.add(course.get('course'))
+            if any(course.get('course') == lang_course.get('byu_course_key') for lang_course in valid_type_literature_courses):
+                counted_literature_courses.add(course.get('course'))
+    #counted_civilization_courses.remove('RUSS 330')
+
+    language_met = len(counted_language_courses)
+    civilization_met = len(counted_civilization_courses)
+    culture_met = len(counted_literature_courses)
+    total_set = len(counted_language_courses.union(counted_civilization_courses, counted_literature_courses))
+    if total_set >= 3 and language_met >= 1 and civilization_met >= 1 and culture_met >= 1:
+        valid = True
+        print("Congratulations! You have met the requirements for the certificate.")
+    else:
+        print("Sorry, you have not fulfilled all the requirements for the certificate.")
+    return valid
+
+def check_seminar_reason(token, byu_id, seminar_filter, reason):
+    valid = False
+    url = f'https://api.byu.edu:443/byuapi/students/v3/{byu_id}/enrolled_class_grades/'
+    headers= CaseInsensitiveDict()
+    headers["Content-Type"] = "application/json"
+    headers["Authorization"] = f"Bearer {token}"
+    response_API = requests.get(url, headers=headers, verify=False).json()
+    student_transcript = []
+    for student_data in response_API['values']:
+        teaching_area = student_data['teaching_area']['value']
+        course_number = student_data['course_number']['value']
+        grade = student_data['grade']['value']
+        student_transcript.append([{'course': teaching_area + ' ' + course_number}, {'grade': grade}])
+    # handle seminar students
+    print(student_transcript)
+    if seminar_filter.seminar == True:
+        for sublist in student_transcript:
+            for item in sublist:
+                course_number = item.get('course')
+                print(course_number)
+                if course_number is not None and course_number in reason:
+                    print('in seminar')          
+                    valid = True
+                    return valid
+                else:
+                    valid = False
+                    print('not in seminar')
+    else:
+        print('not in seminar')
+    return valid
+
+        
 # token = login()
+# get_byuid2(token, '702615937')
 # logout(token)
