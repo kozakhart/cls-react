@@ -514,6 +514,13 @@ def opi_form(request):
         # byu_id = "052163478"
         # record_id = "123"
 
+
+        ### add auto reject here!
+        backend_reject = Reasons.objects.filter(reason=reason).values('reject').first()['reject']
+        if backend_reject == True:
+            response = JsonResponse({"error": "Your request has been automatically rejected. Please contact the Center for Language Studies for more information."})
+            response.status_code = 403
+            return response
         # is the reason automatically approved by the backend?
         backend_accept = Reasons.objects.filter(reason=reason).values('accept').first()['accept']
         backend_approve = Reasons.objects.filter(reason=reason).values('approve').first()['approve']
@@ -553,23 +560,22 @@ def opi_form(request):
             approved = 'No'
             print('valid=', valid)
         print('approved', approved)
-        # record_id = filemaker.create_record(scores, approved, entry_date, entry_time, firstname, lastname, byuid,
-        #             netid, email, reason, language_abbre, language_other, experience, major, second_major, minor, come_to_campus,
-        #             cannot_come, testdate1, testdate2, time1, time2, time3, time4, CertificateStatus, phone, filemaker_token)
+        record_id = filemaker.create_record(scores, approved, entry_date, entry_time, firstname, lastname, byuid,
+                    netid, email, reason, language_abbre, language_other, experience, major, second_major, minor, come_to_campus,
+                    cannot_come, testdate1, testdate2, time1, time2, time3, time4, CertificateStatus, phone, filemaker_token)
         print('created your record!')
-        record_id = '123'
         # does a notification need to be sent to slack?
         backend_notification = Reasons.objects.filter(reason=reason).values('notification').first()['notification']
         if backend_notification == True:
             message = Reasons.objects.filter(reason=reason).values('notification_message').first()['notification_message']
             slack_str = f'{message} \nReason: {reason} \nRecord ID: {record_id}'
-            #slack_message.send_slack_message(slack_str)
+            slack_message.send_slack_message(slack_str)
         if come_to_campus == 'No':
             slack_str = f"A student cannot come to campus to take their OPI test and requires your attention. \nReason: {reason} \nRecord ID: {record_id}"
-            #slack_message.send_slack_message(come_to_campus_string)
+            slack_message.send_slack_message(slack_str)
         if language.full_language == 'Other':
             slack_str = f"A student has requested to take an OPI test in a language that is not listed in the database. Please verify the language and approve the request. \nReason: {reason} \nRecord ID: {record_id}"
-            #slack_message.send_slack_message(other_language_string)
+            slack_message.send_slack_message(slack_str)
         print(slack_str)
         ### end of testing block
        
