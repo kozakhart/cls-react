@@ -10,6 +10,9 @@ from knox.models import AuthToken
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from io import BytesIO
+import io
+import csv
+import mysql.connector
 # Create your views here.
 from rest_framework import status
 import os
@@ -986,6 +989,64 @@ def qualtrics_reports(request):
                 print(e)
                 return Response({'message': 'Error generating report'}, status=400)
 
+        else:
+            return JsonResponse({'message': 'User is not authenticated'}, status=401)
+    else:
+        return JsonResponse({'error': 'Invalid request'})
+    
+@api_view(['POST'])
+def laser_data(request):
+    if request.method == 'POST':
+        status= verify_user(request).status_code
+        if status == 200:
+            recordids = request.data.get('recordids')
+            token = request.COOKIES['token']
+            token, username = token.split(':')
+            user = User.objects.filter(username=username).first()
+            if user is not None and user.is_staff:
+                data = request.data
+                sql_query = data['sqlQuery'].replace('\n', ' ')
+                # connection = mysql.connector.connect(
+                #     host="localhost",
+                #     user="your_user",
+                #     password="your_password",
+                #     database="your_database"
+                # )
+                
+                # cursor = connection.cursor()
+                # cursor.execute(sql_query)
+                
+                # # Fetch all rows
+                # rows = cursor.fetchall()
+                
+                # # Create a CSV string
+                # csv_output = io.StringIO()
+                # csv_writer = csv.writer(csv_output)
+                # csv_writer.writerow([i[0] for i in cursor.description])  # Write headers
+                # csv_writer.writerows(rows)  # Write rows
+                
+                # # Close database connection
+                # cursor.close()
+                # connection.close()
+                sample_data = [
+                    [sql_query, 'Age', 'City'],
+                    ['John', 25, 'New York'],
+                    ['Alice', 30, 'Los Angeles'],
+                    ['Bob', 28, 'Chicago']
+                ]
+
+                # Create a CSV string
+                csv_output = io.StringIO()
+                csv_writer = csv.writer(csv_output)
+                csv_writer.writerows(sample_data)
+
+                # Return CSV response
+                response = HttpResponse(content_type='text/csv')
+                response['Content-Disposition'] = 'attachment; filename="result.csv"'
+                response.write(csv_output.getvalue())
+                return response
+            else:
+                return JsonResponse({'message': 'User is not authenticated'}, status=401)
         else:
             return JsonResponse({'message': 'User is not authenticated'}, status=401)
     else:

@@ -20,4 +20,5 @@ urlpatterns = [
     path('get-grades/', views.get_student_grades, name='get-grades'),
     path('edit-record/', views.edit_records, name='edit-record'),
     path('qualtrics-report/', views.qualtrics_reports, name='qualtrics-reports'),
+    path('laser-database/', views.laser_data, name='laser-data'),
 ]
