@@ -618,7 +618,7 @@ export default function UserPage() {
                     <TableRow title="Possible Entries: 1) Yes 2) No">
                         <TableCell>Approved:</TableCell>
                         <TableCell>
-                        <EditableCell id='approvedID' initialValue='Yes'/>
+                        <EditableCell id='approvedID' initialValue='Waiting'/>
                         </TableCell>
                     </TableRow>
 

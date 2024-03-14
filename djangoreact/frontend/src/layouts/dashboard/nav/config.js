@@ -35,6 +35,12 @@ const navConfig = [
     groups: ['CLS']
   },
   {
+    title: 'LASER Database',
+    path: '/cls/dashboard/laser-database',
+    icon: icon('ic_report'),
+    groups: ['CLS']
+  },
+  {
     title: 'Generate Report',
     path: '/cls/dashboard/reports',
     icon: icon('ic_analytics'),
