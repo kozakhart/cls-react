@@ -49,7 +49,14 @@ import api.byu_api.byu_api as byu_api
 from myapp.models import Languages
 import subprocess
 from django.core.files import File
+from dotenv import load_dotenv
 
+load_dotenv()
+
+MARIADB_HOST = os.getenv('MARIADB_HOST')
+MARIADB_USER = os.getenv('MARIADB_USER')
+MARIADB_PASSWORD = os.getenv('MARIADB_PASSWORD')
+MARIADB_DATABASE = os.getenv('MARIADB_DATABASE')
 
 def verify_user(request):
     # print('verify user')
@@ -1006,39 +1013,39 @@ def laser_data(request):
             if user is not None and user.is_staff:
                 data = request.data
                 sql_query = data['sqlQuery'].replace('\n', ' ')
-                # connection = mysql.connector.connect(
-                #     host="localhost",
-                #     user="your_user",
-                #     password="your_password",
-                #     database="your_database"
-                # )
+                connection = mysql.connector.connect(
+                    host=MARIADB_HOST,
+                    user=MARIADB_USER,
+                    password=MARIADB_PASSWORD,
+                    database=MARIADB_DATABASE
+                )
                 
-                # cursor = connection.cursor()
-                # cursor.execute(sql_query)
+                cursor = connection.cursor()
+                cursor.execute(sql_query)
                 
-                # # Fetch all rows
-                # rows = cursor.fetchall()
+                # Fetch all rows
+                rows = cursor.fetchall()
                 
-                # # Create a CSV string
-                # csv_output = io.StringIO()
-                # csv_writer = csv.writer(csv_output)
-                # csv_writer.writerow([i[0] for i in cursor.description])  # Write headers
-                # csv_writer.writerows(rows)  # Write rows
-                
-                # # Close database connection
-                # cursor.close()
-                # connection.close()
-                sample_data = [
-                    [sql_query, 'Age', 'City'],
-                    ['John', 25, 'New York'],
-                    ['Alice', 30, 'Los Angeles'],
-                    ['Bob', 28, 'Chicago']
-                ]
-
                 # Create a CSV string
                 csv_output = io.StringIO()
                 csv_writer = csv.writer(csv_output)
-                csv_writer.writerows(sample_data)
+                csv_writer.writerow([i[0] for i in cursor.description])  # Write headers
+                csv_writer.writerows(rows)  # Write rows
+                
+                # Close database connection
+                cursor.close()
+                connection.close()
+                # sample_data = [
+                #     [sql_query, 'Age', 'City'],
+                #     ['John', 25, 'New York'],
+                #     ['Alice', 30, 'Los Angeles'],
+                #     ['Bob', 28, 'Chicago']
+                # ]
+
+                # # Create a CSV string
+                # csv_output = io.StringIO()
+                # csv_writer = csv.writer(csv_output)
+                # csv_writer.writerows(sample_data)
 
                 # Return CSV response
                 response = HttpResponse(content_type='text/csv')
