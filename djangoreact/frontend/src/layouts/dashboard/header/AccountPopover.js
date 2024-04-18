@@ -70,21 +70,22 @@ export default function AccountPopover() {
   };
 
   const handleLogout = async () => {
-    const csrfToken = Cookies.get("csrftoken");
-    console.log(csrfToken);
     try {
-      await axios.post(logoutUrl, null, {
-        withCredentials: true, // Ensure cookies are sent with the request
+      const response = await fetch(logoutUrl, { 
+        method: 'POST',
+        credentials: 'include', 
         headers: {
-          'X-CSRFToken': csrfToken,
-        }, // Rename the CSRF cookie to match the Django expected default
+          'Content-Type': 'application/json',
+          'X-CSRFToken': Cookies.get('csrftoken'),
+        },
       });
-      navigate('/cls/login', { replace: true });
-      // You can add additional logic to handle the successful logout, such as redirecting the user to the login page.
+        navigate('/cls/login', { replace: true });
+        // You can add additional logic to handle the successful logout, such as clearing user data from state
     } catch (error) {
-      console.error('Logout error:', error);
+        console.error('Logout error:', error);
     }
-  };
+};
+
 
   return (
     <>

@@ -22,7 +22,7 @@ export default function Page404() {
   return (
     <>
       <Helmet>
-        <title> 404 Page Not Found | Minimal UI </title>
+        <title> 404 Page Not Found | BYU CLS Admin </title>
       </Helmet>
 
       <Container>
@@ -42,7 +42,7 @@ export default function Page404() {
             sx={{ height: 260, mx: 'auto', my: { xs: 5, sm: 10 } }}
           />
 
-          <Button to="/cls/dashboard" size="large" variant="contained" component={RouterLink}>
+          <Button to="/cls/dashboard/app" size="large" variant="contained" component={RouterLink}>
             Go to Home
           </Button>
         </StyledContent>

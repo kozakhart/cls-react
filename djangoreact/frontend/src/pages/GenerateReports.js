@@ -49,9 +49,31 @@ export default function BlogPage() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate(); 
 
-  const verifyTokenUrl = process.env.REACT_APP_VERIFY_TOKEN_URL;
+  const verifySessionUrl = process.env.REACT_APP_VERIFY_SESSION_URL;
   const getLtiUrl = process.env.REACT_APP_LTI_URL;
 
+  useEffect(() => {
+    const fetchSessionData = async () => {
+      try {
+        const response = await axios.get(verifySessionUrl, {
+          withCredentials: true,
+        });
+  
+        if (response.status === 200) {
+          console.log('Session is active');
+        } else {
+          console.log('Session is not active');
+          navigate('/cls/login', { replace: true });
+        }
+      } catch (error) {
+        console.error('Failed to verify session:', error);
+        navigate('/cls/login', { replace: true });
+      }
+    };
+  
+    fetchSessionData();
+  }, [navigate]); 
+  
   const handleGraphChange = (event) => {
     setSelectedGraph(event.target.value);
   };
@@ -85,14 +107,7 @@ export default function BlogPage() {
     setLoading(true);
     const fetchData = async () =>{
       try{
-        const csrfToken = Cookies.get('csrftoken');
-        const response = await axios.get(verifyTokenUrl, {
-           withCredentials: true,
-            headers: {
-              "X-CSRFToken": csrfToken,
-            }, 
-        });
-        if (response.status === 200) {
+
           const csrfToken = Cookies.get('csrftoken');
           const response = await axios.post(getLtiUrl, {
             scoreType,
@@ -137,13 +152,11 @@ export default function BlogPage() {
             setShowGraph(true);
             setLoading(false);
 
-  
-        } else {
-          console.log('Error');
-        }
       } catch (error) {
-        navigate('/cls/login', { replace: true });
         console.log(error);
+        if (error.response.status === 401 || error.response.status === 403) {
+          navigate('/cls/login', { replace: true });
+        }
       }
     };
     fetchData();

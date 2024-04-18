@@ -137,23 +137,46 @@ export default function UserPage() {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const navigate = useNavigate();
 
-  const verifyTokenUrl = process.env.REACT_APP_VERIFY_TOKEN_URL;
+  const verifySessionUrl = process.env.REACT_APP_VERIFY_SESSION_URL;
   const getCertificateDataUrl = process.env.REACT_APP_CERTIFICATE_DATA_URL;
   const getGradesUrl = process.env.REACT_APP_GET_GRADES_URL;
 
 
   useEffect(() => {
-    const getFormattedDate = () => {
-      const today = new Date();
-      const year = today.getFullYear();
-      const month = String(today.getMonth() + 1).padStart(2, '0'); // Adding 1 because January is 0
-      const day = String(today.getDate()).padStart(2, '0');
-      return `${month}/${day}/${year}`;
+    const verifySession = async () => {
+      try {
+        const response = await axios.get(verifySessionUrl, {
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': Cookies.get('csrftoken'),
+          },
+        });
+
+        if (response.status === 401 || response.status === 403) {
+          navigate('/cls/login', { replace: true });
+        }
+
+        const getFormattedDate = () => {
+          const today = new Date();
+          const year = today.getFullYear();
+          const month = String(today.getMonth() + 1).padStart(2, '0'); // Adding 1 because January is 0
+          const day = String(today.getDate()).padStart(2, '0');
+          return `${month}/${day}/${year}`;
+        };
+
+        // This function likely updates the state to display today's date somewhere in your component
+        setTodaysDate(getFormattedDate());
+
+      } catch (error) {
+        console.error('Error:', error);
+        navigate('/cls/login', { replace: true });
+      }
     };
 
-    setTodaysDate(getFormattedDate());
-
-  }, []);
+    verifySession(); // Calling the async function inside useEffect
+  }, [navigate]);
+  
   const handleOpenMenu = (event) => {
     setOpen(event.currentTarget);
   };
@@ -322,7 +345,7 @@ export default function UserPage() {
                     <TableRow>
                         <TableCell>Full Name:</TableCell>
                         <TableCell>
-                        <EditableCell id='fullnameID' initialValue={fullname} _onChange={(value) => setfullnameValue(value)}/>
+                        <EditableCell id='fullnameID' initialValue={fullname}/>
                         
                         </TableCell>
                     </TableRow>
@@ -413,16 +436,7 @@ export default function UserPage() {
     setLoading(true);
     setPopoverOpen(false);
     console.log(languageValue, byuidValue)
-    try {
-      const csrfToken = Cookies.get('csrftoken');
-      const response = await axios.get(verifyTokenUrl, {
-        withCredentials: true,
-        headers: {
-          "X-CSRFToken": csrfToken,
-        },
-      });
-  
-      if (response.status === 200) {
+
         try {
           const formattedrecordDate = format(recordDate, 'MM/dd/yyyy');
           const formattedsemesterDate = format(semesterDate, 'MM/dd/yyyy');
@@ -451,20 +465,14 @@ export default function UserPage() {
           setIsLoading(false);
           setLanguageValue('None');
           setByuidValue('None');
-        } catch (error) {
-          console.log(error);
-          setLanguageValue('None');
-          setByuidValue('None');
-          setLoading(false);
-          
-        }
+
       }
-    } catch (error) {
+    catch (error) {
       console.log(error);
-      navigate('/cls/login', { replace: true });
       setLanguageValue('None');
       setByuidValue('None');
       setLoading(false);
+
     }
   };
   return (

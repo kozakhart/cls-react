@@ -15,60 +15,59 @@ export default function LoginForm({ formData, handleFormChange }) {
   const navigate = useNavigate();
   const { username, password } = formData;
   const [showPassword, setShowPassword] = useState(false);
-  const csrfUrl = process.env.REACT_APP_GET_CSRF_URL;
-  const verifyTokenUrl = process.env.REACT_APP_VERIFY_TOKEN_URL;
+
   const loginUrl = process.env.REACT_APP_LOGIN_URL;
 
-  const getCsrfToken = async  () => {
-    try {
-      const res = await axios.get(csrfUrl, {
-        withCredentials: true,
-      });
-    } catch (error) {
-      console.log(error);
-      console.log("Something went wrong");
-    }
-  };
-  // useEffect(() => {
-
-  // }, []);
-  const handlelogin = async (e) => {
-    e.preventDefault();
-    try {
-      const fetchCsrfToken = await getCsrfToken();
-      const csrfToken = Cookies.get("x-csrftoken");
-
-      const res = await axios.post(
-        loginUrl,  
-        {
-          username,
-          password,
-        },
-        { withCredentials: true,
-        headers: {
-          "X-CSRFToken": csrfToken,
-        }, }
-      );
-      const tokenAuthentication = await axios.get(verifyTokenUrl, {
-        withCredentials: true,
-        headers: {
-          "X-CSRFToken": csrfToken,
-        },
-      });
-      if (tokenAuthentication.status === 200) {
-        window.location.reload();
-        navigate('/cls/login', { replace: true });
-        console.log('hello dash')
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i += 1) { // Fix for no-plusplus
+        const cookie = cookies[i].trim();
+        // Fix for prefer-template
+        if (cookie.substring(0, name.length + 1) === `${name}=`) { 
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
       }
-
+    }
+    return cookieValue;
+  }
+  const handleLogin = async (event) => {
+    event.preventDefault(); 
+    const csrftoken = getCookie('csrftoken');
+    try {
+      const response = await fetch(loginUrl, { 
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrftoken,
+        },
+        body: JSON.stringify({
+          username: formData.username,
+          password: formData.password,
+        }),
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Login successful:', data);
+  
+        navigate('/cls/dashboard/app', { replace: true });
+        // Redirect or perform additional tasks
+      } else {
+        console.error('Login failed');
+      }
     } catch (error) {
-      console.log(error);
+      console.error('An error occurred:', error);
     }
   };
-
+  
+  
   return (
     <>
-    <form onSubmit={handlelogin}>
+    <form onSubmit={handleLogin}>
       <Stack spacing={3}>
       <TextField name="username" label="Username" value={formData.username} onChange={handleFormChange} />
 

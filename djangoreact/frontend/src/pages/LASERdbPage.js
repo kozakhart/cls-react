@@ -44,7 +44,8 @@ export default function BlogPage() {
   const theme = useTheme();
   const navigate = useNavigate(); 
 
-  const verifyTokenUrl = process.env.REACT_APP_VERIFY_TOKEN_URL;
+  const verifySessionUrl = process.env.REACT_APP_VERIFY_SESSION_URL;
+  const getSchemaUrl = process.env.REACT_APP_GET_SCHEMA_URL;
   const getLASERUrl = process.env.REACT_APP_LASER_URL;
 
   const [isLoading, setIsLoading] = useState(false);
@@ -52,6 +53,46 @@ export default function BlogPage() {
   const sqlQueryChange = (event) => {
     setSqlQuery(event.target.value);
     };  
+
+    useEffect(() => {
+      const fetchSessionData = async () => {
+        try {
+          const response = await axios.get(verifySessionUrl, {
+            withCredentials: true,
+          });
+    
+          if (response.status === 200) {
+            console.log('Session is active');
+          } else {
+            console.log('Session is not active');
+            navigate('/cls/login', { replace: true });
+          }
+        } catch (error) {
+          console.error('Failed to verify session:', error);
+          navigate('/cls/login', { replace: true });
+        }
+      };
+    
+      fetchSessionData();
+    }, [navigate]); 
+    
+  const downloadSchema = () => {
+    fetch(getSchemaUrl)
+    .then(response => response.blob())
+    .then(blob => {
+      // Create a URL for the blob
+      const url = window.URL.createObjectURL(blob);
+      // Create an anchor (<a>) element with the URL
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'db_schema.csv'; // Set the file name for the download
+      document.body.appendChild(a); // Append the anchor to the body
+      a.click(); // Simulate a click on the anchor to trigger the download
+      document.body.removeChild(a); // Clean up
+      window.URL.revokeObjectURL(url); // Release the object URL
+    })
+    .catch(error => console.error('Error downloading the file:', error));
+  };
 
 const handleQuery = () => {
     setIsLoading(true);
@@ -62,14 +103,7 @@ const handleQuery = () => {
     const fetchData = async () =>{
       try{
         const csrfToken = Cookies.get('csrftoken');
-        const response = await axios.get(verifyTokenUrl, {
-           withCredentials: true,
-            headers: {
-              "X-CSRFToken": csrfToken,
-            }, 
-        });
-        if (response.status === 200) {
-          const csrfToken = Cookies.get('csrftoken');
+
           const response = await axios.post(getLASERUrl, dataToSend,
             {
             withCredentials: true,
@@ -92,18 +126,17 @@ const handleQuery = () => {
           link.click();
       
           document.body.removeChild(link);
-        } else {
-          console.log('Error');
-        }
         setIsLoading(false);
       } catch (error) {
         setIsLoading(false);
-          if (error.response && error.response.status === 400) {
+        if (error.response && error.response.status === 400) {
             console.log('Bad Request:', error.response.data);
-          } else {
+        } else if (error.response && (error.response.status === 401 || error.response.status === 403)) {
             navigate('/cls/login', { replace: true });
             console.log(error);
-          }
+        } else {
+            console.log(error);
+        }
       }
     };
     fetchData();
@@ -137,6 +170,13 @@ const handleQuery = () => {
       onChange={sqlQueryChange}
       />
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <Button variant="contained"
+            color="primary"
+            style={{ marginLeft: '10px', marginRight: '20px'}}
+            onClick={downloadSchema}
+            >
+              Download Database Schema
+            </Button>
       <Button
         variant="contained"
         color="primary"

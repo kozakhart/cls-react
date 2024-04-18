@@ -97,54 +97,17 @@ export default function DashboardAppPage() {
 
   useEffect(() => {
     const fetchData = async () => {
-      try{
-        const csrfToken = Cookies.get('csrftoken');
-        const response = await axios.get(verifyTokenUrl, {
-           withCredentials: true,
-            headers: {
-              "X-CSRFToken": csrfToken,
-            }, 
-        });
-        if (response.status === 200) {
-        //   const csrfToken = Cookies.get('csrftoken');
-        //   const response = await axios.get('http://localhost:8000/api/lti/', {
-        //     withCredentials: true,
-        //     headers: {
-        //       'X-CSRFToken': csrfToken,
-        //     },
-        //   });
-        //   const testData = response.data;
-        //     console.log('Test Data:', testData);
-        //     const chartLabels = ['D', 'UR', 'NS', 'AR', 'NL', 'NM', 'NH', 'IL', 'IM', 'IH', 'AL', 'AM', 'AH', 'S'];
-
-        //     const uniqueLanguages = [...new Set(testData.map((data) => data.language))];
-
-        //     const scoreCounts = testData.reduce((accumulator, data) => {
-        //       const { language, score } = data;
-        //       if (!accumulator[language]) {
-        //         accumulator[language] = {};
-        //         chartLabels.forEach((label) => {
-        //           accumulator[language][label] = 0;
-        //         });
-        //       }
-        //       accumulator[language][score] += 1;
-        //       return accumulator;
-        //     }, {});
-        //     console.log('Unique Languages:', uniqueLanguages);
-        //     console.log('Score Counts:', scoreCounts);
-        //     setTestDataLanguage(uniqueLanguages);
-        //     setTestDataScores(scoreCounts);
-
       try {
-        const csrfToken = Cookies.get('csrftoken');
         const response = await axios.get(filemakerUrl, {
           withCredentials: true,
           headers: {
-            'X-CSRFToken': csrfToken,
           },
         });
+        console.log(response);
+        if (response.status === 401 || response.status === 403) {
+          navigate('/cls/login', { replace: true });
+        }
         const fetchedData = response.data;
-        // console.log('Data:', fetchedData);
         setData(fetchedData);
 
         let notApprovedCount = fetchedData.response.data.filter((item) => item.fieldData.Approved === 'No').length;
@@ -343,11 +306,7 @@ export default function DashboardAppPage() {
         }
         
         setCancelStudents(cancelStudents);
-        // console.log('Students to cancel:', cancelStudents, cancelStudentsArray);
-
-
-
-
+   
         const dateCounts = countOccurrences(entryDates);
 
         const sortedDateCounts = Object.keys(dateCounts)
@@ -366,12 +325,10 @@ export default function DashboardAppPage() {
         setDateData(valuesArray);
       } catch (error) {
         console.error('Error fetching data:', error);
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+          navigate('/cls/login', { replace: true })};
+          
       }
-    }
-    } catch (error) {
-      navigate('/cls/login', { replace: true });
-      console.error('Error verifying token:', error);
-    }
     };
 
     fetchData();

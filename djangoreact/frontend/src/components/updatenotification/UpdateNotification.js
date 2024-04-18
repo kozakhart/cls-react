@@ -220,7 +220,7 @@ export default function UpdateNotification({firstnameID, lastnameID, approvedID,
     .post(updateRecordUrl, dataToSend, {
       withCredentials: true,
       headers: {
-        "X-CSRFToken": csrfToken,
+       "X-CSRFToken": csrfToken,
       },
     })
       .then((response) => {

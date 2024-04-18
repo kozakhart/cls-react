@@ -126,17 +126,10 @@ export default function UpdateNotification({ fullName, byuid, netid, language, l
       // Other data to send
     };
     
-    try {
       const csrfToken = Cookies.get('csrftoken');
       
-      const verifyTokenResponse = await axios.get(verifyTokenUrl, {
-        withCredentials: true,
-        headers: {
-          "X-CSRFToken": csrfToken,
-        },
-      });
+
   
-      if (verifyTokenResponse.status === 200) {
         try {
           const awardCertificateResponse = await axios.post(
             awardCertificateUrl,
@@ -160,10 +153,7 @@ export default function UpdateNotification({ fullName, byuid, netid, language, l
         } catch (error) {
           console.error('Error in awarding certificate:', error);
         }
-      }
-    } catch (error) {
-      console.error('Error verifying token:', error);
-    }
+
   };
   
 

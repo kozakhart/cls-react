@@ -106,20 +106,13 @@ export default function UserPage() {
 
   useEffect(() => {
     const fetchData = async () => {
-      try{
-        const csrfToken = Cookies.get('csrftoken');
-        const response = await axios.get(verifyTokenUrl, {
-           withCredentials: true,
-            headers: {
-              "X-CSRFToken": csrfToken,
-            }, 
-        });
-        if (response.status === 200) {
+      
       try {
       const response = await axios.get(needApprovalUrl, {
         withCredentials: true,
+
         headers: {
-          'X-CSRFToken': csrfToken,
+          "X-CSRFToken": Cookies.get('csrftoken'),
         },
       });
       const fetchedData = response.data;
@@ -135,14 +128,12 @@ export default function UserPage() {
 
       } catch (error) {
         console.log(error);
+        navigate('/cls/login', { replace: true })
       }
-    }
+    
   }
-  catch (error) {
-    navigate('/cls/login', { replace: true });
-    console.log(error);
-  }
-    };
+
+    
     fetchData();
     }, []);
 

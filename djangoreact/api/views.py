@@ -6,6 +6,7 @@ from django.contrib.auth import logout, login, authenticate
 from django.middleware.csrf import get_token
 from django.http import HttpResponse
 from django.contrib.auth.models import User
+from django.conf import settings
 from knox.models import AuthToken
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -14,7 +15,7 @@ import io
 import csv
 import mysql.connector
 # Create your views here.
-from rest_framework import status
+from rest_framework import status, permissions, views
 import os
 from rest_framework import generics
 import zipfile
@@ -26,13 +27,10 @@ import api.filemaker_api as filemaker
 import json
 from django.views.decorators.csrf import ensure_csrf_cookie
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
-from knox.auth import TokenAuthentication
-from knox.views import LogoutView
 import api.lti_api as lti
 from datetime import datetime
 import api.outlook_api as outlook
 import api.box_api as box_api
-from django.contrib.auth import authenticate
 from django.utils import timezone
 from knox.models import AuthToken
 from django.http import JsonResponse, HttpResponse
@@ -50,7 +48,9 @@ from myapp.models import Languages
 import subprocess
 from django.core.files import File
 from dotenv import load_dotenv
-
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 load_dotenv()
 
 MARIADB_HOST = os.getenv('MARIADB_HOST')
@@ -59,116 +59,88 @@ MARIADB_PASSWORD = os.getenv('MARIADB_PASSWORD')
 MARIADB_DATABASE = os.getenv('MARIADB_DATABASE')
 
 def verify_user(request):
-    # print('verify user')
-    # print(request.COOKIES)
-    try:
-        token = request.COOKIES['token']  # Get the token from the cookie
-        token, username = token.split(':')
-
-        # print('token:', token)
-    except:
-        return HttpResponse('Token is not provided', status=status.HTTP_401_UNAUTHORIZED)
-    if token is None:
-        return HttpResponse('Token is not provided', status=status.HTTP_401_UNAUTHORIZED)
-
-    try:
-        auth_token = AuthToken.objects.get(token_key=token, user__username=username)
-        if auth_token is not None and auth_token.user.username == username and auth_token.expiry > timezone.now():
-            print(auth_token, 'worked')
-            return HttpResponse('Token is valid', status=status.HTTP_200_OK)
-        else:
-            print(auth_token, 'did not work')
-            return HttpResponse('Token is invalid', status=status.HTTP_401_UNAUTHORIZED)
-    except:
-        print('huh')
-        return HttpResponse('Token authentication error', status=status.HTTP_401_UNAUTHORIZED)  
-
-@api_view(['GET'])
-@authentication_classes([TokenAuthentication])
-def apiOverview(request):
-    status= verify_user(request).status_code
-    if status == 200:
-        api_urls = {
-            'Students': '/student-list/',
-            'Filemaker': '/filemaker/',
-            'LTI': '/lti/',
-            'Example LTI': '/example-lti/',
-            'Update Student': '/update/<str:student>/',
-            'Delete Student': '/delete/<str:student>/',
-            'Login': '/api/login/',
-            'Generate CSRF Token': '/api/generate-csrf/',
-            'Get Token': 'api/get-token/',
-            'Check Authentication': 'api/check-authentication/',
-            'Logout': 'api/logout/',
-            'Need Approval Filemaker': 'api/need-approval-filemaker/',
-            }
-        return Response(api_urls)
+    username = request.user.username
+    user = User.objects.filter(username=username).first()
+    if user is not None and user.is_staff:
+        return Response({'message': 'User is authenticated'}, status=200)
     else:
         return Response({'message': 'User is not authenticated'}, status=401)
 
+
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def apiOverview(request):
+    api_urls = {
+        'Students': '/student-list/',
+        'Filemaker': '/filemaker/',
+        'LTI': '/lti/',
+        'Example LTI': '/example-lti/',
+        'Update Student': '/update/<str:student>/',
+        'Delete Student': '/delete/<str:student>/',
+        'Login': '/api/login/',
+        'Generate CSRF Token': '/api/generate-csrf/',
+        'Get Token': 'api/get-token/',
+        'Check Authentication': 'api/check-authentication/',
+        'Logout': 'api/logout/',
+        'Need Approval Filemaker': 'api/need-approval-filemaker/',
+        }
+    return Response(api_urls)
+
+@permission_classes([IsAuthenticated])
 @api_view(['GET'])
 def student_list(request):
-    status= verify_user(request).status_code
-    if status == 200:
+    if request.user.is_staff or request.user.is_superuser:
         student_list = Students.objects.all()
         serializer = StudentSerializer(student_list, many=True)
         return Response(serializer.data)
     else:
         return Response({'message': 'User is not authenticated'}, status=401)
 
+@permission_classes([IsAuthenticated])
 @api_view(['POST'])
 def student_update(request, student):
-    status= verify_user(request).status_code
-    if status == 200:
-        token = request.COOKIES['token']
-        token, username = token.split(':')
-        user = User.objects.filter(username=username).first()
-        if user is not None and user.is_superuser:
-            print('Student Record ID:', student)
-            print(request.data)
-        
-            token = filemaker.login()
-            if student == '0':
-                # creates new record
-                filemaker.create_record(scores=request.data['Scores'], testscheduled=request.data['TestScheduled'], approved=request.data['Approved'], entry_date=request.data['EntryDate'], entry_time=request.data['EntryTime'],
-                firstname=request.data['FirstName'], lastname=request.data['LastName'], byuid=request.data['BYUID'], netid=request.data['NetID'], email=request.data['Email'],
-                reason=request.data['Reason'], language=request.data['Language'], language_other=request.data['LanguageOther'],
-                experience=request.data['PreviousExperience'],major=request.data['Major'],second_major=request.data['SecondMajor'],minor=request.data['Minor'],
-                come_to_campus=request.data['ComeToCampus'],cannot_come=request.data['CannotCome'],testdate1=request.data['TestDate1'],testdate2=request.data['TestDate2'],time1=request.data['Time1'],time2=request.data['Time2']
-                ,time3=request.data['Time3'],time4=request.data['Time4'], CertificateStatus=request.data['CertificateStatus'],phone=request.data['Phone'],email_sent=request.data['EmailSent'], lti_schedule=request.data['LTISchedule'],
-                token=token
-                )
-            else:
-                filemaker.edit_all_fields(scores=request.data['Scores'], testscheduled=request.data['TestScheduled'], agree=request.data['Approved'], entrydate=request.data['EntryDate'], entrytime=request.data['EntryTime'],
-                firstname=request.data['FirstName'], lastname=request.data['LastName'], byuid=request.data['BYUID'], netid=request.data['NetID'], email=request.data['Email'], 
-                reason=request.data['Reason'], language=request.data['Language'], languageother=request.data['LanguageOther'],
-                previousexperience=request.data['PreviousExperience'],major=request.data['Major'],secondmajor=request.data['SecondMajor'],minor=request.data['Minor'],
-                cometocampus=request.data['ComeToCampus'],cannotcome=request.data['CannotCome'],testdate1=request.data['TestDate1'],testdate2=request.data['TestDate2'],time1=request.data['Time1'],time2=request.data['Time2']
-                ,time3=request.data['Time3'],time4=request.data['Time4'], CertificateStatus=request.data['CertificateStatus'],phone=request.data['Phone'],emailsent=request.data['EmailSent'], lti_schedule=request.data['LTISchedule'], 
-                token=token, record_id=request.data['RecordID']
-                )
-            filemaker.logout(token)
-            return Response(f'Student Record ID updated: {student}')
+    if request.user.is_superuser:
+        print('Student Record ID:', student)
+        print(request.data)
+    
+        token = filemaker.login()
+        if student == '0':
+            # creates new record
+            filemaker.create_record(scores=request.data['Scores'], testscheduled=request.data['TestScheduled'], approved=request.data['Approved'], entry_date=request.data['EntryDate'], entry_time=request.data['EntryTime'],
+            firstname=request.data['FirstName'], lastname=request.data['LastName'], byuid=request.data['BYUID'], netid=request.data['NetID'], email=request.data['Email'],
+            reason=request.data['Reason'], language=request.data['Language'], language_other=request.data['LanguageOther'],
+            experience=request.data['PreviousExperience'],major=request.data['Major'],second_major=request.data['SecondMajor'],minor=request.data['Minor'],
+            come_to_campus=request.data['ComeToCampus'],cannot_come=request.data['CannotCome'],testdate1=request.data['TestDate1'],testdate2=request.data['TestDate2'],time1=request.data['Time1'],time2=request.data['Time2']
+            ,time3=request.data['Time3'],time4=request.data['Time4'], CertificateStatus=request.data['CertificateStatus'],phone=request.data['Phone'],email_sent=request.data['EmailSent'], lti_schedule=request.data['LTISchedule'],
+            token=token
+            )
         else:
-            return Response({'message': 'User is not authenticated'}, status=401)
+            filemaker.edit_all_fields(scores=request.data['Scores'], testscheduled=request.data['TestScheduled'], agree=request.data['Approved'], entrydate=request.data['EntryDate'], entrytime=request.data['EntryTime'],
+            firstname=request.data['FirstName'], lastname=request.data['LastName'], byuid=request.data['BYUID'], netid=request.data['NetID'], email=request.data['Email'], 
+            reason=request.data['Reason'], language=request.data['Language'], languageother=request.data['LanguageOther'],
+            previousexperience=request.data['PreviousExperience'],major=request.data['Major'],secondmajor=request.data['SecondMajor'],minor=request.data['Minor'],
+            cometocampus=request.data['ComeToCampus'],cannotcome=request.data['CannotCome'],testdate1=request.data['TestDate1'],testdate2=request.data['TestDate2'],time1=request.data['Time1'],time2=request.data['Time2']
+            ,time3=request.data['Time3'],time4=request.data['Time4'], CertificateStatus=request.data['CertificateStatus'],phone=request.data['Phone'],emailsent=request.data['EmailSent'], lti_schedule=request.data['LTISchedule'], 
+            token=token, record_id=request.data['RecordID']
+            )
+        filemaker.logout(token)
+        return Response(f'Student Record ID updated: {student}')
     else:
         return Response({'message': 'User is not authenticated'}, status=401)
 
+
+@permission_classes([IsAuthenticated])
 @api_view(['POST'])
 def student_delete(request, student):
     status= verify_user(request).status_code
     if status == 200:
-        token = request.COOKIES['token']
-        token, username = token.split(':')
-        user = User.objects.filter(username=username).first()
-        if user is not None and user.is_superuser:
-            print('Student Record ID:', student)
-            token = filemaker.login()
-            filemaker.delete_record(record_id=student, token=token)
-            filemaker.logout(token)
-            return Response(f'Student Record ID deleted: {student}')
-        else:
-            return Response({'message': 'User is not authenticated'}, status=401)
+        print('Student Record ID:', student)
+        token = filemaker.login()
+        filemaker.delete_record(record_id=student, token=token)
+        filemaker.logout(token)
+        return Response(f'Student Record ID deleted: {student}')
+
     else:
         return Response({'message': 'User is not authenticated'}, status=401)
         
@@ -185,29 +157,22 @@ def get_csrf_token(request):
     
     return response
 
+@permission_classes([IsAuthenticated])
 @api_view(['GET'])
 def filemaker_view(request):
-    status= verify_user(request).status_code
-    if status == 200:
-        token = request.COOKIES['token']
-        token, username = token.split(':')
-        user = User.objects.filter(username=username).first()
-        if user is not None and user.is_staff:
-                
-            print('Filemaker API Used')
-            token = filemaker.login()
-            students = filemaker.get_all(token)
-            filemaker.logout(token)
-            print(request)
-            return JsonResponse(students, safe=False)
-        return JsonResponse({'message': 'User is not authenticated'}, status=401)
-    else:
-        return JsonResponse({'message': 'User is not authenticated'}, status=401)
+    if request.user.is_staff or request.user.is_superuser:
+        print('Filemaker API Used')
+        token = filemaker.login()
+        students = filemaker.get_all(token)
+        filemaker.logout(token)
+        print(request)
+        return JsonResponse(students, safe=False)
+    return JsonResponse({'message': 'User is not authenticated'}, status=401)
 
+@permission_classes([IsAuthenticated])
 @api_view(['GET'])
 def example_lti_view(request):
-    status= verify_user(request).status_code
-    if status == 200:
+    if request.user.is_staff or request.user.is_superuser:
         browser = lti.get_browser()
         score_type = 'OPI'
         from_date = '10/01/2023'
@@ -227,10 +192,10 @@ def example_lti_view(request):
     else:
         return JsonResponse({'message': 'User is not authenticated'}, status=401)
 
+@permission_classes([IsAuthenticated])
 @api_view(['POST'])
 def get_certificate_data(request):
-    status= verify_user(request).status_code
-    if status == 200:
+    if request.user.is_staff or request.user.is_superuser:
         data = request.data
 
         byuid = data.get('byuidValue')
@@ -252,13 +217,13 @@ def get_certificate_data(request):
         today = datetime.now()
         today = today.strftime("%m/%d/%Y")
         browser = lti.get_browser()
-        # try:
-        #     lti.get_data(browser, formatted_record_date, todate=today, test_type='OPI', byuid=byuid, language=language, kwargs={'firstname':None, 'score': None, 'major': None})
-        #     lti.get_data(browser, formatted_record_date, todate=today, test_type='WPT', byuid=byuid, language=language, kwargs={'firstname':None, 'score': None, 'major': None})
-        #     lti.get_data(browser, formatted_record_date, todate=today, test_type='OPIc', byuid=byuid, language=language, kwargs={'firstname':None, 'score': None, 'major': None})
-        # except Exception as e:
-        #     print(e)
-        lti.get_all_data(browser, formatted_record_date, formatted_semester_date, byuid=byuid, language=language, kwargs={'firstname':None, 'score': None, 'major': None})
+        try:
+            lti.get_data(browser, formatted_record_date, todate=today, test_type='OPI', byuid=byuid, language=language, kwargs={'firstname':None, 'score': None, 'major': None})
+            lti.get_data(browser, formatted_record_date, todate=today, test_type='WPT', byuid=byuid, language=language, kwargs={'firstname':None, 'score': None, 'major': None})
+            lti.get_data(browser, formatted_record_date, todate=today, test_type='OPIc', byuid=byuid, language=language, kwargs={'firstname':None, 'score': None, 'major': None})
+        except Exception as e:
+            print(e)
+        #lti.get_all_data(browser, formatted_record_date, formatted_semester_date, byuid=byuid, language=language, kwargs={'firstname':None, 'score': None, 'major': None})
         lti.close_browser(browser)
         data = lti.start_search(formatted_record_date, formatted_semester_date)
 
@@ -301,10 +266,11 @@ def get_certificate_data(request):
     else:
         return JsonResponse({'message': 'User is not authenticated'}, status=401)
 
+
+@permission_classes([IsAuthenticated])
 @api_view(['POST'])
 def award_certificate(request):
-    status= verify_user(request).status_code
-    if status == 200:
+    if request.user.is_superuser:
         if request.data['type'] == 'award_all':
             box_client = box_api.create_client()
             filemaker_token = filemaker.login()
@@ -500,7 +466,6 @@ def award_certificate(request):
                 wpt_score = 'N/A'
                 
             record_id = request.data['dataToSend']['RecordID']
-
             box_client = box_api.create_client()
             file_id = box_api.create_pdf_cert(box_client, record_id, full_name, language.upper(), level.upper(), opi_score, wpt_score, formatted_date, cert_type)
             shareable_link = box_api.generate_shareable_link(box_client, file_id)
@@ -667,10 +632,10 @@ def award_certificate(request):
         return JsonResponse({'message': 'User is not authenticated'}, status=401)
 
 
+@permission_classes([IsAuthenticated])
 @api_view(['POST'])
 def lti_view(request):
-    status= verify_user(request).status_code
-    if status == 200:
+    if request.user.is_staff or request.user.is_superuser:
         # token = request.COOKIES['token']
         # token, username = token.split(':')
         # user = User.objects.filter(username=username).first()
@@ -693,172 +658,52 @@ def lti_view(request):
     else:
         return JsonResponse({'message': 'User is not authenticated'}, status=401)
 
-
+@permission_classes([IsAuthenticated])
 @api_view(['GET'])
 def need_approval_filemaker(request):
-    status= verify_user(request).status_code
-    if status == 200:
-        token = request.COOKIES['token']
-        token, username = token.split(':')
-        user = User.objects.filter(username=username).first()
-        if user is not None and user.is_staff:
-            print('Filemaker API Used')
-            token = filemaker.login()
-            students = filemaker.adaptive_find_record(token, Approved='No')
-            filemaker.logout(token)
-            return JsonResponse(students, safe=False)
-        else:
-            return JsonResponse({'message': 'User is not authenticated'}, status=401)
+    username = request.user.username
+    user = User.objects.filter(username=username).first()
+    if user is not None and user.is_staff:
+        print('Filemaker API Used')
+        token = filemaker.login()
+        students = filemaker.adaptive_find_record(token, Approved='No')
+        filemaker.logout(token)
+        return JsonResponse(students, safe=False)
     else:
         return JsonResponse({'message': 'User is not authenticated'}, status=401)
 
 
-@api_view(['POST'])
-@authentication_classes([TokenAuthentication])
-def logout_view(request):
-    # logout(request)
-    # LogoutView().post(request)
-    response = JsonResponse({
-    "user": 'None',
-    })
-    response.set_cookie('token', expires='Thu, 01 Jan 1970 00:00:00 GMT', httponly=True)
-
-    return response
 
 @api_view(['GET'])
-@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def get_user_info(request):
-    try:
-        token = request.COOKIES['token']
-        token_parts = token.split(':')
-
-        if len(token_parts) != 2:
-            return Response({'error': 'Invalid token format'}, status=status.HTTP_400_BAD_REQUEST)
-
-        token, username = token_parts
-        user = User.objects.filter(username=username).first()
-
-        if user is None:
-            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
-
-        user_groups = user.groups.all()
-        group_names = [group.name for group in user_groups]
-
-        return Response({
-            'user': UserSerializer(user, context={'request': request}).data,
-            'groups': group_names
-        })
-    except KeyError:
-        return Response({'error': 'Token not found'}, status=status.HTTP_400_BAD_REQUEST)
-    except Exception as e:
-        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-@axes_dispatch
-@api_view(['POST'])
-@ensure_csrf_cookie
-def login_knox(request):
-    username = request.data.get("username")
-    password = request.data.get("password")
-    user = authenticate(request, username=username, password=password)  # Authenticate user
+    username = request.user.username
+    user = User.objects.filter(username=username).first()
 
     if user is None:
-        # If the login failed, dispatch user_login_failed signal for Axes
-        user_login_failed.send(
-            sender=__name__,
-            credentials={'username': username},
-            request=request
-        )
+        return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
-        return Response({"error": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
-    else:
-        # If the login succeeded, reset failed attempts for the user
-        reset(username=username)
-        try:
-            # Verify if a token exists and is valid
-            token = request.COOKIES.get('token')
-            auth_token = None
+    user_groups = user.groups.all()
+    group_names = [group.name for group in user_groups]
 
-            if token:
-                token_parts = token.split(':')
-                if len(token_parts) == 2:
-                    token, username = token_parts
-                    auth_token = AuthToken.objects.get(token_key=token, user__username=username)
-                    #auth_token = AuthToken.objects.get(digest=token)
+    return Response({
+        'user': UserSerializer(user, context={'request': request}).data,
+        'groups': group_names
+    })
 
-            if auth_token and auth_token.expiry > timezone.now():
-                print(auth_token, 'Token is valid and no new token created')
-                return Response({'message': 'Token is valid'})
-            else:
-                # Token is expired or doesn't exist, create a new token
-                if auth_token:
-                    auth_token.delete()  # Delete expired token
 
-                new_token_tuple = AuthToken.objects.create(user=user)
 
-                # Unpack the tuple returned by AuthToken.objects.create()
-                new_token, created = new_token_tuple
-
-                response = JsonResponse({
-                    "user": UserSerializer(user, context={'request': request}).data,
-                })
-                response.set_cookie(key='token', value=f'{new_token.token_key}:{user.username}', httponly=True, secure=True)
-                print(new_token.token_key, 'Token created')  # Access the token_key attribute
-                return response
-        except AuthToken.DoesNotExist:
-            # No token exists for the user, create a new one
-            new_token_tuple = AuthToken.objects.create(user=user)
-
-            # Unpack the tuple returned by AuthToken.objects.create()
-            new_token, created = new_token_tuple
-
-            response = JsonResponse({
-                "user": UserSerializer(user, context={'request': request}).data,
-            })
-            response.set_cookie(key='token', value=f'{new_token.token_key}:{user.username}', httponly=True, secure=True)
-            print(new_token.token_key, 'Token created')  # Access the token_key attribute
-            return response
-        except Exception as e:
-            print(e)
-            return HttpResponse('Token authentication error', status=status.HTTP_401_UNAUTHORIZED)
- 
-@api_view(['GET'])
-@authentication_classes([TokenAuthentication])
-def verify_token_knox(request):
-    try:
-        token = request.COOKIES['token']  # Get the token from the cookie
-        token, username = token.split(':')
-
-        print('token:', token)
-    except:
-        return HttpResponse('Token is not provided', status=status.HTTP_401_UNAUTHORIZED)
-    if token is None:
-        return HttpResponse('Token is not provided', status=status.HTTP_401_UNAUTHORIZED)
-
-    try:
-        auth_token = AuthToken.objects.get(token_key=token, user__username=username)
-        if auth_token is not None and auth_token.user.username == username and auth_token.expiry > timezone.now():
-            print(auth_token, 'worked')
-            return HttpResponse('Token is valid', status=status.HTTP_200_OK)
-        else:
-            print(auth_token, 'did not work')
-            return HttpResponse('Token is invalid', status=status.HTTP_401_UNAUTHORIZED)
-    except:
-        print('huh')
-        return HttpResponse('Token authentication error', status=status.HTTP_401_UNAUTHORIZED)
     
 @api_view(['GET'])
-@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def get_student_grades(request):
-    status= verify_user(request).status_code
     byu_id = request.GET.get('byuid')
     language = request.GET.get('language')
     reason = request.GET.get('reason')
     print(byu_id, language, reason)
 
-    if status == 200:
-        token = request.COOKIES['token']
-        token, username = token.split(':')
+    if request.user.is_staff or request.user.is_superuser:
+        username = request.user.username
         user = User.objects.filter(username=username).first()
         if user is not None and user.is_staff:
             token = byu_api.login()
@@ -872,31 +717,26 @@ def get_student_grades(request):
         return JsonResponse({'message': 'User is not authenticated'}, status=401)
 
 @api_view(['POST'])
-@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def edit_records(request):
-    status= verify_user(request).status_code
-    if status == 200:
-        recordids = request.data.get('recordids')
-        token = request.COOKIES['token']
-        token, username = token.split(':')
-        user = User.objects.filter(username=username).first()
-        if user is not None and user.is_staff:
-            token = filemaker.login()
-            for record in recordids:
-                filemaker.edit_record('Approved', 'Waiting', token, record)
-            filemaker.logout(token)
-            return JsonResponse({'message': 'Record updated'}, status=200)
-        else:
-            return JsonResponse({'message': 'User is not authenticated'}, status=401)
+    username = request.user.username
+    recordids = request.data.get('recordids')
+
+    user = User.objects.filter(username=username).first()
+    if user is not None and user.is_staff:
+        token = filemaker.login()
+        for record in recordids:
+            filemaker.edit_record('Approved', 'Waiting', token, record)
+        filemaker.logout(token)
+        return JsonResponse({'message': 'Record updated'}, status=200)
     else:
         return JsonResponse({'message': 'User is not authenticated'}, status=401)
-    
+
 @api_view(['POST'])
-@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def qualtrics_reports(request):
     if request.method == 'POST' and request.FILES.getlist('files'):
-        status= verify_user(request).status_code
-        if status == 200:
+        if request.user.is_staff or request.user.is_superuser:
             try:
                 args = []
                 report_type = ''
@@ -1001,14 +841,13 @@ def qualtrics_reports(request):
     else:
         return JsonResponse({'error': 'Invalid request'})
     
+@permission_classes([IsAuthenticated])
 @api_view(['POST'])
 def laser_data(request):
     if request.method == 'POST':
-        status= verify_user(request).status_code
-        if status == 200:
+        if request.user.is_staff or request.user.is_superuser:
             recordids = request.data.get('recordids')
-            token = request.COOKIES['token']
-            token, username = token.split(':')
+            username = request.user.username
             user = User.objects.filter(username=username).first()
             if user is not None and user.is_staff:
                 data = request.data
@@ -1058,3 +897,60 @@ def laser_data(request):
             return JsonResponse({'message': 'User is not authenticated'}, status=401)
     else:
         return JsonResponse({'error': 'Invalid request'})
+    
+@permission_classes([IsAuthenticated])
+@api_view(['GET'])
+def get_db_schema(request):
+# Construct the relative path using BASE_DIR
+    if request.user.is_staff or request.user.is_superuser:
+        csv_file_path = settings.BASE_DIR / 'api' / 'db_schema' / 'db_key.csv'
+
+        with open(csv_file_path, 'r', encoding='utf-8') as csv_file:
+            # Read the file content
+            file_content = csv_file.read()
+            
+            # Create an HttpResponse object with the CSV content
+            response = HttpResponse(file_content, content_type='text/csv')
+            # Add the Content-Disposition header to prompt a download in the browser
+            response['Content-Disposition'] = 'attachment; filename="db_schema.csv"'
+            
+            return response
+    else:
+        return JsonResponse({'message': 'User is not authenticated'}, status=401)
+    
+from rest_framework.permissions import AllowAny
+from django.contrib.auth import authenticate, login
+@ensure_csrf_cookie
+@permission_classes([AllowAny])
+@api_view(['POST'])
+def login_view(request):
+    # add axes login/logout counter and reset
+    username = request.data.get("username")
+    password = request.data.get("password")
+    user = authenticate(request, username=username, password=password)
+
+    if user is None:
+        user_login_failed.send(sender=__name__, credentials={'username': username}, request=request)
+        return Response({"error": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Properly log the user in
+    login(request, user)  # This logs the user into Django's session framework
+    return Response({"user": UserSerializer(user, context={'request': request}).data})
+
+# logout
+@permission_classes([IsAuthenticated])
+@api_view(['POST'])
+def logout_view(request):
+    logout(request)
+    return Response({"message": "User logged out"})
+
+@permission_classes([IsAuthenticated])
+@api_view(['GET'])
+def verify_session(request):
+    username = request.user.username
+    user = User.objects.filter(username=username).first()
+    if user is not None and user.is_staff:
+        return Response({"message": "User is authenticated"})
+
+    else:
+        return Response({"message": "User is not authenticated"}, status=status.HTTP_401_UNAUTHORIZED)

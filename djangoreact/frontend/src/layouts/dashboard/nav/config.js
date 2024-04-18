@@ -12,7 +12,7 @@ const navConfig = [
   },
   {
     title: 'Database',
-    path: '/cls/dashboard/user',
+    path: '/cls/dashboard/database',
     icon: icon('ic_user'),
     groups: ['CLS']
   },
@@ -40,12 +40,12 @@ const navConfig = [
     icon: icon('ic_report'),
     groups: ['CLS']
   },
-  {
-    title: 'Generate Report',
-    path: '/cls/dashboard/reports',
-    icon: icon('ic_analytics'),
-    groups: ['CLS']
-  },
+  // {
+  //   title: 'Generate Report',
+  //   path: '/cls/dashboard/generate-reports',
+  //   icon: icon('ic_analytics'),
+  //   groups: ['CLS']
+  // },
 ];
 
 export default navConfig;
