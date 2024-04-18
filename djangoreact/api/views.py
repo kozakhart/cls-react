@@ -50,7 +50,6 @@ from django.core.files import File
 from dotenv import load_dotenv
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.permissions import IsAuthenticated
-from rest_framework_simplejwt.authentication import JWTAuthentication
 load_dotenv()
 
 MARIADB_HOST = os.getenv('MARIADB_HOST')
@@ -68,7 +67,6 @@ def verify_user(request):
 
 
 @api_view(['GET'])
-@authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
 def apiOverview(request):
     api_urls = {
