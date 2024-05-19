@@ -8,3 +8,15 @@ db.sqlite3
 __pycache__/
 venv/
 djangoreact/djangoreact/settings.py
+
+# Ignore migrations
+**/migrations/
+
+# Ignore .lock files
+*.lock
+
+# Ignore PDF files
+*.pdf
+
+# Ignore Excel files
+*.xlsx
