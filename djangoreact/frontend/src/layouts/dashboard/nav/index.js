@@ -89,15 +89,7 @@ export default function Nav({ openNav, onCloseNav }) {
         }}
       >
           <Logo sx={{ paddingTop: '10px'}}/>
-          {/* <Typography
-          variant="h6"
-          sx={{
-            color: 'white', // Set the text color
-            zIndex: '1 !important', // Make sure it's above other content
-          }}
-        >
-          Need More Features?
-        </Typography> */}
+
       </Box>
 
       <Box sx={{ mb: 5, mx: 2.5, }}>
@@ -120,7 +112,6 @@ export default function Nav({ openNav, onCloseNav }) {
 
       <NavSection data={navConfig} groups={groups}/>
 
-      {/* <Box sx={{ px: 2.5, pb: 3, mt: 10 }}> */}
         <Stack alignItems="center" spacing={3} sx={{ pt: 0, borderRadius: 2, position: 'relative' }}>
 
           <Box sx={{ textAlign: 'center' }}>
@@ -128,9 +119,6 @@ export default function Nav({ openNav, onCloseNav }) {
               Need More Features?
             </Typography>
 
-            {/* <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              Click Here
-            </Typography> */}
               <Button href={adminUrl} target="_blank" variant="contained">
               Admin Backend
             </Button>

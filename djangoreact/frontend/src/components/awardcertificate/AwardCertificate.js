@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import PulseLoader from "react-spinners/PulseLoader";
-
 import {
   Container,
   MenuItem,
@@ -14,6 +13,8 @@ import {
 } from '@mui/material';
 import { set } from 'lodash';
 import { useNavigate } from 'react-router-dom';
+import LoadingModal from '../loadingModal/LoadingModal';
+
 import Iconify from '../iconify';
 
 export default function UpdateNotification({ fullName, byuid, netid, language, level, opiScore, wptScore, todaysDate, recordId, certificateType, closeFirstPopover} ) {
@@ -29,6 +30,7 @@ export default function UpdateNotification({ fullName, byuid, netid, language, l
   const [recordIdValue, setrecordId] = useState(recordId);
   const [certificateTypeValue, setCertificateType] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [masterLoader, setMasterLoader] = useState(false);
 
   const [updateData, setUpdateData] = useState(false);
   const [awardedConfirmation, setAwardedConfirmation] = useState(false);
@@ -111,6 +113,8 @@ export default function UpdateNotification({ fullName, byuid, netid, language, l
   };
     
   const handleAwardCertificate = async () => {
+    setMasterLoader(true);
+
     console.log(fullNameValue, byuidValue, netidValue, languageValue, levelValue, opiScoreValue, wptScoreValue, todaysDateValue, recordIdValue, certificateTypeValue)
     const dataToSend = {
       FullName: fullNameValue,
@@ -146,8 +150,8 @@ export default function UpdateNotification({ fullName, byuid, netid, language, l
           console.log(awardCertificateResponse.data);
           if (awardCertificateResponse.status === 200) {
             setLoading(false);
+            setMasterLoader(true);
             setAwardedConfirmation(true);
-
           }
           
         } catch (error) {
@@ -214,6 +218,8 @@ export default function UpdateNotification({ fullName, byuid, netid, language, l
           </Button>
         </DialogActions>
       </Dialog>
+      <LoadingModal isLoading={masterLoader} message="Awarding Certificates... Estimated Time:" timer={10}/>
     </Container>
+    
   );
 }

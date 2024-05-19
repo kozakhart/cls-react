@@ -39,6 +39,7 @@ import EditableCell from '../components/editablecell/EditableCell';
 import UpdateNotification from '../components/updatenotification/UpdateNotification';
 import DeleteNotification from '../components/deletenotification/DeleteNotification';
 import AwardCertificate from '../components/awardcertificate/AwardCertificate';
+import LoadingModal from '../components/loadingModal/LoadingModal';
 
 import Label from '../components/label';
 import Iconify from '../components/iconify';
@@ -301,33 +302,20 @@ export default function UserPage() {
         <TableCell align="left">{getNestedKey(opicScore)}</TableCell>
 
         <TableCell align="center">
-          <IconButton size="large" color="inherit" onClick={() => setPopoverOpen(true)}
-          // onClick={(event) => {
-          //   setPopoverOpen(true); getGrades(byuid, Object.keys(language)[0], reason);
-          // }}
-          >
+          <IconButton size="large" color="inherit" onClick={() => setPopoverOpen(true)}>
             <Iconify icon={'eva:more-vertical-fill'} />
           </IconButton>
           <Popover
               open={Boolean(isPopoverOpen)}
               anchorEl={isPopoverOpen}
               onClose={() => setPopoverOpen(false)}
-              anchorOrigin={{ vertical: 'center', horizontal: 'center' }}
+              anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
               transformOrigin={{ vertical: 'top', horizontal: 'center' }}
               PaperProps={{
                 sx: {
-                  p: 1,
+                  marginTop: '8vw',
                   width: '35%',
-                  position: 'absolute',
-                  top: '50%',
-                  left: '50%',
-                  transform: 'translate(-50%, -50%)',
-                  '& .MuiMenuItem-root': {
-                    px: 1,
-                    typography: 'body2',
-                    borderRadius: 0.75,
-                  },
-                },
+                }
               }}
               >
           <Container>
@@ -533,7 +521,7 @@ export default function UserPage() {
                 p: 1,
                 width: '35%',
                 position: 'fixed',
-                marginTop: '6vw',
+                marginTop: '8vw',
 
               },
             }}
@@ -666,6 +654,15 @@ export default function UserPage() {
   )}
 </Button>
 
+  {loading && (
+        <LoadingModal
+        isLoading={loading}
+        message="Getting LTI Scores... Estimated Time:"
+        timer={60}
+      />
+    )}
+
+
     <Typography variant="subtitle2" sx={{ px: 4, py: 0 }}>
       {filteredUsers.length} Students found
     </Typography>
@@ -689,7 +686,7 @@ export default function UserPage() {
                 p: 1,
                 width: '35%',
                 position: 'fixed',
-                marginTop: '6vw',
+                marginTop: '8vw',
 
               },
             }}
