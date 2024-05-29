@@ -47,7 +47,6 @@
                 <ul style="margin-bottom: 0px;">
                     <li>Demographic information, contact information including email address and phone numbers, test scores, recommendation information, educational background, and other pertinent information in order to fully assess the applicant's qualifications for program acceptance.</ll>
                     <li>You will need to complete a Statement of Purpose than can be completed online or uploaded as an attachment. Please review the application in its entirety prior to beginning the process in order to become familiar with all the steps.</li>
-                    <li>You must already have been accepted as a Chinese/Arabic Flagship program participant.</li>
                 </ul>
                 <p>Once all application information is entered correctly and completely, your online application will be submitted to the MAPL Program Committee for their review. If any errors are found or if there is missing information, our office will contact you. We may also contact you for a personal interview as part of the admissions process.</p>
             </div>
@@ -75,11 +74,18 @@
                 {{ form.major|as_crispy_field }}
               </div>
               <div class="outerbox">
-                <h3>How did you hear about the MAPL program?*</h3>
-                {{ form.heard_about|as_crispy_field }}
+                <h3>Domain Area</h3>
+                <p>Please identify your professional language domain.  Note that this cannot be the target language.  Your domain should be an area outside of your study of language in which you will utilize your language skills at a professional level, i.e., government agencies, K-12 teaching, etc.</p>
+                {{ form.domain_area|as_crispy_field }}
+                <!-- hand response -->
+                <!-- dont need heard about from field -->
               </div>
               <div class="outerbox">
-                <h3>General Information</h3>
+                <h3>Undergraduate Degree Information</h3>
+                <p><b>Please note: Your undergraduate degree coursework must be completed BEFORE participating in the overseas portion (5th year) of the program.</b></p>
+                <p>Please explain when (the semester) you'll be ready to graduate with your undergraduate degree.</p>
+                {{ form.graduation_semester|as_crispy_field }}
+                <!-- hand response -->
                 <p>Intended Semester of Entry*</p>
                 {{ form.semester_of_entry|as_crispy_field }}
                 <p>Academic Status*</p>
@@ -134,7 +140,7 @@
 
               <div class="outerbox">
                 <h3>References</h3>
-                <p>Please enter the requested information for each individual who may be contacted as a reference on the applicant’s behalf for this application. Two references are required. One reference should be a language faculty member who can specifically address the applicant's language proficiency, as well as suitability for the purposes of the MAPL Program. The second reference should be from a professor or instructor in your major.</p>
+                <p>Please enter the requested information for each individual who may be contacted as a reference on the applicant’s behalf for this application. Two references are required. One reference should be a language faculty member who can specifically address the applicant's language proficiency, as well as suitability for the purposes of the MAPL Program. The second reference should be from a professor or instructor in your domain area.</p>
                 <h4 class="indent"><u>Recommender #1</u></h4>
                 <p>Name</p>
                 {{ form.recommender_name_1|as_crispy_field }}

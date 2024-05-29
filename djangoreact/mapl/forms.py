@@ -26,7 +26,7 @@ class MAPLForm_Forms(forms.ModelForm):
 
     class Meta:
         model = MAPLForm
-        fields = ('firstname', 'middlename', 'lastname', 'language', 'email', 'byuid', 'phone', 'major', 'heard_about', 
+        fields = ('firstname', 'middlename', 'lastname', 'language', 'email', 'byuid', 'phone', 'major', 'domain_area', 'graduation_semester',
                   'semester_of_entry', 'gpa', 'location_of_experience', 'opi_score', 'opi_date', 'wpt_score', 'wpt_date', 
                   'alt_score', 'alt_date', 'art_score', 'art_date', 'other_test_name', 'other_test_score', 'other_test_date', 
                   'institution_name', 'institution_location', 'institution_from_date', 'institution_to_date', 'degree', 
@@ -36,7 +36,7 @@ class MAPLForm_Forms(forms.ModelForm):
                   'recommender_institution_2', 'recommender_email_2', 'recommender_phone_2', 'statement_of_purpose', 
                   'student_signature', 'student_date', 'academic_status')
         labels = {'firstname':'', 'middlename':'', 'lastname':'', 'language':'', 'email':'', 'byuid':'', 'phone':'', 
-                  'major':'', 'heard_about':'', 'semester_of_entry':'', 'gpa':'', 'location_of_experience':'', 'opi_score':'', 
+                  'major':'', 'domain_area':'', 'graduation_semester':'', 'semester_of_entry':'', 'gpa':'', 'location_of_experience':'', 'opi_score':'', 
                   'opi_date':'', 'wpt_score':'', 'wpt_date':'', 'alt_score':'', 'alt_date':'', 'art_score':'', 'art_date':'', 
                   'other_test_name':'', 'other_test_score':'', 'other_test_date':'', 'institution_name':'', 'institution_location':'', 
                   'institution_from_date':'', 'institution_to_date':'', 'degree':'', 'bachelors_completion':'', 'coursework_explanation':'',
@@ -53,10 +53,12 @@ class MAPLForm_Forms(forms.ModelForm):
             'byuid': forms.TextInput(attrs={'class':'formbox, input-class', 'placeholder': 'BYU ID', 'name':'byuid'}),
             'phone': forms.TextInput(attrs={'class':'formbox, input-class', 'placeholder': 'Phone', 'name':'phone'}),
             'major': forms.TextInput(attrs={'class':'formbox, input-class', 'placeholder': 'Major', 'name':'major'}),
-            'heard_about': forms.Select(attrs={'class':'formbox, input-class', 'placeholder': 'How did you hear about MAPL?', 'name':'heard_about'}),
+            'domain_area': forms.TextInput(attrs={'class':'formbox, input-class', 'placeholder': 'Domain Area', 'name':'domain_area'}),
+            'graduation_semester': forms.TextInput(attrs={'class':'formbox, input-class', 'placeholder': 'Graduation Semester', 'name':'graduation_semester'}),
+            #'heard_about': forms.Select(attrs={'class':'formbox, input-class', 'placeholder': 'How did you hear about MAPL?', 'name':'heard_about'}),
             'semester_of_entry': forms.Select(attrs={'class':'formbox, input-class', 'placeholder': 'Semester of Entry', 'name':'semester_of_entry'}),
             'gpa': forms.TextInput(attrs={'class':'formbox, input-class', 'placeholder': 'GPA', 'name':'gpa'}),
-            'location_of_experience': forms.Textarea(attrs={'class':'formbox, input-class', 'placeholder': 'Please Describe', 'name':'location_of_experience'}),
+            'location_of_experience': forms.Textarea(attrs={'class':'formbox, input-class', 'placeholder': 'Please describe any overseas experience that you have had, including when, where, and what the experience was (i.e. mission, study abroad, etc.)', 'name':'location_of_experience'}),
             'opi_score': forms.Select(attrs={'class':'formbox, input-class', 'placeholder': 'OPI Score', 'name':'opi_score'}),
             'opi_date': forms.DateInput(attrs={'type':'date', 'class':'formbox, input-class', 'placeholder': 'Date', 'name':'opi_date'}),
             'wpt_score': forms.Select(attrs={'class':'formbox, input-class', 'placeholder': 'WPT Score', 'name':'wpt_score'}),

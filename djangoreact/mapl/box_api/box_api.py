@@ -134,7 +134,7 @@ def upload_files_cert(client, student_name, files, cert_folder):
 
 
 
-def create_mapl_application(firstname, middlename, lastname, language, email, byuid, phone, major, heard_about, semester_of_entry, 
+def create_mapl_application(firstname, middlename, lastname, language, email, byuid, phone, major, domain_area, graduation_semester, semester_of_entry, 
                             academic_status, gpa, opi_score, opi_date, wpt_score, wpt_date, alt_score, alt_date, 
                             art_score, art_date, other_test_name, other_test_score, other_test_date, 
                             institution_name, institution_location, institution_from_date, institution_to_date, 
@@ -181,25 +181,29 @@ def create_mapl_application(firstname, middlename, lastname, language, email, by
     can_1 = canvas.Canvas(packet_1, pagesize=letter)
     can_1.setFillColorRGB(0, 0, 0)
     can_1.setFont('TimesNewRoman', 14)
-    can_1.drawString(210, 644, firstname)
-    can_1.drawString(210, 615, middlename)
-    can_1.drawString(210, 588, lastname)
-    can_1.drawString(210, 561, language)
+    # each is spaced by 29
+    can_1.drawString(210, 682, firstname)
+    can_1.drawString(210, 653, middlename)
+    can_1.drawString(210, 624, lastname)
+    can_1.drawString(210, 595, language)
 
-    can_1.drawString(210, 534, email)
-    can_1.drawString(210, 507, byuid)
-    can_1.drawString(210, 479, phone)
-    can_1.drawString(210, 452, major)
-    can_1.drawString(210, 388, heard_about)
-    can_1.drawString(210, 343, semester_of_entry)
-    can_1.drawString(210, 302, academic_status)
-    can_1.drawString(210, 274, gpa)
-    can_1.drawString(210, 246, opi_score)
-    can_1.drawString(210, 219, opi_date)
-    can_1.drawString(210, 191, wpt_score)
-    can_1.drawString(210, 162, wpt_date)
-    can_1.drawString(210, 135, alt_score)
-    can_1.drawString(210, 108, alt_date)
+    can_1.drawString(210, 566, email)
+    can_1.drawString(210, 537, byuid)
+    can_1.drawString(210, 508, phone)
+    can_1.drawString(210, 479, major)
+    can_1.drawString(210, 450, domain_area)
+    can_1.drawString(210, 421, graduation_semester)
+    can_1.drawString(210, 392, semester_of_entry)
+    can_1.drawString(210, 363, academic_status)
+    can_1.drawString(210, 334, gpa) 
+    can_1.drawString(210, 305, opi_score)
+    can_1.drawString(210, 276, opi_date)
+    can_1.drawString(210, 247, wpt_score)
+    can_1.drawString(210, 218, wpt_date)
+    can_1.drawString(210, 189, alt_score)
+    can_1.drawString(210, 160, alt_date)
+    can_1.drawString(210, 131, art_score)
+    can_1.drawString(210, 100, art_date)
 
     can_1.save()
     packet_1.seek(0)
@@ -211,24 +215,29 @@ def create_mapl_application(firstname, middlename, lastname, language, email, by
     can_2.setFillColorRGB(0, 0, 0)
     can_2.setFont('TimesNewRoman', 13.5)
 
-    can_2.drawString(210, 672, art_score)
-    can_2.drawString(210, 644, art_date)
-    can_2.drawString(210, 599, other_test_name)
-    can_2.drawString(210, 556, other_test_score)
-    can_2.drawString(210, 511, other_test_date)
 
-    can_2.drawString(210, 464, institution_name)
-    can_2.drawString(210, 436, institution_location)
-    can_2.drawString(210, 408, institution_from_date)
-    can_2.drawString(210, 382, institution_to_date)
-    can_2.drawString(210, 354, degree)
-    can_2.drawString(210, 310, bachelors_completion)
-    can_2.drawString(210, 265, coursework_explanation)
-    can_2.drawString(210, 220, graduation_date)
-    can_2.drawString(210, 177, recommender_name_1)
-    can_2.drawString(210, 149, recommender_title_1)
-    can_2.drawString(210, 121, recommender_institution_1)
-    can_2.drawString(210, 93, recommender_email_1)
+    can_2.drawString(210, 682, other_test_name)
+    can_2.drawString(210, 653, other_test_score)
+    can_2.drawString(210, 624, other_test_date)
+    location = institution_name + ", " + institution_location
+    can_2.drawString(225, 595, location)
+    can_2.drawString(210, 566, institution_from_date)
+    can_2.drawString(210, 537, institution_to_date)
+    can_2.drawString(210, 508, degree)
+    can_2.drawString(210, 479, bachelors_completion)
+    can_2.drawString(210, 450, coursework_explanation)
+    can_2.drawString(210, 421, graduation_date)
+    can_2.drawString(215, 392, recommender_name_1)
+    can_2.drawString(210, 363, recommender_title_1)
+    can_2.drawString(210, 334, recommender_institution_1)
+    can_2.drawString(210, 305, recommender_email_1)
+    can_2.drawString(210, 276, recommender_phone_1)
+    can_2.drawString(215, 247, recommender_name_2)
+    can_2.drawString(210, 218, recommender_title_2)
+    can_2.drawString(210, 189, recommender_institution_2)
+    can_2.drawString(210, 160, recommender_email_2)
+    can_2.drawString(210, 131, recommender_phone_2)
+    
     can_2.save()
     packet_2.seek(0)
     page_2 = PdfReader(packet_2)
@@ -237,14 +246,9 @@ def create_mapl_application(firstname, middlename, lastname, language, email, by
     can_3 = canvas.Canvas(packet_3, pagesize=letter)
     can_3.setFillColorRGB(0, 0, 0)
     can_3.setFont('TimesNewRoman', 14)
-    can_3.drawString(210, 670, recommender_phone_1)
-    can_3.drawString(210, 625, recommender_name_2)
-    can_3.drawString(210, 597, recommender_title_2)
-    can_3.drawString(210, 569, recommender_institution_2)   
-    can_3.drawString(210, 542, recommender_email_2)
-    can_3.drawString(210, 515, recommender_phone_2)
-    can_3.drawString(210, 487, student_signature)
-    can_3.drawString(210, 459, signature_date)
+    can_3.drawString(210, 682, student_signature)
+    can_3.drawString(210, 653, signature_date)
+
     can_3.save()
     packet_3.seek(0)
     page_3 = PdfReader(packet_3)
@@ -267,7 +271,7 @@ def create_mapl_application(firstname, middlename, lastname, language, email, by
     page_4 = PdfReader(packet_4)
     # read your existing PDF
 
-    pdf_path = os.path.abspath("mapl/box_api/MAPL_Application_Template_New.pdf")
+    pdf_path = os.path.abspath("mapl/box_api/MAPL_Application_Template_2024.pdf")
     #pdf_path = os.path.abspath(r"C:\Users\kozak\Code\cls-opi-aws\myapp\box_api\MAPL_Application_Template.pdf")
 
     existing_pdf = PdfReader(open(pdf_path, "rb"))
@@ -303,7 +307,7 @@ def create_mapl_application(firstname, middlename, lastname, language, email, by
     else:
         print('failed to create student application pdf')
 
-#create_mapl_application(firstname='Peter', middlename='Russell', lastname='Hart', email='kozakhart@gmail.com', byuid='123456789', phone='623-414-1835', major='Russian', heard_about='Friend', semester_of_entry='20235', academic_status='Senior', gpa='3.6', opi_score='Advanced High', opi_date='05/23/23', wpt_score='IH', wpt_date='05/23/23', alt_score='AL', alt_date='05/23/23', art_score='Superior', art_date='05/23/23', other_test_name='Important Test', other_test_score='Some other rating', other_test_date='05/23/23', institution_name='UVU', institution_location='Utah', institution_from_date='05/23/23', institution_to_date='05/23/23', degree='BA', graduation_date='05/23/23', recommender_name_1='John', recommender_title_1='Mr', recommender_institution_1='UVU', recommender_email_1='asdf@gmail.com', recommender_phone_1='123-123-1234', recommender_name_2='Samantha', recommender_title_2='Mrs', recommender_institution_2='UVU', recommender_email_2='asdf@gmail.com', recommender_phone_2='1231231234', student_signature='Peter Hart', signature_date='05/23/23', location_of_experience='This is my experience. There is more. I need to make this super long. This is my experience. There is more. I need to make this super long. This is my experience. There is more. I need to make this super long. This is my experience. There is more. I need to make this super long.')
+#create_mapl_application(firstname='Peter', middlename='Russell', lastname='Hart', language="russian",  bachelors_completion="yes", coursework_explanation="my explanation", email='kozakhart@gmail.com', byuid='123456789', phone='623-414-1835', major='Russian', domain_area="Russian", graduation_semester="Spring", semester_of_entry='20235', academic_status='Senior', gpa='3.6', opi_score='Advanced High', opi_date='05/23/23', wpt_score='IH', wpt_date='05/23/23', alt_score='AL', alt_date='05/23/23', art_score='Superior', art_date='05/23/23', other_test_name='Important Test', other_test_score='Some other rating', other_test_date='05/23/23', institution_name='UVU', institution_location='Utah', institution_from_date='05/23/23', institution_to_date='05/23/23', degree='BA', graduation_date='05/23/23', recommender_name_1='John', recommender_title_1='Mr', recommender_institution_1='UVU', recommender_email_1='asdf@gmail.com', recommender_phone_1='123-123-1234', recommender_name_2='Samantha', recommender_title_2='Mrs', recommender_institution_2='UVU', recommender_email_2='asdf@gmail.com', recommender_phone_2='1231231234', student_signature='Peter Hart', signature_date='05/23/23', location_of_experience='This is my experience. There is more. I need to make this super long. This is my experience. There is more. I need to make this super long. This is my experience. There is more. I need to make this super long. This is my experience. There is more. I need to make this super long.')
 
 def create_pdf_cert(record_id, full_name, language, level, opi_score, wpt_score, today):
     from reportlab.pdfbase.ttfonts import TTFont

@@ -24,9 +24,11 @@ def mapl_form(request):
         byuid = (request.POST.get('byuid', False))
         phone = (request.POST.get('phone', False))
         major = (request.POST.get('major', False))
-        heard_about_id = (request.POST.get('heard_about', False))
-        heard_about = HeardAbout.objects.get(pk=heard_about_id)
-        heard_about = str(heard_about)
+        domain_area = (request.POST.get('domain_area', False))
+        graduation_semester = (request.POST.get('graduation_semester', False))
+        # heard_about_id = (request.POST.get('heard_about', False))
+        # heard_about = HeardAbout.objects.get(pk=heard_about_id)
+        # heard_about = str(heard_about)
         semester_of_entry_id = (request.POST.get('semester_of_entry', False))
         semester_of_entry = SemesterOfEntry.objects.get(pk=semester_of_entry_id)
         semester_of_entry = str(semester_of_entry)
@@ -155,7 +157,7 @@ def mapl_form(request):
 
         client = box_api.create_client()
         box_api.create_mapl_application(firstname=firstname, middlename=middlename, lastname=lastname, language=language, byuid=byuid, 
-            email=email, phone=phone, major=major, heard_about=heard_about, semester_of_entry=semester_of_entry, 
+            email=email, phone=phone, major=major, domain_area=domain_area, graduation_semester=graduation_semester, semester_of_entry=semester_of_entry, 
             academic_status=academic_status, gpa=gpa, opi_score=opi_score, opi_date=opi_date, wpt_score=wpt_score, wpt_date=wpt_date, 
             alt_score=alt_score, alt_date=alt_date, art_score=art_score, art_date=art_date, other_test_name=other_test_name, 
             other_test_score=other_test_score, other_test_date=other_test_date, institution_name=institution_name, institution_location=institution_location, 
@@ -170,19 +172,6 @@ def mapl_form(request):
         files.append("/tmp/" + statement_of_purpose.name)
         files.append("/tmp/" + f"{firstname} {lastname} MAPL Application.pdf")
         box_api.upload_files(client=client, student_name=student_name, language=language, files=files, folder=mapl_folder)        
-        #region
-        # finished_date = datetime.strptime(request.POST['testdate1'], '%Y-%m-%d')
-
-        # sqldb_testdate1 = (request.POST.get('testdate1'))
-        # format_testdate1 = datetime.strptime(sqldb_testdate1, '%Y-%m-%d').date()
-        # testdate1 = datetime.strftime(format_testdate1, '%m-%d-%Y')
-        
-        # finished_date_2 = datetime.strptime(request.POST['testdate2'], '%Y-%m-%d')
-
-        # sqldb_testdate2 = (request.POST.get('testdate2'))
-        # format_testdate2 = datetime.strptime(sqldb_testdate2, '%Y-%m-%d').date()
-        # testdate2 = datetime.strftime(format_testdate2, '%m-%d-%Y')
-        # endregion
         
         success = "Thank you for your submission!"
         return HttpResponse(success)
@@ -190,7 +179,7 @@ def mapl_form(request):
         
     else:
         form = MAPLForm_Forms()
-        heard_about = HeardAbout.objects.all()
+        # heard_about = HeardAbout.objects.all()
         semester_of_entry = SemesterOfEntry.objects.all()
         scores = Scores.objects.all()
         academic_status = AcademicStatus.objects.all()
@@ -198,7 +187,7 @@ def mapl_form(request):
         language = Language.objects.all()
 
         context = {'form': form, 
-                heard_about: 'heard_about',
+            #    heard_about: 'heard_about',
                 semester_of_entry: 'semester_of_entry',
                 scores: 'scores',
                 academic_status: 'academic_status',
