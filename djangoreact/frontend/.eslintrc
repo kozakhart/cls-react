@@ -31,6 +31,7 @@
     "no-console": 0,
     "react/jsx-key": 1,
     "import/no-cycle": 0,
+    "import/extensions": 0,
     "arrow-body-style": 1,
     "react/prop-types": 1,
     "no-param-reassign": 0,
