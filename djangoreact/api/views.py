@@ -7,7 +7,6 @@ from django.middleware.csrf import get_token
 from django.http import HttpResponse
 from django.contrib.auth.models import User
 from django.conf import settings
-from knox.models import AuthToken
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from io import BytesIO
@@ -20,8 +19,8 @@ import os
 from rest_framework import generics
 import zipfile
 
-from .models import Students
-from .serializers import StudentSerializer
+from .models import Students, LASER_Queries
+from .serializers import StudentSerializer, LASER_QueriesSerializer
 from .serializers import UserSerializer
 import api.filemaker_api as filemaker
 import json
@@ -31,8 +30,6 @@ import api.lti_api as lti
 from datetime import datetime
 import api.outlook_api as outlook
 import api.box_api as box_api
-from django.utils import timezone
-from knox.models import AuthToken
 from django.http import JsonResponse, HttpResponse
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -42,7 +39,6 @@ from axes.signals import user_login_failed
 from axes.utils import reset
 
 from datetime import datetime
-from django.utils import timezone
 import api.byu_api.byu_api as byu_api
 from myapp.models import Languages
 import subprocess
@@ -451,6 +447,9 @@ def award_certificate(request):
             byu_api.logout(byu_token)
             return JsonResponse({'message': 'All certificates awarded'})
         else: 
+            import time
+            time.sleep(5)
+            return JsonResponse({'message': 'Awarded'}, status=200)
             full_name = request.data['dataToSend']['FullName']
             byuid = request.data['dataToSend']['BYUID']
             netid = request.data['dataToSend']['NetID']
@@ -623,6 +622,7 @@ def award_certificate(request):
             "BYUID":byuid, "Major 1":major1, "Major 2":major2 ,"Major 3":major3,"Minor 1":minor1,"Minor 2":minor2,"Minor 3":minor3,"Language":language, 
             "OPI Rating":opi_score, "WPT Rating":wpt_score, "Semester Finished":yearterm, "Course 1":course1, "Course 2":course2, "Course 3":course3, "Other Courses":other_courses})
             filemaker_token = filemaker.login()
+            # it doesn't know the recordid
             filemaker.edit_record('CertificateStatus', 'Awarded', filemaker_token, record_id)
             filemaker.logout(filemaker_token)
             return JsonResponse({'message': 'Certificate awarded'})
@@ -931,8 +931,7 @@ def login_view(request):
         user_login_failed.send(sender=__name__, credentials={'username': username}, request=request)
         return Response({"error": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
 
-    # Properly log the user in
-    login(request, user)  # This logs the user into Django's session framework
+    login(request, user)
     return Response({"user": UserSerializer(user, context={'request': request}).data})
 
 # logout
@@ -952,3 +951,38 @@ def verify_session(request):
 
     else:
         return Response({"message": "User is not authenticated"}, status=status.HTTP_401_UNAUTHORIZED)
+    
+
+
+#LASER Queries
+#@permission_classes([IsAuthenticated])
+@api_view(['GET', 'POST'])
+def get_post_laser_queries(request):
+   # if request.user.is_staff or request.user.is_superuser:
+    if request.method == "GET":
+        queries = LASER_Queries.objects.all()
+        query_serializer = LASER_QueriesSerializer(queries, many=True)
+        return JsonResponse(query_serializer.data, safe=False)
+    if request.method == "POST":
+        data = request.data
+        query_serializer = LASER_QueriesSerializer(data=data)
+        if query_serializer.is_valid():
+            query_serializer.save()
+            return JsonResponse(query_serializer.data, status=201)
+        return JsonResponse(query_serializer.errors, status=400)
+    
+    return JsonResponse({'message': 'hi'})
+        
+    # else:
+    #     return JsonResponse({'message': 'User is not authenticated'}, status=401)
+        
+@permission_classes([IsAuthenticated])
+@api_view(['POST', 'DELETE'])
+def delete_laser_queries(request, pk):
+    # if request.user.is_staff or request.user.is_superuser:
+    if request.method == "DELETE":
+        query = LASER_Queries.objects.get(id=pk)
+        query.delete()
+        return JsonResponse({'message': 'Query deleted successfully!'}, status=204)
+    else:
+        return JsonResponse({'message': 'User is not authenticated'}, status=401)

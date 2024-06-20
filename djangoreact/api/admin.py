@@ -2,6 +2,8 @@ from django.contrib import admin
 
 # Register your models here.
 
-from .models import Students
+from .models import LASER_Queries
 
-admin.site.register(Students)
+models = [LASER_Queries]
+for model in models:
+    admin.site.register(model)

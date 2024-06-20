@@ -5,7 +5,6 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import { useTheme } from '@mui/material/styles';
-import { set } from 'lodash';
 
 import 'regenerator-runtime/runtime';
 
@@ -15,6 +14,7 @@ import {
   Stack,
   Typography,
   Select,
+  Card,
   MenuItem,
   Checkbox,
   TextareaAutosize,
@@ -25,8 +25,12 @@ InputAdornment,
 Box
 } from '@mui/material';
 import DatePicker from "react-datepicker";
+import { set } from 'lodash';
+
+import  LaserMenu  from '../components/lasermenu/LaserMenu';
+
+
 import "react-datepicker/dist/react-datepicker.css";
-import { fr } from 'date-fns/locale';
 
 import {
   AppRadarChart,
@@ -47,12 +51,28 @@ export default function BlogPage() {
   const verifySessionUrl = process.env.REACT_APP_VERIFY_SESSION_URL;
   const getSchemaUrl = process.env.REACT_APP_GET_SCHEMA_URL;
   const getLASERUrl = process.env.REACT_APP_LASER_URL;
+  const saveQueryUrl = process.env.REACT_APP_SAVE_QUERY_URL;
 
   const [isLoading, setIsLoading] = useState(false);
   const [sqlQuery, setSqlQuery] = useState('');
+  const [labelValue, SetLabelValue] = useState('Select * from data;');
+  const [data, setData] = useState(null);
+  const [queryCreation, setQueryCreation] = useState([]);
+  const [queryName, setQueryName] = useState('');
+  const [query, setQuery] = useState('');
+
   const sqlQueryChange = (event) => {
     setSqlQuery(event.target.value);
     };  
+
+    const getData = (query) => {
+      setData(query);
+      setSqlQuery(query);
+      console.log('Data received from LaserMenu:', query);
+    };
+    const startQueryCreation = (create) => {
+        setQueryCreation(create);
+    };
 
     useEffect(() => {
       const fetchSessionData = async () => {
@@ -94,6 +114,7 @@ export default function BlogPage() {
     .catch(error => console.error('Error downloading the file:', error));
   };
 
+  
 const handleQuery = () => {
     setIsLoading(true);
     const formattedSqlQuery = sqlQuery.replace(/\s+/g, ' ');
@@ -142,6 +163,36 @@ const handleQuery = () => {
     fetchData();
   };
   
+  const exitQueryCreation = () => {
+    setQueryCreation(false);
+  }
+
+  const dataToSend={
+    'query_label': queryName,
+    'query': query,
+  };
+  const saveQuery = async () => {
+    const csrfToken = Cookies.get('csrftoken');
+
+    const response = await axios.post(saveQueryUrl, dataToSend,
+            {
+            withCredentials: true,
+            headers: {
+              'X-CSRFToken': csrfToken,
+              
+            },
+          });
+    setQueryCreation(false);
+    alert('Query saved');
+    window.location.replace('/cls/dashboard/laser-database');
+    
+  }
+  const queryNameChange = (event) => {
+    setQueryName(event.target.value);
+  }
+  const queryDataChange = (event) => {
+    setQuery(event.target.value);
+  }
 
   return (
     <>
@@ -150,59 +201,81 @@ const handleQuery = () => {
       </Helmet>
 
       <Container>
-      <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
+    
+      <Stack direction="row" alignItems="center" justifyContent="space-between" mt={5}>
           <Typography variant="h4" gutterBottom>
-            LASER Database Querys
+            LASER Database Queries
           </Typography>
-        </Stack>
-        <Box>
-          
-      <TextField
-      name="sqlQuery"
-      label="Enter SQL Query"
-      variant="outlined"
-      margin="normal"
-      fullWidth
-      multiline
-      rows={20}
-      maxRows={200}
-      value={sqlQuery}
-      onChange={sqlQueryChange}
-      />
-      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <Button variant="contained"
-            color="primary"
-            style={{ marginLeft: '10px', marginRight: '20px'}}
-            onClick={downloadSchema}
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <LaserMenu sendQuery={getData} createQuery={startQueryCreation}/>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={downloadSchema}
+              style={{ marginLeft: '1vw' }}
             >
               Download Database Schema
             </Button>
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={handleQuery}
-        >
-        <span style={{ visibility: isLoading ? 'hidden' : 'visible' }}>Execute Query</span>
-        {isLoading && (
-          <div
-            style={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-            }}
-          >
-            <PulseLoader
-              loading={isLoading}
-              size={5}
-              aria-label="Loading Spinner"
-              data-testid="loader"
-              sx={{ height: 'inherit' }}
-            />
           </div>
-        )}
-      </Button>
-      </div>
+        </Stack>
+        <Box>
+        {queryCreation ? 
+            (<Card sx={{ m: 5, p:2 }}>
+              <div style={{ display: 'flex' }}>
+                <TextField label="Query Name" sx={{ pr:2 }} value={queryName} onChange={queryNameChange}/>
+                <TextField label="Query" sx={{ pr:5, width:"50%" }} value={query} onChange={queryDataChange}/>
+                <Button variant="contained" color="primary" sx={{ width:"12%" }} onClick={saveQuery}>Save Query</Button>
+                <Button variant="contained" color="error" sx={{ marginLeft:"1vw", width:"10%"}} onClick={exitQueryCreation}>Exit</Button>
+              </div>
+            </Card>) 
+            : 
+            (
+            <div>
+              <TextField
+              name="sqlQuery"
+              label={labelValue}
+              variant="outlined"
+              margin="normal"
+              fullWidth
+              multiline
+              rows={20}
+              maxRows={200}
+              value={sqlQuery}
+              onChange={sqlQueryChange}
+              />
+                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleQuery}
+                    >
+                    <span style={{ visibility: isLoading ? 'hidden' : 'visible' }}>Execute Query</span>
+                    {isLoading && (
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: '50%',
+                          left: '50%',
+                          transform: 'translate(-50%, -50%)',
+                        }}
+                      >
+                        <PulseLoader
+                          loading={isLoading}
+                          size={5}
+                          aria-label="Loading Spinner"
+                          data-testid="loader"
+                          sx={{ height: 'inherit' }}
+                        />
+                      </div>
+                      
+                    )}
+                  </Button>
+                </div>
+            </div>
+            )
+          }
+     
+      
     </Box>
       </Container>
     </>

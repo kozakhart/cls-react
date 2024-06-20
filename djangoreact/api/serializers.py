@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Students
+from .models import *
 from django.contrib.auth.models import User
 from django.contrib.auth import  authenticate
 
@@ -38,6 +38,11 @@ class LoginSerializer(serializers.Serializer):
         
         attrs['user'] = user
         return attrs
+    
 
+class LASER_QueriesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LASER_Queries
+        fields = '__all__'
 
 

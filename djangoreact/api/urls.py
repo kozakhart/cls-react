@@ -24,4 +24,8 @@ urlpatterns = [
     path('qualtrics-report/', views.qualtrics_reports, name='qualtrics-reports'),
     path('laser-database/', views.laser_data, name='laser-data'),
     path('get-db-schema/', views.get_db_schema, name='get-db-schema'),
+
+    ############################## LASER Queries ##############################
+    path('laser-queries/', views.get_post_laser_queries, name='get-laser-queries'),
+    path('laser-queries/<int:pk>/', views.delete_laser_queries, name='laser-query'),
 ]

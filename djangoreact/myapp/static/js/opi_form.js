@@ -120,20 +120,20 @@ $(document).on('submit', '#test_ajax',function(e){
     //if first month is before second month validation
     if (testdate1.getFullYear() > testdate2.getFullYear()){
         document.getElementById("id_testdate1").scrollIntoView()
-        alert('Your first date must be before your second date. If you believe that this message is a mistake or that the website is broken, please text 623-414-1835, or call CLS at 801-422-1201. Thank you for your patience.')
+        alert('Your first date must be before your second date. If you believe that this message is a mistake or that the website is broken, please email mariah_nix@byu.edu, or call CLS at 801-422-1201. Thank you for your patience.')
         loader.style.display = "none"
         return; 
     }
 
     if ((testdate1.getMonth() > testdate2.getMonth()) & (testdate1.getFullYear() >= testdate2.getFullYear())){
         document.getElementById("id_testdate1").scrollIntoView()
-        alert('Your first date must be before your second date. If you believe that this message is a mistake or that the website is broken, please text 623-414-1835, or call CLS at 801-422-1201. Thank you for your patience.')
+        alert('Your first date must be before your second date. If you believe that this message is a mistake or that the website is broken, please email mariah_nix@byu.edu, or call CLS at 801-422-1201. Thank you for your patience.')
         loader.style.display = "none"
         return;
     }
     if ((testdate1.getMonth() == testdate2.getMonth()) & (testdate1.getDate() > testdate2.getDate())){
         document.getElementById("id_testdate1").scrollIntoView()
-        alert('Your first date must be before your second date. If you believe that this message is a mistake or that the website is broken, please text 623-414-1835, or call CLS at 801-422-1201. Thank you for your patience.')
+        alert('Your first date must be before your second date. If you believe that this message is a mistake or that the website is broken, please email mariah_nix@byu.edu, or call CLS at 801-422-1201. Thank you for your patience.')
         loader.style.display = "none"
         return;
     }
@@ -144,31 +144,31 @@ $(document).on('submit', '#test_ajax',function(e){
 
     if ((testdate1.getDate() < today.getDate() + 13) & (testdate1.getMonth() <= today.getMonth()) & (testdate1.getFullYear() == today.getFullYear())){
         document.getElementById("id_testdate1").scrollIntoView()
-        alert('Error 601: 1 Your first testing date must be at least 14 days from today. If you believe that this message is a mistake or that the website is broken, please text 623-414-1835, or call CLS at 801-422-1201. Thank you for your patience.')
+        alert('Error 601: 1 Your first testing date must be at least 14 days from today. If you believe that this message is a mistake or that the website is broken, please email mariah_nix@byu.edu, or call CLS at 801-422-1201. Thank you for your patience.')
         loader.style.display = "none"
         return;
     }
     if ((today.getDate() > (testdate1.getDate())) & (today.getMonth() >= testdate1.getMonth()) & (testdate1.getFullYear() == today.getFullYear())){
         document.getElementById("id_testdate1").scrollIntoView()
-        alert('Error 602: Your first testing date must be at least 14 days from today. If you believe that this message is a mistake or that the website is broken, please text 623-414-1835, or call CLS at 801-422-1201. Thank you for your patience.')
+        alert('Error 602: Your first testing date must be at least 14 days from today. If you believe that this message is a mistake or that the website is broken, please email mariah_nix@byu.edu, or call CLS at 801-422-1201. Thank you for your patience.')
         loader.style.display = "none"
         return;
     }
     // if ((today.getDate() > testdate2.getDate()) & (today.getMonth() >= testdate2.getMonth()) & (testdate2.getFullYear() == today.getFullYear())){
     //     document.getElementById("testdate2").scrollIntoView()
-    //     alert('Your second testing date must be after your first date. If you believe that this message is a mistake or that the website is broken, please text 623-414-1835, or call CLS at 801-422-1201. Thank you for your patience.')
+    //     alert('Your second testing date must be after your first date. If you believe that this message is a mistake or that the website is broken, please email mariah_nix@byu.edu, or call CLS at 801-422-1201. Thank you for your patience.')
     //     return;
     // }
 
     if ((testdate1.getDate() > testdate2.getDate()) & (testdate1.getMonth() >= testdate2.getMonth()) & (testdate2.getFullYear() == today.getFullYear())){
         document.getElementById("id_testdate2").scrollIntoView()
-        alert('Error 603: Your second testing date must be after your first date. If you believe that this message is a mistake or that the website is broken, please text 623-414-1835, or call CLS at 801-422-1201. Thank you for your patience.')
+        alert('Error 603: Your second testing date must be after your first date. If you believe that this message is a mistake or that the website is broken, please email mariah_nix@byu.edu, or call CLS at 801-422-1201. Thank you for your patience.')
         loader.style.display = "none"
         return;
     }
     if ((testdate1.getDate() == testdate2.getDate()) & (testdate1.getMonth() == testdate2.getMonth()) & (testdate1.getFullYear() == testdate2.getFullYear())){
         document.getElementById("id_testdate1").scrollIntoView()
-        alert('Error 604: Your testing dates must be on different days. If you believe that this message is a mistake or that the website is broken, please text 623-414-1835, or call CLS at 801-422-1201. Thank you for your patience.')
+        alert('Error 604: Your testing dates must be on different days. If you believe that this message is a mistake or that the website is broken, please email mariah_nix@byu.edu, or call CLS at 801-422-1201. Thank you for your patience.')
         loader.style.display = "none"
         return;
     }
@@ -186,7 +186,7 @@ $(document).on('submit', '#test_ajax',function(e){
     reason_other = document.getElementById('id_reason_other').value
     if ((reason == "Other") && reason_other == "") {
         document.getElementById("id_reason_other").scrollIntoView()
-        alert("Please provide a reason for taking the test. If you believe that this message is a mistake or that the website is broken, please text 623-414-1835, or call CLS at 801-422-1201. Thank you for your patience.")
+        alert("Please provide a reason for taking the test. If you believe that this message is a mistake or that the website is broken, please email mariah_nix@byu.edu, or call CLS at 801-422-1201. Thank you for your patience.")
         loader.style.display = "none"
         return;
     }
@@ -256,7 +256,7 @@ $(document).on('submit', '#test_ajax',function(e){
             error: function(data){
                 loader.style.display = "none"
                 document.getElementById("id_testdate1").scrollIntoView()
-                alert(data.responseJSON.error + " If you believe that this message is a mistake or that the website is broken, please text 623-414-1835, or call CLS at 801-422-1201. Thank you for your patience.");
+                alert(data.responseJSON.error + " If you believe that this message is a mistake or that the website is broken, please email mariah_nix@byu.edu, or call CLS at 801-422-1201. Thank you for your patience.");
          }
     });
 }); 

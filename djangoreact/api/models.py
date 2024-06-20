@@ -40,3 +40,14 @@ class Students(models.Model):
 class User(models.Model):
     username = models.CharField(max_length=100, unique=True)
     password = models.CharField(max_length=100)
+
+class LASER_Queries(models.Model):
+    query_label = models.CharField(max_length=100, default="", blank=True, null=True)
+    query = models.TextField()
+    date = models.DateField(auto_now_add=True)
+    time = models.TimeField(auto_now_add=True)
+    class Meta:
+        verbose_name = "Laser Queries"
+        verbose_name_plural = "Laser Queries"
+    def __str__(self):
+        return '{}'.format(self.query_label)
