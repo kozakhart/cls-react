@@ -865,7 +865,7 @@ def laser_data(request):
                 
                 # Create a CSV string
                 csv_output = io.StringIO()
-                csv_writer = csv.writer(csv_output, encoding='utf-8')
+                csv_writer = csv.writer(csv_output)
                 csv_writer.writerow([i[0] for i in cursor.description])  # Write headers
                 csv_writer.writerows(rows)  # Write rows
                 
