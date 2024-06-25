@@ -135,7 +135,8 @@ const handleQuery = () => {
           });
           console.log(response);
           console.log(response.data); 
-          const blob = new Blob([response.data], { type: 'text/csv;charset=utf-8' });
+          const bom = '\uFEFF';
+          const blob = new Blob([bom + response.data], { type: 'text/csv;charset=utf-8' });
 
           const csvURL = window.URL.createObjectURL(blob);
       
