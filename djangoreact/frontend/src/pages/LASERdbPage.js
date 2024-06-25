@@ -57,7 +57,7 @@ export default function BlogPage() {
   const [sqlQuery, setSqlQuery] = useState('');
   const [labelValue, SetLabelValue] = useState('Select * from data;');
   const [data, setData] = useState(null);
-  const [queryCreation, setQueryCreation] = useState([]);
+  const [queryCreation, setQueryCreation] = useState(false);
   const [queryName, setQueryName] = useState('');
   const [query, setQuery] = useState('');
 
