@@ -40,6 +40,12 @@ const navConfig = [
     icon: icon('ic_report'),
     groups: ['CLS']
   },
+  {
+    title: 'Diagnostic Grids',
+    path: '/cls/dashboard/diagnostic-grids',
+    icon: icon('ic_report'),
+    groups: ['CLS']
+  }
   // {
   //   title: 'Generate Report',
   //   path: '/cls/dashboard/generate-reports',
