@@ -13,6 +13,7 @@ import GenerateReports from './pages/GenerateReports';
 import DatabasePage from './pages/DatabasePage';
 import Page404 from './pages/Page404';
 import NeedsApprovalPage from './pages/NeedsApprovalPage';
+import DiagnosticGrids from './pages/DiagnosticGrids';
 import DashboardAppPage from './pages/DashboardAppPage';
 import LanguageCertificatesPage from './pages/LanguageCertificatesPage';
 import QualtricsReports from './pages/QualtricsReports';
@@ -36,6 +37,8 @@ export default function App() {
                 <Route path="dashboard/qualtrics-reports" element={<QualtricsReports />} />
                 <Route path="dashboard/laser-database" element={<LASERdbPage />} />
                 {/* <Route path="dashboard/generate-reports" element={<GenerateReports />} /> */}
+                <Route path="dashboard/diagnostic-grids" element={<DiagnosticGrids />} />
+
                 <Route path="404" element={<Page404 />} />
 
                 {/* Add more authenticated routes here */}
