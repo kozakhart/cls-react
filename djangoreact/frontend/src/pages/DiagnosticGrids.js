@@ -50,7 +50,8 @@ export default function DiagnosticGrids() {
   const navigate = useNavigate();
 
   const verifyTokenUrl = process.env.REACT_APP_VERIFY_TOKEN_URL;
-  const diagnosticGridsUrl = process.env.REACT_APP_DIAGNOSTIC_GRIDS_URL;
+  const diagnosticGridsUrl = process.env.REACT_APP_POST_DIAGNOSTIC_GRIDS_URL;
+  const getDataUrl = process.env.REACT_APP_GET_DIAGNOSTIC_GRIDS_URL
 
   const today = new Date();
   const oneYearFromToday = new Date();
@@ -58,8 +59,10 @@ export default function DiagnosticGrids() {
 
   const [startDate, setStartDate] = useState(oneYearFromToday);
   const [endDate, setEndDate] = useState(new Date());
+  const [languageOptions, setLanguageOptions] = useState([]);
+  const [programOptions, setProgramOptions] = useState([]);
   const [language, setLanguage] = useState('All');
-  const [programType, setProgramType] = useState('10');
+  const [programType, setProgramType] = useState('NA');
   const [masterLoader, setMasterLoader] = useState(false);
 
   const [superiorData, setSuperiorData] = useState({});
@@ -73,19 +76,44 @@ export default function DiagnosticGrids() {
   };
 
 
-  useEffect(() => {
-    const fetchData = async () => {
-          try {
-            console.log('get languages from backend')
+  const fetchData = () => {
+    try {
+      const csrfToken = Cookies.get('csrftoken');
+      axios.get(getDataUrl, {
+        withCredentials: true,
+        headers: {
+          'X-CSRFToken': csrfToken,
+        },
+      }).then(response => {
+        console.log(response.data);
+        
+        const languages = Object.keys(response.data.languages).map(
+          (key) => response.data.languages[key].full_language
+        );
+        languages.push('All');
 
+        setLanguageOptions(languages);
 
-      } catch (error) {
+        const programs = Object.keys(response.data.programs).map(
+          (key) => response.data.programs[key].reason
+        );
+        programs.push('NA');
+        setProgramOptions(programs);
+        
+        console.log(languages);
+      }).catch(error => {
         navigate('/cls/login', { replace: true });
         console.log(error);
-      }
-    };
+      });
+    } catch (error) {
+      navigate('/cls/login', { replace: true });
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
     fetchData();
-    }, []);
+  }, [getDataUrl, navigate]);
       
     const sendInfo = async () => {
       try {
@@ -147,10 +175,10 @@ export default function DiagnosticGrids() {
                       onChange={handleLanguageChange}
                       sx={{width: "60%"}}
                   > 
-                      <MenuItem value="All">All</MenuItem>
-                      <MenuItem value="Spanish">Spanish</MenuItem>
-                      <MenuItem value="German">German</MenuItem>
-                      <MenuItem value="Russian">Russian</MenuItem>
+                    {languageOptions.map((lang, index) => (
+                      <MenuItem key={index} value={lang}>{lang}</MenuItem>
+                    ))}
+                    
                   </Select>
           </Stack>
           <Stack direction="column" sx={{padding:'1vw'}}>
@@ -163,9 +191,9 @@ export default function DiagnosticGrids() {
                     onChange={handleProgramChange}
                     sx={{width: "60%"}}
                 >
-                    <MenuItem value={10}>Ten</MenuItem>
-                    <MenuItem value={20}>Twenty</MenuItem>
-                    <MenuItem value={30}>Thirty</MenuItem>
+                  {programOptions.map((program, index) => (
+                    <MenuItem key={index} value={program}>{program}</MenuItem>
+                  ))}
                 </Select>
           </Stack>
 

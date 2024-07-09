@@ -20,7 +20,7 @@ from rest_framework import generics
 import zipfile
 
 from .models import Students, LASER_Queries
-from .serializers import StudentSerializer, LASER_QueriesSerializer
+from .serializers import StudentSerializer, LASER_QueriesSerializer, LanguageSerializer, ProgramSerializer
 from .serializers import UserSerializer
 import api.filemaker_api as filemaker
 import json
@@ -40,7 +40,7 @@ from axes.utils import reset
 
 from datetime import datetime
 import api.byu_api.byu_api as byu_api
-from myapp.models import Languages
+from myapp.models import Languages, Reasons
 import subprocess
 from django.core.files import File
 from dotenv import load_dotenv
@@ -993,9 +993,15 @@ def delete_laser_queries(request, pk):
 from .lti_grid_api import get_opic_diagnostic_grids
 
 @permission_classes([IsAuthenticated])
-@api_view(['POST'])
-def post_diagnostic_grid(request):
+@api_view(['POST', 'GET'])
+def get_post_diagnostic_grid(request):
     if request.user.is_staff or request.user.is_superuser:
+        if request.method == "GET":
+            all_languages = Languages.objects.all()
+            all_languages_serializer = LanguageSerializer(all_languages, many=True)
+            all_programs = Reasons.objects.all()
+            all_programs_serializer = ProgramSerializer(all_programs, many=True)
+            return JsonResponse({'languages': all_languages_serializer.data, 'programs': all_programs_serializer.data}, status=200)
         if request.method == "POST":
             data = request.data
             language = data.get('language')

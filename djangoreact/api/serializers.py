@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import *
 from django.contrib.auth.models import User
 from django.contrib.auth import  authenticate
+from myapp.models import Languages, Reasons
 
 
 class StudentSerializer(serializers.ModelSerializer):
@@ -43,6 +44,16 @@ class LoginSerializer(serializers.Serializer):
 class LASER_QueriesSerializer(serializers.ModelSerializer):
     class Meta:
         model = LASER_Queries
+        fields = '__all__'
+
+class LanguageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Languages
+        fields = '__all__'
+
+class ProgramSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Reasons
         fields = '__all__'
 
 
