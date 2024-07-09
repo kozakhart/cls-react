@@ -59,7 +59,7 @@ function LoadingModal({ isLoading, message, timer }) {
           fontWeight: 'bold',
           textAlign: 'center'
         }}>
-          {message} {countdown}s
+          {message} {countdown > 0 ? `${countdown}s` : countdown}
         </div>
       </div>
     </div>

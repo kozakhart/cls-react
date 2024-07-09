@@ -958,31 +958,58 @@ def verify_session(request):
 #@permission_classes([IsAuthenticated])
 @api_view(['GET', 'POST'])
 def get_post_laser_queries(request):
-   # if request.user.is_staff or request.user.is_superuser:
-    if request.method == "GET":
-        queries = LASER_Queries.objects.all()
-        query_serializer = LASER_QueriesSerializer(queries, many=True)
-        return JsonResponse(query_serializer.data, safe=False)
-    if request.method == "POST":
-        data = request.data
-        query_serializer = LASER_QueriesSerializer(data=data)
-        if query_serializer.is_valid():
-            query_serializer.save()
-            return JsonResponse(query_serializer.data, status=201)
-        return JsonResponse(query_serializer.errors, status=400)
-    
-    return JsonResponse({'message': 'hi'})
+    if request.user.is_staff or request.user.is_superuser:
+        if request.method == "GET":
+            queries = LASER_Queries.objects.all()
+            query_serializer = LASER_QueriesSerializer(queries, many=True)
+            return JsonResponse(query_serializer.data, safe=False)
+        if request.method == "POST":
+            data = request.data
+            query_serializer = LASER_QueriesSerializer(data=data)
+            if query_serializer.is_valid():
+                query_serializer.save()
+                return JsonResponse(query_serializer.data, status=201)
+            return JsonResponse(query_serializer.errors, status=400)
         
-    # else:
-    #     return JsonResponse({'message': 'User is not authenticated'}, status=401)
+        return JsonResponse({'message': 'No Valid Method'}, status=400)
+        
+    else:
+        return JsonResponse({'message': 'User is not authenticated'}, status=401)
         
 @permission_classes([IsAuthenticated])
 @api_view(['POST', 'DELETE'])
 def delete_laser_queries(request, pk):
-    # if request.user.is_staff or request.user.is_superuser:
-    if request.method == "DELETE":
-        query = LASER_Queries.objects.get(id=pk)
-        query.delete()
-        return JsonResponse({'message': 'Query deleted successfully!'}, status=204)
+    if request.user.is_staff or request.user.is_superuser:
+        if request.method == "DELETE":
+            query = LASER_Queries.objects.get(id=pk)
+            query.delete()
+            return JsonResponse({'message': 'Query deleted successfully!'}, status=204)
+        else:
+            return JsonResponse({'message': 'User is not authenticated'}, status=401)
+    else:
+        return JsonResponse({'message': 'User is not authenticated'}, status=401)
+
+
+from .lti_grid_api import get_opic_diagnostic_grids
+
+@permission_classes([IsAuthenticated])
+@api_view(['POST'])
+def post_diagnostic_grid(request):
+    if request.user.is_staff or request.user.is_superuser:
+        if request.method == "POST":
+            data = request.data
+            language = data.get('language')
+            program = data.get('program')
+            from_date = data.get('fromDate')
+            to_date = data.get('toDate')
+
+            advanced_grid_results, superior_grid_results, total_results = get_opic_diagnostic_grids(from_date, to_date, language, program)
+            data = {
+                    'advanced_grid_results': advanced_grid_results,
+                    'superior_grid_results': superior_grid_results,
+                    'total_results': total_results
+                }
+            return JsonResponse(data, status=201)
+        return JsonResponse({'message': 'No Valid Method'}, status=400)
     else:
         return JsonResponse({'message': 'User is not authenticated'}, status=401)

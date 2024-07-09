@@ -9,15 +9,25 @@ import { useChart } from '../../../components/chart';
 
 // ----------------------------------------------------------------------
 
-AppConversionRates.propTypes = {
+DiagnosticGridReports.propTypes = {
   title: PropTypes.string,
   subheader: PropTypes.string,
-  chartData: PropTypes.array.isRequired,
+  chartData: PropTypes.object.isRequired,
 };
 
-export default function AppConversionRates({ title, subheader, chartData, ...other }) {
-  const chartLabels = chartData.map((i) => i.label);
-  const chartSeries = chartData.map((i) => i.value);
+export default function DiagnosticGridReports({ title, subheader, chartData, ...other }) {
+
+  const chartLabels = [];
+const chartSeries = [];
+
+Object.keys(chartData).forEach((key, index) => {
+  const label = Object.keys(chartData[index])[0]; // Assuming each object has one key
+  chartLabels.push(label);
+  chartSeries.push(chartData[index][label]);
+});
+  console.log(chartLabels);
+  console.log(chartSeries);
+  
 
   const colors = ['#00E396', '#FEB019']; // Define your alternating colors
 

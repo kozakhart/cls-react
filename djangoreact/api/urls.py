@@ -28,4 +28,7 @@ urlpatterns = [
     ############################## LASER Queries ##############################
     path('laser-queries/', views.get_post_laser_queries, name='get-laser-queries'),
     path('laser-queries/<int:pk>/', views.delete_laser_queries, name='laser-query'),
+
+    ############################## Diagnostic Grid Reports ##############################
+    path('diagnostic-grid-report/', views.post_diagnostic_grid, name='get-diagnostic-grid'),
 ]
