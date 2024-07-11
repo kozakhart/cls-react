@@ -190,7 +190,7 @@ def get_opi_grid(firstname, lastname, fromDate):
 
 # print(get_opi_grid('Rachel', '', '01/01/2023'))
 
-def get_opic_diagnostic_grids(fromDate, toDate, language, program):
+def get_opic_diagnostic_grids(fromDate, toDate, language):
     description = ["Description in present time", "Description in past time", "Description in future tense", "Clarity", "Detail"]
     narration = ["Narration in present time", "Narration in past time", "Narration in future time", "Logical sequencing", "Verb forms", "Person markers"]
     situation_with_a_complication = ["Struggles, but succeeds in addressing the situation", "Attempts to address, but is unable to successfully resolve the situation", "Demonstrates no linguistic ability to address the situation", "Knowledge and use of communicative devices" ]
@@ -298,8 +298,6 @@ def get_opic_diagnostic_grids(fromDate, toDate, language, program):
             
     return advanced_topic_counters, superior_topic_counters, total_results
 
-# need separate model for languages, 
-# take out program
 #add main languages to the model spanish, german, 
 # separate by each score, one table for AM and one for AH, give the count for each at the top
 # calculation- the scale is based off of how many students there are
@@ -308,5 +306,5 @@ def get_opic_diagnostic_grids(fromDate, toDate, language, program):
 # fix spacing 
 # same thing for OPI comments as separate tabs
 # instead of program, attach csv file with netids or byuids
-get_opic_diagnostic_grids('02/01/2023', "02/28/2023", 'Spanish', 'BYU')
+get_opic_diagnostic_grids('02/01/2023', "02/28/2023", 'Spanish')
 

@@ -94,11 +94,11 @@ export default function DiagnosticGrids() {
 
         setLanguageOptions(languages);
 
-        const programs = Object.keys(response.data.programs).map(
-          (key) => response.data.programs[key].reason
-        );
-        programs.push('NA');
-        setProgramOptions(programs);
+        // const programs = Object.keys(response.data.programs).map(
+        //   (key) => response.data.programs[key].reason
+        // );
+        // programs.push('NA');
+        // setProgramOptions(programs);
         
         console.log(languages);
       }).catch(error => {
@@ -181,7 +181,7 @@ export default function DiagnosticGrids() {
                     
                   </Select>
           </Stack>
-          <Stack direction="column" sx={{padding:'1vw'}}>
+          {/* <Stack direction="column" sx={{padding:'1vw'}}>
             <InputLabel id="demo-simple-select-label">Program Type</InputLabel>
                 <Select
                     labelId="demo-simple-select-label"
@@ -195,7 +195,7 @@ export default function DiagnosticGrids() {
                     <MenuItem key={index} value={program}>{program}</MenuItem>
                   ))}
                 </Select>
-          </Stack>
+          </Stack> */}
 
           <Stack direction="column" sx={{padding:'1vw'}}>
               <InputLabel id="demo-simple-select-label">Date Range</InputLabel>
