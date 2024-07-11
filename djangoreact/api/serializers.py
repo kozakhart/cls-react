@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import *
 from django.contrib.auth.models import User
 from django.contrib.auth import  authenticate
-from myapp.models import Languages, Reasons
+from myapp.models import Reasons
 
 
 class StudentSerializer(serializers.ModelSerializer):
@@ -46,9 +46,9 @@ class LASER_QueriesSerializer(serializers.ModelSerializer):
         model = LASER_Queries
         fields = '__all__'
 
-class LanguageSerializer(serializers.ModelSerializer):
+class OPIcLanguageSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Languages
+        model = OPIc_Diagnostic_Grid_Languages
         fields = '__all__'
 
 class ProgramSerializer(serializers.ModelSerializer):

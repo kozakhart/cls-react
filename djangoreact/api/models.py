@@ -51,3 +51,11 @@ class LASER_Queries(models.Model):
         verbose_name_plural = "Laser Queries"
     def __str__(self):
         return '{}'.format(self.query_label)
+    
+class OPIc_Diagnostic_Grid_Languages(models.Model):
+    language = models.CharField(max_length=100)
+    class Meta:
+        verbose_name = "OPIc Diagnostic Grid Languages"
+        verbose_name_plural = "OPIc Diagnostic Grid Languages"
+    def __str__(self):
+        return '{}'.format(self.language)

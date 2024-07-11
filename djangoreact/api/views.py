@@ -19,8 +19,8 @@ import os
 from rest_framework import generics
 import zipfile
 
-from .models import Students, LASER_Queries
-from .serializers import StudentSerializer, LASER_QueriesSerializer, LanguageSerializer, ProgramSerializer
+from .models import Students, LASER_Queries, OPIc_Diagnostic_Grid_Languages
+from .serializers import StudentSerializer, LASER_QueriesSerializer, ProgramSerializer, OPIcLanguageSerializer
 from .serializers import UserSerializer
 import api.filemaker_api as filemaker
 import json
@@ -997,8 +997,8 @@ from .lti_grid_api import get_opic_diagnostic_grids
 def get_post_diagnostic_grid(request):
     if request.user.is_staff or request.user.is_superuser:
         if request.method == "GET":
-            all_languages = Languages.objects.all()
-            all_languages_serializer = LanguageSerializer(all_languages, many=True)
+            all_languages = OPIc_Diagnostic_Grid_Languages.objects.all()
+            all_languages_serializer = OPIcLanguageSerializer(all_languages, many=True)
             all_programs = Reasons.objects.all()
             all_programs_serializer = ProgramSerializer(all_programs, many=True)
             return JsonResponse({'languages': all_languages_serializer.data, 'programs': all_programs_serializer.data}, status=200)
