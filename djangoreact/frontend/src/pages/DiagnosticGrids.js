@@ -88,7 +88,7 @@ export default function DiagnosticGrids() {
         console.log(response.data);
         
         const languages = Object.keys(response.data.languages).map(
-          (key) => response.data.languages[key].full_language
+          (key) => response.data.languages[key].language
         );
         languages.push('All');
 
@@ -158,9 +158,9 @@ export default function DiagnosticGrids() {
         <title> CLS Admin </title>
       </Helmet>
 
-      <Container>
-
-        <Card sx={{width: "40%", marginLeft:"20%", border: "3px solid #002e5d"}}>
+      <Grid container spacing={0} justifyContent="center"
+        alignItems="center">
+        <Grid item xs={6} md={6} lg={6} sx={{border: "3px solid #002e5d", borderRadius: "5px"}}>
           <Typography variant="h4" gutterBottom sx={{marginLeft:"30%", marginTop:"1vw"}}>
             OPIc Diagnostic Grids
           </Typography>
@@ -229,7 +229,8 @@ export default function DiagnosticGrids() {
                     Generate Reports
               </Button>
           </Stack>
-        </Card>
+        </Grid>
+
         <LoadingModal isLoading={masterLoader} message="Retrieving data... Please wait..."/>
         {Object.keys(superiorData).length > 0 &&(
           <Grid item xs={12} md={10} lg={12}>
@@ -252,8 +253,8 @@ export default function DiagnosticGrids() {
           )
         }
 
-      </Container>
-
+      </Grid>
+        
     
 
     

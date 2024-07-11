@@ -299,6 +299,7 @@ def get_opic_diagnostic_grids(fromDate, toDate, language):
     return advanced_topic_counters, superior_topic_counters, total_results
 
 #add main languages to the model spanish, german, 
+# change layout to look nice with grid
 # separate by each score, one table for AM and one for AH, give the count for each at the top
 # calculation- the scale is based off of how many students there are
 

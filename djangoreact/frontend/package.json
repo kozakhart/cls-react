@@ -5,8 +5,8 @@
   "version": "1.7.0",
   "private": false,
   "scripts": {
-    "start": "copy .env.development .env && react-scripts start",
-    "build": "copy .env.production .env && react-scripts build",
+    "start": "cp .env.development .env && BROWSER='firefox' react-scripts start",
+    "build": "cp .env.production .env && react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "lint": "eslint --ext .js,.jsx ./src",
