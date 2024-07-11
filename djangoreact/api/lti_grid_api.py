@@ -195,10 +195,13 @@ def get_opic_diagnostic_grids(fromDate, toDate, language, program):
     narration = ["Narration in present time", "Narration in past time", "Narration in future time", "Logical sequencing", "Verb forms", "Person markers"]
     situation_with_a_complication = ["Struggles, but succeeds in addressing the situation", "Attempts to address, but is unable to successfully resolve the situation", "Demonstrates no linguistic ability to address the situation", "Knowledge and use of communicative devices" ]
     advanced_grammar = ["Morphology", "Syntax", "Cases", "Prepositions", "Agreement"]
-    # advanced other?
-    advanced_other = []
+    advanced_other = ["Rate of speech", "Fluidity", "Connectedness", "Lacks strategies to compensate for weaknesses"]
+    pronunciation = ["Articulation", "Pitch", "Stress", "Intonation"]
+    word_order = ["Phrases", "Sentences", "Paragraphs"]
+    cohesive_devices = ["Not used", "Used inaccurately", "Repetitive"]
     advanced_content = ["Lacks breadth of vocabulary", "Uses words from other languages", "Uses false cognates"]
-    advanced_functions = [{'description':description, 'narration':narration, 'situation_with_a_complication':situation_with_a_complication, 'advanced_grammar':advanced_grammar, 'advanced_other':advanced_other, 'advanced_content':advanced_content}]
+    advanced_functions = [{'Word Order':word_order,'Cohesive Devices':cohesive_devices ,'Description':description, 'Narration':narration, 'Situation With a Complication':situation_with_a_complication, 'Advanced Grammar':advanced_grammar, 'Advanced Other':advanced_other, 'Advanced Content':advanced_content}]
+
 
     support_an_opinion = ["Present point of view clearly", "Present well organized supporting arguments", "Elaborate on arguments", "Handle the topic at the issue level (to speak outside the self)"]
     speculate_and_present_hypothesis = ["Speculate and present hypotheses", "Use grammatical constructs that signal hypothetical discourse", "Elaborate in the hypothetical mode"]
@@ -206,10 +209,9 @@ def get_opic_diagnostic_grids(fromDate, toDate, language, program):
     linguistically_unfamiliar_topics_or_situations = ["Broaden range and depth of precise vocabulary", "Reduce L1 or L2 interference", "Develop discourse strategies."]
     superior_grammar_accuracy = ["Agreement", "Verb formulations", "Case", "Prepositions and Prepositional phrases", "Word order (Complex/Compound Sentence)", "Dependent and Subordinate clauses"]
     other_accuracy = ["Rate", "Fluidity", "Connectedness of expression", "Increase range of sophisticated discourse strategies to compensate for weaknesses or shortcomings"]
-    # pronunciation?
-    # content?
+    pronunciation = ["Articulation", "Pitch", "Stress Features", "Intonation"]
     sociolinguistic_competency = ["Size of vocabulary", "Range of topic areas", "Precision of vocabulary", "Appropriate forms for formal and informal situations"]
-    superior_functions = [{'support_an_opinion':support_an_opinion}, {'speculate_and_present_hypothesis':speculate_and_present_hypothesis}, {'discussion_in_extended_discourse':discussion_in_extended_discourse}, {'linguistically_unfamiliar_topics_or_situations':linguistically_unfamiliar_topics_or_situations}, {'superior_grammar_accuracy':superior_grammar_accuracy}, {'other_accuracy':other_accuracy}, {'sociolinguistic_competency':sociolinguistic_competency}]
+    superior_functions = [{'Support an Opinion':support_an_opinion}, {'Speculate and Present Hypothesis':speculate_and_present_hypothesis}, {'Discussion in Extended Discourse':discussion_in_extended_discourse}, {'Linguistically Unfamiliar Topics or Situations':linguistically_unfamiliar_topics_or_situations}, {'Superior Grammar Accuracy':superior_grammar_accuracy}, {'Other Accuracy':other_accuracy}, {'Sociolinguistic Competency':sociolinguistic_competency}, {'Pronunciation':pronunciation}]
 
     total_results = 0
 
@@ -296,5 +298,15 @@ def get_opic_diagnostic_grids(fromDate, toDate, language, program):
             
     return advanced_topic_counters, superior_topic_counters, total_results
 
+# need separate model for languages, 
+# take out program
+#add main languages to the model spanish, german, 
+# separate by each score, one table for AM and one for AH, give the count for each at the top
+# calculation- the scale is based off of how many students there are
+
+# next steps- need to delve into each function particulars, consultations with other departments
+# fix spacing 
+# same thing for OPI comments as separate tabs
+# instead of program, attach csv file with netids or byuids
 get_opic_diagnostic_grids('02/01/2023', "02/28/2023", 'Spanish', 'BYU')
 

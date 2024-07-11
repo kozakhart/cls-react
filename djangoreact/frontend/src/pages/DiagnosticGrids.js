@@ -162,7 +162,7 @@ export default function DiagnosticGrids() {
 
         <Card sx={{width: "40%", marginLeft:"20%", border: "3px solid #002e5d"}}>
           <Typography variant="h4" gutterBottom sx={{marginLeft:"30%", marginTop:"1vw"}}>
-            Diagnostic Grids
+            OPIc Diagnostic Grids
           </Typography>
           
           <Stack direction="column" sx={{padding:'1vw'}}>
