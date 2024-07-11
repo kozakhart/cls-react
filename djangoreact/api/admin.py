@@ -4,6 +4,6 @@ from django.contrib import admin
 
 from .models import LASER_Queries, OPIc_Diagnostic_Grid_Languages
 
-models = [LASER_Queries]
+models = [LASER_Queries, OPIc_Diagnostic_Grid_Languages]
 for model in models:
     admin.site.register(model)
