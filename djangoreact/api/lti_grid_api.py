@@ -200,7 +200,7 @@ def get_opic_diagnostic_grids(fromDate, toDate, language):
     word_order = ["Phrases", "Sentences", "Paragraphs"]
     cohesive_devices = ["Not used", "Used inaccurately", "Repetitive"]
     advanced_content = ["Lacks breadth of vocabulary", "Uses words from other languages", "Uses false cognates"]
-    advanced_functions = [{'Word Order':word_order,'Cohesive Devices':cohesive_devices ,'Description':description, 'Narration':narration, 'Situation With a Complication':situation_with_a_complication, 'Advanced Grammar':advanced_grammar, 'Advanced Other':advanced_other, 'Advanced Content':advanced_content}]
+    advanced_functions = [{'Word Order':word_order},{'Cohesive Devices':cohesive_devices},{'Description':description}, {'Narration':narration}, {'Situation With a Complication':situation_with_a_complication}, {'Advanced Grammar':advanced_grammar}, {'Advanced Other':advanced_other}, {'Advanced Content':advanced_content}]
 
 
     support_an_opinion = ["Present point of view clearly", "Present well organized supporting arguments", "Elaborate on arguments", "Handle the topic at the issue level (to speak outside the self)"]
@@ -250,62 +250,115 @@ def get_opic_diagnostic_grids(fromDate, toDate, language):
     record_response = record_response.json()
     data = record_response['Data']['gridResults']
 
-    superior_topic_counters = {index: defaultdict(int) for index, _ in enumerate(superior_functions)}
-    advanced_topic_counters = {index: defaultdict(int) for index, _ in enumerate(advanced_functions)}
+    ah_superior_topic_counters = {index: defaultdict(int) for index, _ in enumerate(superior_functions)}
+    ah_counter = 0
+    am_superior_topic_counters = {index: defaultdict(int) for index, _ in enumerate(superior_functions)}
+    am_counter  = 0
+    al_advanced_topic_counters = {index: defaultdict(int) for index, _ in enumerate(advanced_functions)}
+    al_counter = 0
+    ih_advanced_topic_counters = {index: defaultdict(int) for index, _ in enumerate(advanced_functions)}
+    ih_counter = 0
     #match language
     for grid in data:
 
         if grid['language'] == language or language == 'All':
             total_results += 1
+            #print(grid)
+            rating = grid['rating']
+            if rating == "AH":
+                ah_counter += 1
+            if rating == "AM":
+                am_counter += 1
+            if rating == "AL":
+                al_counter += 1
+            if rating == "IH":
+                ih_counter += 1
+
             for i in grid['grid']:
-                
                 for comment in i['gridComments']:
                     function = comment['details']
-                    for index, function_dict in enumerate(superior_functions):
-                        for key, value in function_dict.items():
-                            if function in value:
-                                superior_topic_counters[index][key] += 1
-                            else:
-                                superior_topic_counters[index][key] += 0
+                    if rating == "AH":
+                        for index, function_dict in enumerate(superior_functions):
+                            for key, value in function_dict.items():
+                                if function in value:
+                                    ah_superior_topic_counters[index][key] += 1
+                                else:
+                                    ah_superior_topic_counters[index][key] += 0
+                    if rating == "AM":
+                        for index, function_dict in enumerate(superior_functions):
+                            for key, value in function_dict.items():
+                                if function in value:
+                                    am_superior_topic_counters[index][key] += 1
+                                else:
+                                    am_superior_topic_counters[index][key] += 0
+                    if rating == "AL":
+                        for index, function_dict in enumerate(advanced_functions):
+                            for key, value in function_dict.items():
+                                if function in value:
+                                    al_advanced_topic_counters[index][key] += 1
+                                else:
+                                    al_advanced_topic_counters[index][key] += 0
+                    if rating == "IH":
+                        for index, function_dict in enumerate(advanced_functions):
+                            for key, value in function_dict.items():
+                                if function in value:
+                                    ih_advanced_topic_counters[index][key] += 1
+                                else:
+                                    ih_advanced_topic_counters[index][key] += 0
 
-                    for index, function_dict in enumerate(advanced_functions):
-                        for key, value in function_dict.items():
-                            if function in value:
-                                advanced_topic_counters[index][key] += 1
-                            else:
-                                advanced_topic_counters[index][key] += 0
 
-
-
-    for index, counter in superior_topic_counters.items():
+    print('Superior Start AH')
+    for index, counter in ah_superior_topic_counters.items():
         function_list_name = "Function List {}".format(index + 1)
         print(f"{function_list_name}:")
         for func, count in counter.items():
-            print(total_results, count)
+            print(ah_counter, count)
 
             count = count / total_results
             counter[func] = count
             print(f"  {func}: {count}")
-    for index, counter in advanced_topic_counters.items():
+
+    print('Superior Start AM')
+    for index, counter in am_superior_topic_counters.items():
         function_list_name = "Function List {}".format(index + 1)
         print(f"{function_list_name}:")
         for func, count in counter.items():
-            print(total_results, count)
+            print(am_counter, count)
 
             count = count / total_results
             counter[func] = count
             print(f"  {func}: {count}")
+    print('Advanced Start AL')
+    for index, counter in al_advanced_topic_counters.items():
+        function_list_name = "Function List {}".format(index + 1)
+        print(f"{function_list_name}:")
+        for func, count in counter.items():
+            print(al_counter, count)
+
+            count = count / total_results
+            counter[func] = count
+            print(f"  {func}: {count}")
+    print('Advanced Start IH')
+    for index, counter in ih_advanced_topic_counters.items():
+        function_list_name = "Function List {}".format(index + 1)
+        print(f"{function_list_name}:")
+        for func, count in counter.items():
+            print(ih_counter, count)
+
+            count = count / total_results
+            counter[func] = count
+            print(f"  {func}: {count}")
+
+    # original score divided by the total score for each separate score type
             
-    return advanced_topic_counters, superior_topic_counters, total_results
+    return ih_advanced_topic_counters, al_advanced_topic_counters, am_superior_topic_counters, ah_superior_topic_counters, total_results
 
-#add main languages to the model spanish, german, 
-# change layout to look nice with grid
 # separate by each score, one table for AM and one for AH, give the count for each at the top
-# calculation- the scale is based off of how many students there are
+# calculation- the scale is based off of how many students there are, then scale by percentage
 
 # next steps- need to delve into each function particulars, consultations with other departments
 # fix spacing 
 # same thing for OPI comments as separate tabs
 # instead of program, attach csv file with netids or byuids
-# get_opic_diagnostic_grids('02/01/2023', "02/28/2023", 'Spanish')
+get_opic_diagnostic_grids('02/01/2023', "02/28/2024", 'Spanish')
 

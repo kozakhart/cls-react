@@ -72,10 +72,9 @@ export default function Nav({ openNav, onCloseNav }) {
     }
   }, [pathname, openNav]);
   const renderContent = (
-    <Scrollbar
+    <Box
       sx={{
-        height: 1,
-        '& .simplebar-content': { height: 1, display: 'flex', flexDirection: 'column',},
+        overflow: 'hidden'
       }}
     >
       <Box
@@ -124,7 +123,7 @@ export default function Nav({ openNav, onCloseNav }) {
             </Button>
           </Box>
         </Stack>
-    </Scrollbar>
+    </Box>
   );
   
 

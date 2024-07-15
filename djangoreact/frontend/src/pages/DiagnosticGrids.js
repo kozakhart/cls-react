@@ -67,6 +67,8 @@ export default function DiagnosticGrids() {
 
   const [superiorData, setSuperiorData] = useState({});
   const [advancedData, setAdvancedData] = useState({});
+  const [AHTotal, setAHTotal] = useState(100);
+  const [ALTotal, setALTotal] = useState(100);
 
   const handleLanguageChange = (event) => {
     setLanguage(event.target.value);
@@ -124,7 +126,6 @@ export default function DiagnosticGrids() {
 
         const bodyParameters = {
           language,
-          programType,
           fromDate: formattedStartDate,
           toDate: formattedEndDate
         };
@@ -141,7 +142,7 @@ export default function DiagnosticGrids() {
         );
         console.log(response.data);
         setSuperiorData(response.data.superior_grid_results);
-        console.log(response.data.advanced_grid_results);
+        console.log('advanced results', response.data.advanced_grid_results);
         setAdvancedData(response.data.advanced_grid_results);
         setMasterLoader(false);
 
@@ -160,7 +161,7 @@ export default function DiagnosticGrids() {
 
       <Grid container spacing={0} justifyContent="center"
         alignItems="center">
-        <Grid item xs={6} md={6} lg={6} sx={{border: "3px solid #002e5d", borderRadius: "5px"}}>
+        <Grid item xs={6} md={8} lg={8} sx={{border: "3px solid #002e5d", borderRadius: "5px", marginTop:"1vw"}}>
           <Typography variant="h4" gutterBottom sx={{marginLeft:"30%", marginTop:"1vw"}}>
             OPIc Diagnostic Grids
           </Typography>
@@ -232,21 +233,42 @@ export default function DiagnosticGrids() {
         </Grid>
 
         <LoadingModal isLoading={masterLoader} message="Retrieving data... Please wait..."/>
+
         {Object.keys(superiorData).length > 0 &&(
-          <Grid item xs={12} md={10} lg={12}>
+          <Grid item xs={6} md={8} lg={8} sx={{marginTop:"2vw"}}>
                   <DiagnosticGridReports
-                    title="Superior Functions"
-                    // subheader="(+43%) than last year"
+                    title="Superior Functions (Advanced High)"
+                    subheader={`Sample Size = ${AHTotal}`}
+                    chartData={superiorData} 
+                  />
+          </Grid>
+          )
+        }
+        {Object.keys(superiorData).length > 0 &&(
+          <Grid item xs={6} md={8} lg={8} sx={{marginTop:"2vw"}}>
+                  <DiagnosticGridReports
+                    title="Superior Functions (Advanced Mid)"
+                    subheader={`Sample Size = ${AHTotal}`}
                     chartData={superiorData} 
                   />
           </Grid>
           )
         }
         {Object.keys(advancedData).length > 0 &&(
-          <Grid item xs={12} md={10} lg={12}>
+          <Grid item xs={6} md={8} lg={8} sx={{marginTop:"2vw"}}>
                   <DiagnosticGridReports
-                    title="Advanced Functions"
-                    // subheader="(+43%) than last year"
+                    title="Advanced Functions (Advanced Low)"
+                    subheader={`Sample Size = ${ALTotal}`}
+                    chartData={advancedData} 
+                  />
+          </Grid>
+          )
+        }
+        {Object.keys(advancedData).length > 0 &&(
+          <Grid item xs={6} md={8} lg={8} sx={{marginTop:"2vw"}}>
+                  <DiagnosticGridReports
+                    title="Advanced Functions (Intermediate High)"
+                    subheader={`Sample Size = ${ALTotal}`}
                     chartData={advancedData} 
                   />
           </Grid>

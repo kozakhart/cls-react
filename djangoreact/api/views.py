@@ -1005,11 +1005,10 @@ def get_post_diagnostic_grid(request):
         if request.method == "POST":
             data = request.data
             language = data.get('language')
-            program = data.get('program')
             from_date = data.get('fromDate')
             to_date = data.get('toDate')
 
-            advanced_grid_results, superior_grid_results, total_results = get_opic_diagnostic_grids(from_date, to_date, language, program)
+            advanced_grid_results, superior_grid_results, total_results = get_opic_diagnostic_grids(from_date, to_date, language)
             data = {
                     'advanced_grid_results': advanced_grid_results,
                     'superior_grid_results': superior_grid_results,
