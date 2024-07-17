@@ -20,11 +20,11 @@ export default function DiagnosticGridReports({ title, subheader, chartData, ...
   const chartLabels = [];
 const chartSeries = [];
 
-Object.keys(chartData).forEach((key, index) => {
-  const label = Object.keys(chartData[index])[0]; // Assuming each object has one key
-  chartLabels.push(label);
-  chartSeries.push(chartData[index][label]);
-});
+Object.entries(chartData).forEach(([key, value]) => {
+    chartLabels.push(key);
+    chartSeries.push(value);
+  });
+
   console.log(chartLabels);
   console.log(chartSeries);
   
@@ -68,14 +68,17 @@ Object.keys(chartData).forEach((key, index) => {
       },
     },
     tooltip: {
-      marker: { show: false },
-      y: {
-        formatter: (seriesName) => fNumber(seriesName),
-        title: {
+    marker: { show: false },
+    y: {
+      formatter: (seriesName) => seriesName.toFixed(2), // Adjust the precision based on your data type
+      // formatter: (seriesName) => fNumber(seriesName),
+      title: {
           formatter: () => '',
-        },
-      },
+        }, 
     },
+    // x: {
+    // },
+  },
     plotOptions: {
       bar: {
         horizontal: true,
@@ -85,6 +88,13 @@ Object.keys(chartData).forEach((key, index) => {
     },
     xaxis: {
       categories: chartLabels,
+      min:0,
+      max: 1
+    },
+    yaxis: {
+      labels: {
+  //    rotate: -45, // Rotate labels by -45 degrees (adjust as needed)
+    },
     },
     fill: {
       colors: chartSeries.map((_, index) => colors[index % colors.length]),

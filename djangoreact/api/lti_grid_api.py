@@ -196,11 +196,11 @@ def get_opic_diagnostic_grids(fromDate, toDate, language):
     situation_with_a_complication = ["Struggles, but succeeds in addressing the situation", "Attempts to address, but is unable to successfully resolve the situation", "Demonstrates no linguistic ability to address the situation", "Knowledge and use of communicative devices" ]
     advanced_grammar = ["Morphology", "Syntax", "Cases", "Prepositions", "Agreement"]
     advanced_other = ["Rate of speech", "Fluidity", "Connectedness", "Lacks strategies to compensate for weaknesses"]
-    pronunciation = ["Articulation", "Pitch", "Stress", "Intonation"]
+    advanced_pronunciation = ["Articulation", "Pitch", "Stress", "Intonation"]
     word_order = ["Phrases", "Sentences", "Paragraphs"]
     cohesive_devices = ["Not used", "Used inaccurately", "Repetitive"]
     advanced_content = ["Lacks breadth of vocabulary", "Uses words from other languages", "Uses false cognates"]
-    advanced_functions = [{'Word Order':word_order},{'Cohesive Devices':cohesive_devices},{'Description':description}, {'Narration':narration}, {'Situation With a Complication':situation_with_a_complication}, {'Advanced Grammar':advanced_grammar}, {'Advanced Other':advanced_other}, {'Advanced Content':advanced_content}]
+    advanced_functions = [{"Word Order":word_order},{"Cohesive Devices":cohesive_devices},{"Description":description}, {"Narration":narration}, {"Situation With a Complication":situation_with_a_complication}, {"Advanced Grammar":advanced_grammar}, {"Advanced Other":advanced_other}, {"Advanced Content":advanced_content}, {"Pronunciation":advanced_pronunciation}]
 
 
     support_an_opinion = ["Present point of view clearly", "Present well organized supporting arguments", "Elaborate on arguments", "Handle the topic at the issue level (to speak outside the self)"]
@@ -209,9 +209,9 @@ def get_opic_diagnostic_grids(fromDate, toDate, language):
     linguistically_unfamiliar_topics_or_situations = ["Broaden range and depth of precise vocabulary", "Reduce L1 or L2 interference", "Develop discourse strategies."]
     superior_grammar_accuracy = ["Agreement", "Verb formulations", "Case", "Prepositions and Prepositional phrases", "Word order (Complex/Compound Sentence)", "Dependent and Subordinate clauses"]
     other_accuracy = ["Rate", "Fluidity", "Connectedness of expression", "Increase range of sophisticated discourse strategies to compensate for weaknesses or shortcomings"]
-    pronunciation = ["Articulation", "Pitch", "Stress Features", "Intonation"]
+    superior_pronunciation = ["Articulation", "Pitch", "Stress features", "Intonation"]
     sociolinguistic_competency = ["Size of vocabulary", "Range of topic areas", "Precision of vocabulary", "Appropriate forms for formal and informal situations"]
-    superior_functions = [{'Support an Opinion':support_an_opinion}, {'Speculate and Present Hypothesis':speculate_and_present_hypothesis}, {'Discussion in Extended Discourse':discussion_in_extended_discourse}, {'Linguistically Unfamiliar Topics or Situations':linguistically_unfamiliar_topics_or_situations}, {'Superior Grammar Accuracy':superior_grammar_accuracy}, {'Other Accuracy':other_accuracy}, {'Sociolinguistic Competency':sociolinguistic_competency}, {'Pronunciation':pronunciation}]
+    superior_functions = [{"Support an Opinion":support_an_opinion}, {"Speculate and Present Hypothesis":speculate_and_present_hypothesis}, {"Discussion in Extended Discourse":discussion_in_extended_discourse}, {"Linguistically Unfamiliar Topics or Situations":linguistically_unfamiliar_topics_or_situations}, {"Superior Grammar Accuracy":superior_grammar_accuracy}, {"Other Accuracy":other_accuracy}, {"Sociolinguistic Competency":sociolinguistic_competency}, {"Pronunciation":superior_pronunciation}]
 
     total_results = 0
 
@@ -280,85 +280,147 @@ def get_opic_diagnostic_grids(fromDate, toDate, language):
                     if rating == "AH":
                         for index, function_dict in enumerate(superior_functions):
                             for key, value in function_dict.items():
-                                if function in value:
-                                    ah_superior_topic_counters[index][key] += 1
+                                for val in value:
+                                    if val in function:
+                                        ah_superior_topic_counters[index][key] += 1
                                 else:
                                     ah_superior_topic_counters[index][key] += 0
                     if rating == "AM":
                         for index, function_dict in enumerate(superior_functions):
                             for key, value in function_dict.items():
-                                if function in value:
-                                    am_superior_topic_counters[index][key] += 1
+                                for val in value:
+                                    if val in function:
+                                        am_superior_topic_counters[index][key] += 1
                                 else:
                                     am_superior_topic_counters[index][key] += 0
                     if rating == "AL":
                         for index, function_dict in enumerate(advanced_functions):
                             for key, value in function_dict.items():
-                                if function in value:
-                                    al_advanced_topic_counters[index][key] += 1
+                                for val in value:
+                                    if val in function:
+                                        al_advanced_topic_counters[index][key] += 1
                                 else:
                                     al_advanced_topic_counters[index][key] += 0
                     if rating == "IH":
                         for index, function_dict in enumerate(advanced_functions):
                             for key, value in function_dict.items():
-                                if function in value:
-                                    ih_advanced_topic_counters[index][key] += 1
+                                for val in value:
+                                    if val in function: 
+                                        ih_advanced_topic_counters[index][key] += 1
                                 else:
                                     ih_advanced_topic_counters[index][key] += 0
 
 
-    print('Superior Start AH')
+    ah_data = []
     for index, counter in ah_superior_topic_counters.items():
         function_list_name = "Function List {}".format(index + 1)
         print(f"{function_list_name}:")
         for func, count in counter.items():
-            print(ah_counter, count)
+            topics_dict = next((d for d in superior_functions if func in d), None)
+            if topics_dict:
+                num_topics = len(topics_dict[func])
+                print(f"Total people= {ah_counter}, Total Function Count= {count}, Function Name= {func}, Number of Function Topics= {num_topics}")
+                ah_data.append({"Score Type": "AH", "Function Name": func, "Total People": ah_counter, "Total Function Count": count, "Number of Function Topics": num_topics})
 
-            count = count / total_results
-            counter[func] = count
-            print(f"  {func}: {count}")
-
-    print('Superior Start AM')
+    am_data = []
     for index, counter in am_superior_topic_counters.items():
         function_list_name = "Function List {}".format(index + 1)
         print(f"{function_list_name}:")
         for func, count in counter.items():
-            print(am_counter, count)
+            topics_dict = next((d for d in superior_functions if func in d), None)
+            if topics_dict:
+                num_topics = len(topics_dict[func])
+                print(f"Total people= {am_counter}, Total Function Count= {count}, Function Name= {func}, Number of Function Topics= {num_topics}")
+                am_data.append({"Score Type": "AM", "Function Name": func,  "Total People": am_counter, "Total Function Count": count, "Number of Function Topics": num_topics})
 
-            count = count / total_results
-            counter[func] = count
-            print(f"  {func}: {count}")
-    print('Advanced Start AL')
+    al_data = []
     for index, counter in al_advanced_topic_counters.items():
         function_list_name = "Function List {}".format(index + 1)
         print(f"{function_list_name}:")
         for func, count in counter.items():
-            print(al_counter, count)
-
-            count = count / total_results
-            counter[func] = count
-            print(f"  {func}: {count}")
-    print('Advanced Start IH')
+            topics_dict = next((d for d in advanced_functions if func in d), None)
+            if topics_dict:
+                num_topics = len(topics_dict[func])
+                print(f"Total people= {al_counter}, Total Function Count= {count}, Function Name= {func}, Number of Function Topics= {num_topics}")
+                al_data.append({"Score Type": "AL", "Function Name": func,  "Total People": al_counter, "Total Function Count": count, "Number of Function Topics": num_topics})
+    
+    ih_data = []
     for index, counter in ih_advanced_topic_counters.items():
         function_list_name = "Function List {}".format(index + 1)
         print(f"{function_list_name}:")
         for func, count in counter.items():
-            print(ih_counter, count)
-
-            count = count / total_results
-            counter[func] = count
-            print(f"  {func}: {count}")
+            topics_dict = next((d for d in advanced_functions if func in d), None)
+            if topics_dict:
+                num_topics = len(topics_dict[func])
+                print(f"Total people= {ih_counter}, Total Function Count= {count}, Function Name= {func}, Number of Function Topics= {num_topics}")
+                ih_data.append({"Score Type": "IH", "Function Name": func,  "Total People": ih_counter, "Total Function Count": count, "Number of Function Topics": num_topics})
+            # print(f"  {func}: {count}")
 
     # original score divided by the total score for each separate score type
-            
-    return ih_advanced_topic_counters, al_advanced_topic_counters, am_superior_topic_counters, ah_superior_topic_counters, total_results
+    ah_counts = [d["Total Function Count"] for d in ah_data]
+    am_counts = [d["Total Function Count"] for d in am_data]
+    al_counts = [d["Total Function Count"] for d in al_data]
+    ih_counts = [d["Total Function Count"] for d in ih_data]
 
-# separate by each score, one table for AM and one for AH, give the count for each at the top
-# calculation- the scale is based off of how many students there are, then scale by percentage
+    # Apply Min-Max Normalization
+    print('Superior Start AH')
+    if ah_counts:
+        ah_min_count = min(ah_counts)
+        ah_max_count = max(ah_counts)
+        ah_normalized_counts = [(count - ah_min_count) / (ah_max_count - ah_min_count) for count in ah_counts]
+        ah_normalized_count_dict = {d["Function Name"]: ah_normalized_counts[i] for i, d in enumerate(ah_data)}
+        ah_normalized_count_dict['Total People'] = ah_data[0]['Total People']
+        ah_normalized_count_dict['Score Type'] = ah_data[0]['Score Type']
+        ah_normalized_count_dict['Number of Function Topics'] = ah_data[0]['Number of Function Topics']
+        ah_normalized_count_dict['Total Function Count'] = ah_data[0]['Total Function Count']
+        print(ah_normalized_count_dict)
+    else:
+        ah_normalized_count_dict = {}
+    print('Superior Start AM')
+    if am_counts:
+        am_min_count = min(am_counts)
+        am_max_count = max(am_counts)
+        am_normalized_counts = [(count - am_min_count) / (am_max_count - am_min_count) for count in am_counts]
+        am_normalized_count_dict = {d["Function Name"]: am_normalized_counts[i] for i, d in enumerate(am_data)}
+        am_normalized_count_dict['Total People'] = am_data[0]['Total People']
+        am_normalized_count_dict['Score Type'] = am_data[0]['Score Type']
+        am_normalized_count_dict['Number of Function Topics'] = am_data[0]['Number of Function Topics']
+        am_normalized_count_dict['Total Function Count'] = am_data[0]['Total Function Count']
+        print(am_normalized_count_dict)
+    else:
+        am_normalized_count_dict = {}
+    print('Advanced Start AL')
+    if al_counts:
+        al_min_count = min(al_counts)
+        al_max_count = max(al_counts)
+        al_normalized_counts = [(count - al_min_count) / (al_max_count - al_min_count) for count in al_counts]
+        al_normalized_count_dict = {d["Function Name"]: al_normalized_counts[i] for i, d in enumerate(al_data)}
+        al_normalized_count_dict['Total People'] = al_data[0]['Total People']
+        al_normalized_count_dict['Score Type'] = al_data[0]['Score Type']
+        al_normalized_count_dict['Number of Function Topics'] = al_data[0]['Number of Function Topics']
+        al_normalized_count_dict['Total Function Count'] = al_data[0]['Total Function Count']
+        print(al_normalized_count_dict)
+    else:
+        al_normalized_count_dict = {}
+
+    print('Advanced Start IH')
+    if ih_counts:
+        ih_min_count = min(ih_counts)
+        ih_max_count = max(ih_counts)
+        ih_normalized_counts = [(count - ih_min_count) / (ih_max_count - ih_min_count) for count in ih_counts]
+        ih_normalized_count_dict = {d["Function Name"]: ih_normalized_counts[i] for i, d in enumerate(ih_data)}
+        ih_normalized_count_dict['Total People'] = ih_data[0]['Total People']
+        ih_normalized_count_dict['Score Type'] = ih_data[0]['Score Type']
+        ih_normalized_count_dict['Number of Function Topics'] = ih_data[0]['Number of Function Topics']
+        ih_normalized_count_dict['Total Function Count'] = ih_data[0]['Total Function Count']
+        print(ih_normalized_count_dict)
+    else:
+        ih_normalized_count_dict = {}
+    return ih_normalized_count_dict, al_normalized_count_dict, am_normalized_count_dict, ah_normalized_count_dict, total_results
 
 # next steps- need to delve into each function particulars, consultations with other departments
 # fix spacing 
 # same thing for OPI comments as separate tabs
 # instead of program, attach csv file with netids or byuids
-get_opic_diagnostic_grids('02/01/2023', "02/28/2024", 'Spanish')
+# get_opic_diagnostic_grids('02/01/2023', "02/28/2023", 'Spanish')
 

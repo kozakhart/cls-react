@@ -1008,10 +1008,12 @@ def get_post_diagnostic_grid(request):
             from_date = data.get('fromDate')
             to_date = data.get('toDate')
 
-            advanced_grid_results, superior_grid_results, total_results = get_opic_diagnostic_grids(from_date, to_date, language)
+            ih_advanced_grid_results, al_advanced_grid_results, am_superior_grid_results, ah_superior_grid_results, total_results = get_opic_diagnostic_grids(from_date, to_date, language)
             data = {
-                    'advanced_grid_results': advanced_grid_results,
-                    'superior_grid_results': superior_grid_results,
+                    'ih_advanced_grid_results': ih_advanced_grid_results,
+                    'al_advanced_grid_results': al_advanced_grid_results,
+                    'am_superior_grid_results': am_superior_grid_results,
+                    'ah_superior_grid_results': ah_superior_grid_results,
                     'total_results': total_results
                 }
             return JsonResponse(data, status=201)

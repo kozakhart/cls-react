@@ -65,10 +65,15 @@ export default function DiagnosticGrids() {
   const [programType, setProgramType] = useState('NA');
   const [masterLoader, setMasterLoader] = useState(false);
 
-  const [superiorData, setSuperiorData] = useState({});
-  const [advancedData, setAdvancedData] = useState({});
-  const [AHTotal, setAHTotal] = useState(100);
-  const [ALTotal, setALTotal] = useState(100);
+  const [amSuperiorData, setAMSuperiorData] = useState({});
+  const [ahSuperiorData, setAHSuperiorData] = useState({});
+  const [alAdvancedData, setALAdvancedData] = useState({});
+  const [ihAdvancedData, setIHAdvancedData] = useState({});
+
+  const [filteredAHSuperiorData, setFilteredAHSuperiorData] = useState({});
+  const [filteredAMSuperiorData, setFilteredAMSuperiorData] = useState({});
+  const [filteredALAdvancedData, setFilteredALAdvancedData] = useState({});
+  const [filteredIHAdvancedData, setFilteredIHAdvancedData] = useState({});
 
   const handleLanguageChange = (event) => {
     setLanguage(event.target.value);
@@ -117,33 +122,55 @@ export default function DiagnosticGrids() {
     fetchData();
   }, [getDataUrl, navigate]);
       
-    const sendInfo = async () => {
-      try {
-        setMasterLoader(true);
-        const csrfToken = Cookies.get('csrftoken');
-        const formattedStartDate = format(startDate, 'MM/dd/yyyy');
-        const formattedEndDate = format(endDate, 'MM/dd/yyyy');
+      const sendInfo = async () => {
+        try {
+          setMasterLoader(true);
+          const csrfToken = Cookies.get('csrftoken');
+          const formattedStartDate = format(startDate, 'MM/dd/yyyy');
+          const formattedEndDate = format(endDate, 'MM/dd/yyyy');
 
-        const bodyParameters = {
-          language,
-          fromDate: formattedStartDate,
-          toDate: formattedEndDate
-        };
-        const response = await axios.post(
-          diagnosticGridsUrl,
-          bodyParameters,
-          {
-            withCredentials: true,
-            headers: {
-              'X-CSRFToken': csrfToken,
-              
+          const bodyParameters = {
+            language,
+            fromDate: formattedStartDate,
+            toDate: formattedEndDate
+          };
+          const response = await axios.post(
+            diagnosticGridsUrl,
+            bodyParameters,
+            {
+              withCredentials: true,
+              headers: {
+                'X-CSRFToken': csrfToken,
+                
+              }
             }
-          }
+          );
+          console.log(response.data);
+          setAMSuperiorData(response.data.am_superior_grid_results);
+          const filteredAMSuperiorData = Object.fromEntries(
+            Object.entries(response.data.am_superior_grid_results).filter(([key, value]) => typeof value === 'number' && !Number.isInteger(value))
+          );
+          setFilteredAMSuperiorData(filteredAMSuperiorData);
+
+          setAHSuperiorData(response.data.ah_superior_grid_results);
+          const filteredAHSuperiorData = Object.fromEntries(
+            Object.entries(response.data.ah_superior_grid_results).filter(([key, value]) => typeof value === 'number' && !Number.isInteger(value))
+          );
+          setFilteredAHSuperiorData(filteredAHSuperiorData);
+
+        setALAdvancedData(response.data.al_advanced_grid_results);
+        const filteredALAdvancedData = Object.fromEntries(
+          Object.entries(response.data.al_advanced_grid_results).filter(([key, value]) => typeof value === 'number' && !Number.isInteger(value))
         );
-        console.log(response.data);
-        setSuperiorData(response.data.superior_grid_results);
-        console.log('advanced results', response.data.advanced_grid_results);
-        setAdvancedData(response.data.advanced_grid_results);
+        setFilteredALAdvancedData(filteredALAdvancedData);
+
+        setIHAdvancedData(response.data.ih_advanced_grid_results);
+        const filteredIHAdvancedData = Object.fromEntries(
+          Object.entries(response.data.ih_advanced_grid_results).filter(([key, value]) => typeof value === 'number' && !Number.isInteger(value))
+        );
+        setFilteredIHAdvancedData(filteredIHAdvancedData);
+
+        console.log('Filter=', filteredAMSuperiorData, filteredAHSuperiorData, filteredALAdvancedData, filteredIHAdvancedData);
         setMasterLoader(false);
 
       } catch (error) {
@@ -162,7 +189,7 @@ export default function DiagnosticGrids() {
       <Grid container spacing={0} justifyContent="center"
         alignItems="center">
         <Grid item xs={6} md={8} lg={8} sx={{border: "3px solid #002e5d", borderRadius: "5px", marginTop:"1vw"}}>
-          <Typography variant="h4" gutterBottom sx={{marginLeft:"30%", marginTop:"1vw"}}>
+          <Typography variant="h4" gutterBottom sx={{marginLeft:"35%", marginTop:"1vw"}}>
             OPIc Diagnostic Grids
           </Typography>
           
@@ -234,42 +261,42 @@ export default function DiagnosticGrids() {
 
         <LoadingModal isLoading={masterLoader} message="Retrieving data... Please wait..."/>
 
-        {Object.keys(superiorData).length > 0 &&(
-          <Grid item xs={6} md={8} lg={8} sx={{marginTop:"2vw"}}>
+        {Object.keys(filteredAHSuperiorData).length > 0 &&(
+          <Grid item xs={6} md={8} lg={12} sx={{marginTop:"2vw"}}>
                   <DiagnosticGridReports
-                    title="Superior Functions (Advanced High)"
-                    subheader={`Sample Size = ${AHTotal}`}
-                    chartData={superiorData} 
+                    title={`${language} Superior Functions (Advanced High)`}
+                    subheader={`Sample Size= ${ahSuperiorData['Total People']} Students`}
+                    chartData={filteredAHSuperiorData} 
                   />
           </Grid>
           )
         }
-        {Object.keys(superiorData).length > 0 &&(
-          <Grid item xs={6} md={8} lg={8} sx={{marginTop:"2vw"}}>
+        {Object.keys(filteredAMSuperiorData).length > 0 &&(
+          <Grid item xs={6} md={8} lg={12} sx={{marginTop:"2vw"}}>
                   <DiagnosticGridReports
-                    title="Superior Functions (Advanced Mid)"
-                    subheader={`Sample Size = ${AHTotal}`}
-                    chartData={superiorData} 
+                    title={`${language} Superior Functions (Advanced Mid)`}
+                    subheader={`Sample Size= ${amSuperiorData['Total People']} Students`}
+                    chartData={filteredAMSuperiorData} 
                   />
           </Grid>
           )
         }
-        {Object.keys(advancedData).length > 0 &&(
-          <Grid item xs={6} md={8} lg={8} sx={{marginTop:"2vw"}}>
+        {Object.keys(filteredALAdvancedData).length > 0 &&(
+          <Grid item xs={6} md={8} lg={12} sx={{marginTop:"2vw"}}>
                   <DiagnosticGridReports
-                    title="Advanced Functions (Advanced Low)"
-                    subheader={`Sample Size = ${ALTotal}`}
-                    chartData={advancedData} 
+                    title={`${language} Advanced Functions (Advanced Low)`}
+                    subheader={`Sample Size= ${alAdvancedData['Total People']} Students`}
+                    chartData={filteredALAdvancedData} 
                   />
           </Grid>
           )
         }
-        {Object.keys(advancedData).length > 0 &&(
-          <Grid item xs={6} md={8} lg={8} sx={{marginTop:"2vw"}}>
+        {Object.keys(filteredIHAdvancedData).length > 0 &&(
+          <Grid item xs={6} md={8} lg={12} sx={{marginTop:"2vw"}}>
                   <DiagnosticGridReports
-                    title="Advanced Functions (Intermediate High)"
-                    subheader={`Sample Size = ${ALTotal}`}
-                    chartData={advancedData} 
+                    title={`${language} Advanced Functions (Intermediate High)`}
+                    subheader={`Sample Size= ${ihAdvancedData['Total People']} Students`}
+                    chartData={filteredIHAdvancedData} 
                   />
           </Grid>
           )
