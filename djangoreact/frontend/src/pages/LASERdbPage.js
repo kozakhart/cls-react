@@ -97,7 +97,16 @@ export default function BlogPage() {
     }, [navigate]); 
     
   const downloadSchema = () => {
-    fetch(getSchemaUrl)
+    const csrfToken = Cookies.get('csrftoken');
+    fetch(getSchemaUrl, {
+    method: 'GET',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': csrfToken,
+      }
+    }
+    )
     .then(response => response.blob())
     .then(blob => {
       // Create a URL for the blob

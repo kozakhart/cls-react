@@ -895,13 +895,13 @@ def laser_data(request):
             return JsonResponse({'message': 'User is not authenticated'}, status=401)
     else:
         return JsonResponse({'error': 'Invalid request'})
-    
+
 @permission_classes([IsAuthenticated])
 @api_view(['GET'])
 def get_db_schema(request):
 # Construct the relative path using BASE_DIR
     if request.user.is_staff or request.user.is_superuser:
-        csv_file_path = settings.BASE_DIR / 'api' / 'db_schema' / 'db_key.csv'
+        csv_file_path = settings.BASE_DIR / 'api' / 'schemas' / 'db_key.csv'
 
         with open(csv_file_path, 'r', encoding='utf-8') as csv_file:
             # Read the file content
@@ -911,6 +911,25 @@ def get_db_schema(request):
             response = HttpResponse(file_content, content_type='text/csv')
             # Add the Content-Disposition header to prompt a download in the browser
             response['Content-Disposition'] = 'attachment; filename="db_schema.csv"'
+            
+            return response
+    else:
+        return JsonResponse({'message': 'User is not authenticated'}, status=401)
+    
+@permission_classes([IsAuthenticated])
+@api_view(['GET'])
+def get_grid_schema(request):
+    if request.user.is_staff or request.user.is_superuser:
+        csv_file_path = settings.BASE_DIR / 'api' / 'schemas' / 'grid_schema.csv'
+
+        with open(csv_file_path, 'r', encoding='utf-8') as csv_file:
+            # Read the file content
+            file_content = csv_file.read()
+            
+            # Create an HttpResponse object with the CSV content
+            response = HttpResponse(file_content, content_type='text/csv')
+            # Add the Content-Disposition header to prompt a download in the browser
+            response['Content-Disposition'] = 'attachment; filename="grid_schema.csv"'
             
             return response
     else:
@@ -1004,17 +1023,24 @@ def get_post_diagnostic_grid(request):
             return JsonResponse({'languages': all_languages_serializer.data, 'programs': all_programs_serializer.data}, status=200)
         if request.method == "POST":
             data = request.data
+            print(data)
             language = data.get('language')
             from_date = data.get('fromDate')
             to_date = data.get('toDate')
+            csv_file = data.get('files')
 
-            ih_advanced_grid_results, al_advanced_grid_results, am_superior_grid_results, ah_superior_grid_results, total_results = get_opic_diagnostic_grids(from_date, to_date, language)
+            ih_advanced_grid_results, al_advanced_grid_results, am_superior_grid_results, ah_superior_grid_results, total_results, s_counter, ih_sight_counters, al_insight_counters, am_insight_counters, ah_insight_counters = get_opic_diagnostic_grids(from_date, to_date, language, csv_file)
             data = {
                     'ih_advanced_grid_results': ih_advanced_grid_results,
                     'al_advanced_grid_results': al_advanced_grid_results,
                     'am_superior_grid_results': am_superior_grid_results,
                     'ah_superior_grid_results': ah_superior_grid_results,
-                    'total_results': total_results
+                    'total_results': total_results,
+                    'superior_count': s_counter,
+                    'ih_insight_details': ih_sight_counters,
+                    'al_insight_details': al_insight_counters,
+                    'am_insight_details': am_insight_counters,
+                    'ah_insight_details': ah_insight_counters
                 }
             return JsonResponse(data, status=201)
         return JsonResponse({'message': 'No Valid Method'}, status=400)

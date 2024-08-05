@@ -5,7 +5,7 @@
   "version": "1.7.0",
   "private": false,
   "scripts": {
-    "start": "cp .env.development .env && BROWSER='firefox' react-scripts start",
+    "start": "cp .env.development .env && BROWSER='google chrome' react-scripts start",
     "build": "cp .env.production .env && react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
