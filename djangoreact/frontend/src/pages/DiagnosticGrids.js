@@ -108,7 +108,7 @@ const downloadSchema = () => {
       // Create an anchor (<a>) element with the URL
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'grid_schema.csv'; // Set the file name for the download
+      a.download = 'grid_schema.pdf'; // Set the file name for the download
       document.body.appendChild(a); // Append the anchor to the body
       a.click(); // Simulate a click on the anchor to trigger the download
       document.body.removeChild(a); // Clean up
@@ -223,7 +223,9 @@ const downloadSchema = () => {
         setAHInsightDetails(response.data.ah_insight_details);
         setAMInsightDetails(response.data.am_insight_details);
         console.log('Filter=', filteredAMSuperiorData, filteredAHSuperiorData, filteredALAdvancedData, filteredIHAdvancedData);
-        console.log('Details=', ihInsightDetails, alInsightDetails, ahInsightDetails, amInsightDetails);
+        // console.log('Details=', ihInsightDetails, alInsightDetails, ahInsightDetails, amInsightDetails);
+        console.log('Details=', ahInsightDetails);
+
         setMasterLoader(false);
 
       } catch (error) {

@@ -194,9 +194,12 @@ def get_opi_grid(firstname, lastname, fromDate):
 def get_opic_diagnostic_grids(fromDate, toDate, language, csv_file):
     description = ["Description in present time", "Description in past time", "Description in future time", "Clarity", "Detail"]
     narration = ["Narration in present time", "Narration in past time", "Narration in future time", "Logical sequencing", "Verb forms", "Person markers"]
-    situation_with_a_complication = ["Struggles,but succeeds in addressing the situation", "Attempts to address, but is unable to successfully resolve the situation", "Demonstrates no linguistic ability to address the situations", "Knowledge and use of communicative devices"]
+    situation_with_a_complication = ["Struggles,but succeeds in addressing the situation", 
+                                     "Attempts to address, but is unable to successfully resolve the situation", 
+                                     "Demonstrates no linguistic ability to address the situations", 
+                                     "Knowledge and use of communicative devices"]
     # for whatever reason "Struggles,but succeeds in addressing the situation" should not have a space after the comma
-    advanced_grammar = ["Morphology", "Syntax", "Cases", "Prepositions", "Agreement"]
+    advanced_grammar = ["Grammar: Morphology", "Grammar: Syntax", "Grammar: Cases", "Grammar: Prepositions", "Grammar: Agreement"]
     advanced_other = ["Rate of speech", "Fluidity", "Connectedness", "Lacks strategies to compensate for weaknesses"]
     advanced_pronunciation = ["Articulation", "Pitch", "Stress", "Intonation"]
     word_order = ["Phrases", "Sentences", "Paragraphs"]
@@ -217,12 +220,19 @@ def get_opic_diagnostic_grids(fromDate, toDate, language, csv_file):
         {"Text Type":advanced_text_type}
         ]
 
-    support_an_opinion = ["Present point of view clearly", "Present well organized supporting arguments", "Elaborate on arguments", "Handle the topic at the issue level (to speak outside the self)"]
-    speculate_and_present_hypothesis = ["Speculate and present hypotheses", "Use grammatical constructs that signal hypothetical discourse", "Elaborate in the hypothetical mode"]
-    discussion_in_extended_discourse = ["Broaden range and precision of vocabulary", "Correctly formulate high frequency compound/complex structures", "Employ a variety of cohesive devises and discourse strategies", "Increase discourse from a paragraph to extended treatment of the topic"]
-    linguistically_unfamiliar_topics_or_situations = ["Broaden range and depth of precise vocabulary", "Reduce L1 or L2 interference", "Develop discourse strategies"]
-    superior_grammar_accuracy = ["Agreement", "Verb formulations", "Case", "Prepositions and Prepositional phrases", "Word order (Complex/Compound Sentence)", "Dependent and Subordinate clauses"]
-    other_accuracy = ["Rate of speech", "Fluidity", "Connectedness of expression", "Increase range of sophisticated discourse strategies to compensate for weaknesses or shortcomings"]
+    support_an_opinion = ["Present point of view clearly", "Present well organized supporting arguments", "Elaborate on arguments", 
+                          "Handle the topic at the issue level (to speak outside the self)"]
+    speculate_and_present_hypothesis = ["Speculate and present hypotheses", "Use grammatical constructs that signal hypothetical discourse", 
+                                        "Elaborate in the hypothetical mode"]
+    discussion_in_extended_discourse = ["Broaden range and precision of vocabulary", "Correctly formulate high frequency compound/complex structures", 
+                                        "Employ a variety of cohesive devises and discourse strategies", 
+                                        "Increase discourse from a paragraph to extended treatment of the topic"]
+    linguistically_unfamiliar_topics_or_situations = ["Broaden range and depth of precise vocabulary", "Reduce L1 or L2 interference", 
+                                                      "Develop discourse strategies"]
+    superior_grammar_accuracy = ["Agreement", "Verb formulations", "Case", "Prepositions and Prepositional phrases", 
+                                "Word order (Complex/Compound Sentence)", "Dependent and Subordinate clauses"]
+    other_accuracy = ["Rate of speech", "Fluidity", "Connectedness of expression", 
+                    "Increase range of sophisticated discourse strategies to compensate for weaknesses or shortcomings"]
 
     superior_pronunciation = ["Articulation", "Pitch", "Stress features", "Intonation"]
     sociolinguistic_competency = ["Size of vocabulary", "Range of topic areas", "Precision of vocabulary", "Appropriate forms for formal and informal situations"]
@@ -234,9 +244,9 @@ def get_opic_diagnostic_grids(fromDate, toDate, language, csv_file):
         {"Function: Discussion in Extended Discourse":discussion_in_extended_discourse}, 
         {"Function: Linguistically Unfamiliar Topics or Situations":linguistically_unfamiliar_topics_or_situations}, 
         {"Accuracy: Grammar":superior_grammar_accuracy}, 
+        {"Accuracy: Pronunciation":superior_pronunciation}, 
         {"Accuracy: Other":other_accuracy}, 
         {"Content: Sociolinguistic Competency":sociolinguistic_competency}, 
-        {"Content: Pronunciation":superior_pronunciation}, 
         {"Text Type":superior_text_type}
         ]
 
@@ -314,11 +324,15 @@ def get_opic_diagnostic_grids(fromDate, toDate, language, csv_file):
     am_categorized_insight_counters = {}
     ah_categorized_insight_counters = {}
     #match language
+    #with open("output.txt", "w") as file:
+
     for grid in data:
 
         if grid['language'] == language or language == 'All':
             total_results += 1
-            print(grid)
+            #print(grid)
+            #file.write(str(grid) + "\n")
+
             rating = grid['rating']
 
             if rating == "S":
@@ -334,65 +348,67 @@ def get_opic_diagnostic_grids(fromDate, toDate, language, csv_file):
             for i in grid['grid']:
                 for comment in i['gridComments']:
                     function = comment['details']
-
+                    grid_title = comment['title']
                     if rating == "AH":
                         for index, function_dict in enumerate(superior_functions):
                             for key, value in function_dict.items():
                                 for val in value:
-                                    if val in function:
+                                    if val in function and grid_title == "OPIc SUPERIOR DIAGNOSTIC GRID":
                                         ah_superior_topic_counters[index][key] += 1
                                         ah_insight_counters[val] += 1
-                      
+                    
                         ah_categorized_insight_counters = {
-                            'Function: Support an Opinion': {key: ah_insight_counters[key] for key in support_an_opinion if key in ah_insight_counters},
-                            'Function: Speculate and Present Hypothesis': {key: ah_insight_counters[key] for key in speculate_and_present_hypothesis if key in ah_insight_counters},
-                            'Function: Discussion in Extended Discourse': {key: ah_insight_counters[key] for key in discussion_in_extended_discourse if key in ah_insight_counters},
-                            'Function: Linguistically Unfamiliar Topics or Situations': {key: ah_insight_counters[key] for key in linguistically_unfamiliar_topics_or_situations if key in ah_insight_counters},
-                            'Accuracy: Grammar': {key: ah_insight_counters[key] for key in superior_grammar_accuracy if key in ah_insight_counters},
-                            'Accuracy: Other': {key: ah_insight_counters[key] for key in other_accuracy if key in ah_insight_counters},
-                            'Content: Pronunciation': {key: ah_insight_counters[key] for key in superior_pronunciation if key in ah_insight_counters},
-                            'Content: Sociolinguistic Competency': {key: ah_insight_counters[key] for key in sociolinguistic_competency if key in ah_insight_counters},
-                            'Text Type': {key: ah_insight_counters[key] for key in superior_text_type if key in ah_insight_counters}
+                            'Function: Support an Opinion': {key: ah_insight_counters[key] for key in support_an_opinion},
+                            'Function: Speculate and Present Hypothesis': {key: ah_insight_counters[key] for key in speculate_and_present_hypothesis},
+                            'Function: Discussion in Extended Discourse': {key: ah_insight_counters[key] for key in discussion_in_extended_discourse},
+                            'Function: Linguistically Unfamiliar Topics or Situations': {key: ah_insight_counters[key] for key in linguistically_unfamiliar_topics_or_situations},
+                            'Accuracy: Grammar': {key: ah_insight_counters[key] for key in superior_grammar_accuracy},
+                            'Accuracy: Other': {key: ah_insight_counters[key] for key in other_accuracy},
+                            'Content: Pronunciation': {key: ah_insight_counters[key] for key in superior_pronunciation},
+                            'Content: Sociolinguistic Competency': {key: ah_insight_counters[key] for key in sociolinguistic_competency},
+                            'Text Type': {key: ah_insight_counters[key] for key in superior_text_type}
                         }
                     if rating == "AM":
                         for index, function_dict in enumerate(superior_functions):
                             for key, value in function_dict.items():
                                 for val in value:
-                                    if val in function:
+                                    if val in function and grid_title == "OPIc SUPERIOR DIAGNOSTIC GRID":
                                         am_superior_topic_counters[index][key] += 1
                                         am_insight_counters[val] += 1
-                  
+                
                         am_categorized_insight_counters = {
-                            'Function: Support an Opinion': {key: am_insight_counters[key] for key in support_an_opinion if key in am_insight_counters},
-                            'Function: Speculate and Present Hypothesis': {key: am_insight_counters[key] for key in speculate_and_present_hypothesis if key in am_insight_counters},
-                            'Function: Discussion in Extended Discourse': {key: am_insight_counters[key] for key in discussion_in_extended_discourse if key in am_insight_counters},
-                            'Function: Linguistically Unfamiliar Topics or Situations': {key: am_insight_counters[key] for key in linguistically_unfamiliar_topics_or_situations if key in am_insight_counters},
-                            'Accuracy: Grammar': {key: am_insight_counters[key] for key in superior_grammar_accuracy if key in am_insight_counters},
-                            'Accuracy: Other': {key: am_insight_counters[key] for key in other_accuracy if key in am_insight_counters},
-                            'Content: Pronunciation': {key: am_insight_counters[key] for key in superior_pronunciation if key in am_insight_counters},
-                            'Content: Sociolinguistic Competency': {key: am_insight_counters[key] for key in sociolinguistic_competency if key in am_insight_counters},
-                            'Text Type': {key: am_insight_counters[key] for key in superior_text_type if key in am_insight_counters}
+                            'Function: Support an Opinion': {key: am_insight_counters[key] for key in support_an_opinion},
+                            'Function: Speculate and Present Hypothesis': {key: am_insight_counters[key] for key in speculate_and_present_hypothesis},
+                            'Function: Discussion in Extended Discourse': {key: am_insight_counters[key] for key in discussion_in_extended_discourse},
+                            'Function: Linguistically Unfamiliar Topics or Situations': {key: am_insight_counters[key] for key in linguistically_unfamiliar_topics_or_situations},
+                            'Accuracy: Grammar': {key: am_insight_counters[key] for key in superior_grammar_accuracy},
+                            'Accuracy: Other': {key: am_insight_counters[key] for key in other_accuracy},
+                            'Content: Pronunciation': {key: am_insight_counters[key] for key in superior_pronunciation},
+                            'Content: Sociolinguistic Competency': {key: am_insight_counters[key] for key in sociolinguistic_competency},
+                            'Text Type': {key: am_insight_counters[key] for key in superior_text_type}
                         }
 
                     if rating == "AL":
                         for index, function_dict in enumerate(advanced_functions):
                             for key, value in function_dict.items():
                                 for val in value:
-                                    if val in function:
+                                    if val in function and grid_title == "OPIc ADVANCED DIAGNOSTIC FORM":
+                                        #if val == "Grammar: Prepositions" or val == "Grammar: Agreement":
+
                                         al_advanced_topic_counters[index][key] += 1
                                         al_insight_counters[val] += 1
-                  
+                
                         al_categorized_insight_counters = {
-                            'Accuracy: Other': {key: al_insight_counters[key] for key in advanced_other if key in al_insight_counters},
-                            'Accuracy: Pronunciation': {key: al_insight_counters[key] for key in advanced_pronunciation if key in al_insight_counters},
-                            'Text Type: Word Order': {key: al_insight_counters[key] for key in word_order if key in al_insight_counters},
-                            'Text Type: Cohesive Devices': {key: al_insight_counters[key] for key in cohesive_devices if key in al_insight_counters},
-                            'Content': {key: al_insight_counters[key] for key in advanced_content if key in al_insight_counters},
-                            'Text Type': {key: al_insight_counters[key] for key in advanced_text_type if key in al_insight_counters},
-                            'Accuracy: Grammar': {key: al_insight_counters[key] for key in advanced_grammar if key in al_insight_counters},
-                            'Function: Situation With a Complication': {key: al_insight_counters[key] for key in situation_with_a_complication if key in al_insight_counters},
-                            'Function: Narration': {key: al_insight_counters[key] for key in narration if key in al_insight_counters},
-                            'Function: Description': {key: al_insight_counters[key] for key in description if key in al_insight_counters}
+                            'Accuracy: Other': {key: al_insight_counters[key] for key in advanced_other},
+                            'Accuracy: Pronunciation': {key: al_insight_counters[key] for key in advanced_pronunciation},
+                            'Text Type: Word Order': {key: al_insight_counters[key] for key in word_order},
+                            'Text Type: Cohesive Devices': {key: al_insight_counters[key] for key in cohesive_devices},
+                            'Content': {key: al_insight_counters[key] for key in advanced_content},
+                            'Text Type': {key: al_insight_counters[key] for key in advanced_text_type},
+                            'Accuracy: Grammar': {key: al_insight_counters[key] for key in advanced_grammar},
+                            'Function: Situation With a Complication': {key: al_insight_counters[key] for key in situation_with_a_complication},
+                            'Function: Narration': {key: al_insight_counters[key] for key in narration},
+                            'Function: Description': {key: al_insight_counters[key] for key in description}
                         }
                     if rating == "IH":
                         for index, function_dict in enumerate(advanced_functions):
@@ -403,22 +419,22 @@ def get_opic_diagnostic_grids(fromDate, toDate, language, csv_file):
                                 # value = 'Description in present time'
                                 for val in value:
                                     # Detail
-                                    if val in function: 
+                                    if val in function and grid_title == "OPIc ADVANCED DIAGNOSTIC FORM": 
                                         ih_advanced_topic_counters[index][key] += 1
                                         ih_insight_counters[val] += 1
-           
+        
 
                         ih_categorized_insight_counters = {
-                            'Accuracy: Other': {key: ih_insight_counters[key] for key in advanced_other if key in ih_insight_counters},
-                            'Accuracy: Pronunciation': {key: ih_insight_counters[key] for key in advanced_pronunciation if key in ih_insight_counters},
-                            'Text Type: Word Order': {key: ih_insight_counters[key] for key in word_order if key in ih_insight_counters},
-                            'Text Type: Cohesive Devices': {key: ih_insight_counters[key] for key in cohesive_devices if key in ih_insight_counters},
-                            'Content': {key: ih_insight_counters[key] for key in advanced_content if key in ih_insight_counters},
-                            'Text Type': {key: ih_insight_counters[key] for key in advanced_text_type if key in ih_insight_counters},
-                            'Accuracy: Grammar': {key: ih_insight_counters[key] for key in advanced_grammar if key in ih_insight_counters},
-                            'Function: Situation With a Complication': {key: ih_insight_counters[key] for key in situation_with_a_complication if key in ih_insight_counters},
-                            'Function: Narration': {key: ih_insight_counters[key] for key in narration if key in ih_insight_counters},
-                            'Function: Description': {key: ih_insight_counters[key] for key in description if key in ih_insight_counters}
+                            'Accuracy: Other': {key: ih_insight_counters[key] for key in advanced_other},
+                            'Accuracy: Pronunciation': {key: ih_insight_counters[key] for key in advanced_pronunciation},
+                            'Text Type: Word Order': {key: ih_insight_counters[key] for key in word_order},
+                            'Text Type: Cohesive Devices': {key: ih_insight_counters[key] for key in cohesive_devices},
+                            'Content': {key: ih_insight_counters[key] for key in advanced_content},
+                            'Text Type': {key: ih_insight_counters[key] for key in advanced_text_type},
+                            'Accuracy: Grammar': {key: ih_insight_counters[key] for key in advanced_grammar},
+                            'Function: Situation With a Complication': {key: ih_insight_counters[key] for key in situation_with_a_complication},
+                            'Function: Narration': {key: ih_insight_counters[key] for key in narration},
+                            'Function: Description': {key: ih_insight_counters[key] for key in description}
                         }
     
     ah_data = []
@@ -466,62 +482,55 @@ def get_opic_diagnostic_grids(fromDate, toDate, language, csv_file):
                 ih_data.append({"Score Type": "IH", "Function Name": func,  "Total People": ih_counter, "Total Function Count": count, "Number of Function Topics": num_topics})
             # print(f"  {func}: {count}")
 
-    # original score divided by the total score for each separate score type
     ah_counts = [d["Total Function Count"] for d in ah_data]
     am_counts = [d["Total Function Count"] for d in am_data]
+    # might need to be a dictionary and assign label to values
     al_counts = [d["Total Function Count"] for d in al_data]
     ih_counts = [d["Total Function Count"] for d in ih_data]
 
     # Apply Min-Max Normalization
     #print('Superior Start AH')
     if ah_counts:
-        ah_min_count = min(ah_counts)
-        ah_max_count = max(ah_counts)
-        ah_normalized_counts = [(count - ah_min_count) / (ah_max_count - ah_min_count) for count in ah_counts]
+        ah_normalized_counts = [function_data['Total Function Count'] / (function_data['Total People'] * function_data['Number of Function Topics']) for function_data in ah_data]
         ah_normalized_count_dict = {d["Function Name"]: ah_normalized_counts[i] for i, d in enumerate(ah_data)}
         ah_normalized_count_dict['Total People'] = ah_data[0]['Total People']
         ah_normalized_count_dict['Score Type'] = ah_data[0]['Score Type']
-        ah_normalized_count_dict['Number of Function Topics'] = ah_data[0]['Number of Function Topics']
+        # ah_normalized_count_dict['Number of Function Topics'] = ah_data[0]['Number of Function Topics']
         ah_normalized_count_dict['Total Function Count'] = ah_data[0]['Total Function Count']
         #print(ah_normalized_count_dict)
     else:
         ah_normalized_count_dict = {}
     #print('Superior Start AM')
     if am_counts:
-        am_min_count = min(am_counts)
-        am_max_count = max(am_counts)
-        am_normalized_counts = [(count - am_min_count) / (am_max_count - am_min_count) for count in am_counts]
+        am_normalized_counts = [function_data['Total Function Count'] / (function_data['Total People'] * function_data['Number of Function Topics']) for function_data in am_data]
         am_normalized_count_dict = {d["Function Name"]: am_normalized_counts[i] for i, d in enumerate(am_data)}
         am_normalized_count_dict['Total People'] = am_data[0]['Total People']
         am_normalized_count_dict['Score Type'] = am_data[0]['Score Type']
-        am_normalized_count_dict['Number of Function Topics'] = am_data[0]['Number of Function Topics']
+        #am_normalized_count_dict['Number of Function Topics'] = am_data[0]['Number of Function Topics']
         am_normalized_count_dict['Total Function Count'] = am_data[0]['Total Function Count']
         #print(am_normalized_count_dict)
     else:
         am_normalized_count_dict = {}
-    #print('Advanced Start AL')
+    print('Advanced Start AL')
     if al_counts:
-        al_min_count = min(al_counts)
-        al_max_count = max(al_counts)
-        al_normalized_counts = [(count - al_min_count) / (al_max_count - al_min_count) for count in al_counts]
+        al_normalized_counts = [function_data['Total Function Count'] / (function_data['Total People'] * function_data['Number of Function Topics']) for function_data in al_data]
+
         al_normalized_count_dict = {d["Function Name"]: al_normalized_counts[i] for i, d in enumerate(al_data)}
         al_normalized_count_dict['Total People'] = al_data[0]['Total People']
         al_normalized_count_dict['Score Type'] = al_data[0]['Score Type']
-        al_normalized_count_dict['Number of Function Topics'] = al_data[0]['Number of Function Topics']
+        # al_normalized_count_dict['Number of Function Topics'] = al_data[0]['Number of Function Topics']
         al_normalized_count_dict['Total Function Count'] = al_data[0]['Total Function Count']
-        #print(al_normalized_count_dict)
+        print(al_normalized_count_dict)
     else:
         al_normalized_count_dict = {}
 
     #print('Advanced Start IH')
     if ih_counts:
-        ih_min_count = min(ih_counts)
-        ih_max_count = max(ih_counts)
-        ih_normalized_counts = [(count - ih_min_count) / (ih_max_count - ih_min_count) for count in ih_counts]
+        ih_normalized_counts = [function_data['Total Function Count'] / (function_data['Total People'] * function_data['Number of Function Topics']) for function_data in ih_data]
         ih_normalized_count_dict = {d["Function Name"]: ih_normalized_counts[i] for i, d in enumerate(ih_data)}
         ih_normalized_count_dict['Total People'] = ih_data[0]['Total People']
         ih_normalized_count_dict['Score Type'] = ih_data[0]['Score Type']
-        ih_normalized_count_dict['Number of Function Topics'] = ih_data[0]['Number of Function Topics']
+        # ih_normalized_count_dict['Number of Function Topics'] = ih_data[0]['Number of Function Topics']
         ih_normalized_count_dict['Total Function Count'] = ih_data[0]['Total Function Count']
         #print(ih_normalized_count_dict)
     else:
@@ -535,4 +544,4 @@ def get_opic_diagnostic_grids(fromDate, toDate, language, csv_file):
 # click on something (word order) and see the other details
 
 if __name__ == "__main__":
-    get_opic_diagnostic_grids('08/04/2023', "08/04/2024", 'German', [])
+    get_opic_diagnostic_grids('08/09/2023', "08/09/2024", 'Spanish', [])

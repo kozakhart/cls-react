@@ -920,18 +920,15 @@ def get_db_schema(request):
 @api_view(['GET'])
 def get_grid_schema(request):
     if request.user.is_staff or request.user.is_superuser:
-        csv_file_path = settings.BASE_DIR / 'api' / 'schemas' / 'grid_schema.csv'
+        pdf_file_path = settings.BASE_DIR / 'api' / 'schemas' / 'grid_schema.pdf'
 
-        with open(csv_file_path, 'r', encoding='utf-8') as csv_file:
-            # Read the file content
-            file_content = csv_file.read()
-            
-            # Create an HttpResponse object with the CSV content
-            response = HttpResponse(file_content, content_type='text/csv')
-            # Add the Content-Disposition header to prompt a download in the browser
-            response['Content-Disposition'] = 'attachment; filename="grid_schema.csv"'
-            
+
+        
+        with open(pdf_file_path, 'rb') as pdf_file:
+            response = HttpResponse(pdf_file.read(), content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; filename="grid_schema.pdf"'
             return response
+
     else:
         return JsonResponse({'message': 'User is not authenticated'}, status=401)
     
@@ -1023,13 +1020,13 @@ def get_post_diagnostic_grid(request):
             return JsonResponse({'languages': all_languages_serializer.data, 'programs': all_programs_serializer.data}, status=200)
         if request.method == "POST":
             data = request.data
-            print(data)
             language = data.get('language')
             from_date = data.get('fromDate')
             to_date = data.get('toDate')
             csv_file = data.get('files')
 
-            ih_advanced_grid_results, al_advanced_grid_results, am_superior_grid_results, ah_superior_grid_results, total_results, s_counter, ih_sight_counters, al_insight_counters, am_insight_counters, ah_insight_counters = get_opic_diagnostic_grids(from_date, to_date, language, csv_file)
+            ih_advanced_grid_results, al_advanced_grid_results, am_superior_grid_results, ah_superior_grid_results, total_results, s_counter, ih_insight_counters, al_insight_counters, am_insight_counters, ah_insight_counters = get_opic_diagnostic_grids(from_date, to_date, language, csv_file)
+            #print(am_superior_grid_results)
             data = {
                     'ih_advanced_grid_results': ih_advanced_grid_results,
                     'al_advanced_grid_results': al_advanced_grid_results,
@@ -1037,7 +1034,7 @@ def get_post_diagnostic_grid(request):
                     'ah_superior_grid_results': ah_superior_grid_results,
                     'total_results': total_results,
                     'superior_count': s_counter,
-                    'ih_insight_details': ih_sight_counters,
+                    'ih_insight_details': ih_insight_counters,
                     'al_insight_details': al_insight_counters,
                     'am_insight_details': am_insight_counters,
                     'ah_insight_details': ah_insight_counters

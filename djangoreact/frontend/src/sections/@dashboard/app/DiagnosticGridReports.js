@@ -20,6 +20,7 @@ export default function DiagnosticGridReports({ title, subheader, chartData, det
   const [selectedBarLabels, setSelectedBarLabels] = useState([]);
   const [sortOrder, setSortOrder] = useState('asc');
   const [sortedData, setSortedData] = useState(chartData);
+  const [detailName, setDetailName] = useState('')
 const professionalColors = ['#f45f74','#8fd7d7', '#00b0be', '#ff8ca1', '#bdd373', '#98c127', '#ffcd8e', '#ffb255'];
 
 useEffect(() => {
@@ -101,7 +102,7 @@ Object.entries(sortedData).forEach(([key, value]) => {
   tooltip: {
     marker: { show: true },
     y: {
-      formatter: (value) => `${((value) * 100).toFixed(0)}%`,
+      formatter: (value) => `${((value) * 100).toFixed(1)}%`,
       title: {
           formatter: () => '',
         }, 
@@ -174,6 +175,7 @@ Object.entries(sortedData).forEach(([key, value]) => {
           
           console.log('detail', details)
           console.log('detail name', detailName)
+          setDetailName(detailName)
           console.log('barData', barData)
 
         Object.entries(details).forEach(([key, value]) => {
@@ -306,7 +308,7 @@ Object.entries(sortedData).forEach(([key, value]) => {
           <ReactApexChart type="bar" series={chartSeries} options={chartOptions} height={364} />
           {selectedBarData && selectedBarData.length > 0 && (
             <div>
-              <CardHeader title="Additional Details" />
+              <CardHeader title={`${detailName}`} />
               <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
                 <Button onClick={handleDeselect} color="error">
                   Deselect
