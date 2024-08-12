@@ -121,7 +121,7 @@ Object.entries(sortedData).forEach(([key, value]) => {
     max:1,
     
     title: {
-      text: 'Percentage of Students That Need To Improve In Each Area',
+      text: 'Average Percentage of Students That Need To Improve In Each Area',
     },
     labels: {formatter: (value) => `${((value) * 100).toFixed(0)}%`},
   },
