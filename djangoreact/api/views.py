@@ -303,8 +303,9 @@ def award_certificate(request):
                 wpt_score = list(wpt_score)[0]
                 record_id = student['recordId']
                 formatted_date = current_date.strftime("%m/%d/%Y")
+                cert_type = "False"
 
-                file_id = box_api.create_pdf_cert(box_client, record_id, full_name, language.upper(), level.upper(), opi_score, wpt_score, formatted_date)
+                file_id = box_api.create_pdf_cert(box_client, record_id, full_name, language.upper(), level.upper(), opi_score, wpt_score, formatted_date, cert_type)
                 shareable_link = box_api.generate_shareable_link(box_client, file_id)
                 data = {
                 "subject": f'Language Certificate for {full_name}',
@@ -447,9 +448,6 @@ def award_certificate(request):
             byu_api.logout(byu_token)
             return JsonResponse({'message': 'All certificates awarded'})
         else: 
-            import time
-            time.sleep(5)
-            return JsonResponse({'message': 'Awarded'}, status=200)
             full_name = request.data['dataToSend']['FullName']
             byuid = request.data['dataToSend']['BYUID']
             netid = request.data['dataToSend']['NetID']
@@ -463,6 +461,7 @@ def award_certificate(request):
                 wpt_score = 'N/A'
                 
             record_id = request.data['dataToSend']['RecordID']
+
             box_client = box_api.create_client()
             file_id = box_api.create_pdf_cert(box_client, record_id, full_name, language.upper(), level.upper(), opi_score, wpt_score, formatted_date, cert_type)
             shareable_link = box_api.generate_shareable_link(box_client, file_id)
@@ -499,10 +498,10 @@ def award_certificate(request):
                 ]
             }
             # "address": netid + "@byu.edu"
-
             token = outlook.get_token()
             message = outlook.create_message(token, data)
             outlook.send_message(token, message)
+
             date_obj = datetime.strptime(formatted_date, "%m/%d/%Y")
 
             month = date_obj.strftime("%B")
@@ -622,7 +621,6 @@ def award_certificate(request):
             "BYUID":byuid, "Major 1":major1, "Major 2":major2 ,"Major 3":major3,"Minor 1":minor1,"Minor 2":minor2,"Minor 3":minor3,"Language":language, 
             "OPI Rating":opi_score, "WPT Rating":wpt_score, "Semester Finished":yearterm, "Course 1":course1, "Course 2":course2, "Course 3":course3, "Other Courses":other_courses})
             filemaker_token = filemaker.login()
-            # it doesn't know the recordid
             filemaker.edit_record('CertificateStatus', 'Awarded', filemaker_token, record_id)
             filemaker.logout(filemaker_token)
             return JsonResponse({'message': 'Certificate awarded'})
@@ -932,6 +930,20 @@ def get_grid_schema(request):
     else:
         return JsonResponse({'message': 'User is not authenticated'}, status=401)
     
+@permission_classes([IsAuthenticated])
+@api_view(['GET'])
+def get_grid_example_search_csv(request):
+    if request.user.is_staff or request.user.is_superuser:
+        csv_file_path = settings.BASE_DIR / 'api' / 'schemas' / 'example_search.csv'
+        
+        with open(csv_file_path, 'r', encoding='utf-8') as csv_file:
+            file_content = csv_file.read()
+            response = HttpResponse(file_content, content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename="example_search.csv"'
+            return response
+    else:
+        return JsonResponse({'message': 'User is not authorized'}, status=401)
+    
 from rest_framework.permissions import AllowAny
 from django.contrib.auth import authenticate, login
 @ensure_csrf_cookie
@@ -1025,19 +1037,33 @@ def get_post_diagnostic_grid(request):
             to_date = data.get('toDate')
             csv_file = data.get('files')
 
-            ih_advanced_grid_results, al_advanced_grid_results, am_superior_grid_results, ah_superior_grid_results, total_results, s_counter, ih_insight_counters, al_insight_counters, am_insight_counters, ah_insight_counters = get_opic_diagnostic_grids(from_date, to_date, language, csv_file)
-            #print(am_superior_grid_results)
+            nl_intermediate_grid_results, nm_intermediate_grid_results, nh_intermediate_grid_results, il_advanced_grid_results, im_advanced_grid_results, ih_advanced_grid_results, al_advanced_grid_results, am_superior_grid_results, ah_superior_grid_results, nl_insight_counters, nm_insight_counters, nh_insight_counters, il_insight_counters, im_insight_counters, ih_insight_counters, al_insight_counters, am_insight_counters, ah_insight_counters, total_results, s_counter = get_opic_diagnostic_grids(from_date, to_date, language, csv_file)
+            print("nh_insight_counters", nh_insight_counters)
+            print("nh_intermediate_grid_results", nh_intermediate_grid_results)
+            print("im_advanced_grid_results", im_advanced_grid_results)
+            print("im_insight_counters", im_insight_counters)
+
             data = {
+                    'nl_intermediate_grid_results': nl_intermediate_grid_results,
+                    'nm_intermediate_grid_results': nm_intermediate_grid_results,
+                    'nh_intermediate_grid_results': nh_intermediate_grid_results,
+                    'il_advanced_grid_results': il_advanced_grid_results,
+                    'im_advanced_grid_results': im_advanced_grid_results,
                     'ih_advanced_grid_results': ih_advanced_grid_results,
                     'al_advanced_grid_results': al_advanced_grid_results,
                     'am_superior_grid_results': am_superior_grid_results,
                     'ah_superior_grid_results': ah_superior_grid_results,
-                    'total_results': total_results,
-                    'superior_count': s_counter,
+                    'nl_insight_details': nl_insight_counters,
+                    'nm_insight_details': nm_insight_counters,
+                    'nh_insight_details': nh_insight_counters,
+                    'il_insight_details': il_insight_counters,
+                    'im_insight_details': im_insight_counters,
                     'ih_insight_details': ih_insight_counters,
                     'al_insight_details': al_insight_counters,
                     'am_insight_details': am_insight_counters,
-                    'ah_insight_details': ah_insight_counters
+                    'ah_insight_details': ah_insight_counters,
+                    'total_results': total_results,
+                    'superior_count': s_counter,
                 }
             return JsonResponse(data, status=201)
         return JsonResponse({'message': 'No Valid Method'}, status=400)
