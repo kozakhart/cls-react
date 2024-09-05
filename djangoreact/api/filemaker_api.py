@@ -194,3 +194,13 @@ cannot_come, testdate1, testdate2, time1, time2, time3, time4, CertificateStatus
     print(record_id)
     return record_id
 
+if __name__ == "__main__":
+    token = login()
+    print(token)
+    logout(token)
+    #get_all(token)
+    #adaptive_find_record(token, FirstName = 'Bryce')
+    #delete_record('1', token)
+    #edit_record('FirstName', 'Bryce', token, '1')
+    #create_record('1', '1', '1', '1', '1', 'Bryce', 'Bryce
+

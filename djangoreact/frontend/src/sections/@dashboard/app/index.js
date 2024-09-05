@@ -9,3 +9,4 @@ export { default as AppCurrentSubject } from './AppCurrentSubject';
 export { default as AppConversionRates } from './AppConversionRates';
 export { default as AppRadarChart } from './AppRadarChart';
 export { default as DiagnosticGridReports } from './DiagnosticGridReports';
+export { default as DiagnosticGroupChart } from './DiagnosticGroupChart';

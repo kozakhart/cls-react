@@ -16,51 +16,84 @@ DiagnosticGridReports.propTypes = {
 };
 
 export default function DiagnosticGridReports({ title, subheader, chartData, details, total, ...other }) {
+  console.log('The chart data', chartData)
   const [selectedBarData, setSelectedBarData] = useState([]);
   const [selectedBarLabels, setSelectedBarLabels] = useState([]);
   const [sortOrder, setSortOrder] = useState('asc');
+  const [sortDetailOrder, setDetailSortOrder] = useState('asc');
+
   const [sortedData, setSortedData] = useState(chartData);
+  const [detailSortedData, setDetailSortedData] = useState([]);
   const [detailName, setDetailName] = useState('')
 const professionalColors = ['#f45f74','#8fd7d7', '#00b0be', '#ff8ca1', '#bdd373', '#98c127', '#ffcd8e', '#ffb255'];
-
-useEffect(() => {
-  console.log("SelectedBarData updated:", selectedBarData);
-}, [selectedBarData]);
-
-useEffect(() => {
-  console.log("SelectedBarLabels updated:", selectedBarLabels);
-}, [selectedBarLabels]);
 
 const handleDeselect = () => {
   setSelectedBarData([]);
   setSelectedBarLabels([]);
 };
 
-const handleSort = (order) => {
-  const sorted = Object.entries(sortedData)
+const handleDetailSort = (order, data) => {
+    const sorted = [...data].sort((a, b) => {
+        const numA = a.data[0];
+        const numB = b.data[0];
+        return order === 'asc' ? numA - numB : numB - numA;
+    });
+    setSelectedBarData(sorted);
+    setDetailSortOrder(order);
+};
+
+
+const handleSort = (order, data) => {
+  console.log('The data', data)
+  const sorted = Object.entries(data)
     .sort(([, a], [, b]) => {
-      // Ensure values are numbers
       const numA = Number(a);
       const numB = Number(b);
       return order === 'asc' ? numA - numB : numB - numA;
     })
     .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
-    
+
   setSortedData(sorted);
   setSortOrder(order);
 };
 
 
+const handleAlphabeticalSort = (order) => {
+  const sortOrderFACT = ['Function', 'Accuracy', 'Content', 'Text'];
+  const sortOrderTACT = ['Text', 'Accuracy', 'Content', 'Function'];
+
+  const sortOrder = order === 'asc' ? sortOrderFACT : sortOrderTACT;
+
+  const sorted = Object.entries(sortedData)
+    .sort(([keyA], [keyB]) => {
+      // Find the index of the primary category
+      const indexA = sortOrder.findIndex((word) => keyA.startsWith(word));
+      const indexB = sortOrder.findIndex((word) => keyB.startsWith(word));
+
+      // If in the same category, sort alphabetically within the category
+      if (indexA === indexB) {
+        return keyA.localeCompare(keyB);
+      }
+
+      // Otherwise, sort based on the category order
+      return indexA - indexB;
+    })
+    .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
+
+  setSortedData(sorted);
+  setSortOrder(order);
+};
+
   const chartLabels = [];
   const chartSeries = [];
-
-
-
 
 Object.entries(sortedData).forEach(([key, value]) => {
     chartLabels.push(key);
     chartSeries.push({ name: key, data:[value] });
   });
+
+  console.log('chartLabels', chartLabels);
+    console.log('chartSeries', chartSeries);
   
   const detailOptions = useChart({
   chart: {
@@ -116,7 +149,7 @@ Object.entries(sortedData).forEach(([key, value]) => {
     },
   },
   xaxis: {
-    categories: selectedBarLabels, // Keep this empty if you do not need labels
+    categories: selectedBarData.map(item => item.name),
     min: 0,
     max:1,
     
@@ -169,36 +202,32 @@ Object.entries(sortedData).forEach(([key, value]) => {
           // setSelectedBarLabels([]);
           const detailLabels = [];
           const formattedData = [];
+          const detailSortedData = []
 
           const detailName = opts.w.config.series[opts.seriesIndex].name;
           const barData = details[detailName];
           
-          console.log('detail', details)
-          console.log('detail name', detailName)
           setDetailName(detailName)
-          console.log('barData', barData)
 
         Object.entries(details).forEach(([key, value]) => {
             if (key === detailName) {
                 Object.entries(value).forEach(([key, value]) => {
                     formattedData.push({ name: key, data: [(value / total)] });
+                    detailSortedData[key] = value;
                 });
             }
         }     
         );
-          console.log("formatted", formattedData, "chart", chartSeries);
           
           Object.entries(formattedData).forEach(([key, value]) => {
-            console.log('key', key, 'value', value);
             detailLabels.push(value.name);
           });
           setSelectedBarLabels(detailLabels);
           setSelectedBarData(formattedData);
+          setDetailSortedData(detailSortedData);
+          
 
-          console.log('detailLabels', detailLabels, 'chartLabels', chartLabels);
-          // console.log(detailSeries[0].y);
-          // console.log(detailSeries.y);
-        },
+          },
         },
       toolbar: {
         show: true,
@@ -301,8 +330,11 @@ Object.entries(sortedData).forEach(([key, value]) => {
         <CardHeader title={title} subheader={subheader} />
         <Box sx={{ mx: 3 }} dir="ltr">
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-            <Button onClick={() => handleSort(sortOrder === 'asc' ? 'desc' : 'asc')}>
-              Sort {sortOrder === 'asc' ? 'Descending' : 'Ascending'}
+            <Button onClick={() => handleAlphabeticalSort(sortOrder === 'asc' ? 'desc' : 'asc')}>
+              FACT Sort
+            </Button>
+            <Button onClick={() => handleSort(sortOrder === 'asc' ? 'desc' : 'asc', sortedData)}>
+              Value Sort
             </Button>
           </Box>
           <ReactApexChart type="bar" series={chartSeries} options={chartOptions} height={364} />
@@ -310,12 +342,15 @@ Object.entries(sortedData).forEach(([key, value]) => {
             <div>
               <CardHeader title={`${detailName}`} />
               <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+                <Button onClick={() => handleDetailSort(sortDetailOrder === 'asc' ? 'desc' : 'asc', selectedBarData)}>
+                  Sort By Value
+                </Button>
                 <Button onClick={handleDeselect} color="error">
                   Deselect
                 </Button>
               </Box>
-                <ReactApexChart
-                key={selectedBarLabels.join(",") + selectedBarData.length}
+                 <ReactApexChart
+                 key={JSON.stringify(selectedBarData)}
                   type="bar"
                   series={selectedBarData}
                   options={detailOptions}

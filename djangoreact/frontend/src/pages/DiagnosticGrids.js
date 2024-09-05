@@ -5,16 +5,21 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 // @mui
 import '../theme/style.css'
+import MenuIcon from '@mui/icons-material/Menu';
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import {
   Card,
   Stack,
   Button,
   Container,
   Grid,
+  IconButton,
   Typography,
   TextField,
   InputLabel,
   MenuItem,
+  Menu,
   Box,
   Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle
 
@@ -27,7 +32,7 @@ import { format, parseISO } from 'date-fns';
 import DatePicker from 'react-datepicker';
 
 import { is } from 'date-fns/locale';
-import { DiagnosticGridReports } from '../sections/@dashboard/app';
+import { DiagnosticGridReports, DiagnosticGroupChart } from '../sections/@dashboard/app';
 import LoadingModal from '../components/loadingModal/LoadingModal';
 
 import Iconify from '../components/iconify';
@@ -49,27 +54,65 @@ export default function DiagnosticGrids() {
   const [endDate, setEndDate] = useState(new Date());
   const [languageOptions, setLanguageOptions] = useState([]);
   const [language, setLanguage] = useState('All');
+  const [testTypeOptions, setTestTypeOptions] = useState(['OPIc', 'OPI', 'WPT']);
+  const [testType, setTestType] = useState('OPIc');
   const [masterLoader, setMasterLoader] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState([]);
 
   const [allData, setAllData] = useState({})
-  const [amSuperiorData, setAMSuperiorData] = useState({});
   const [ahSuperiorData, setAHSuperiorData] = useState({});
+  const [amSuperiorData, setAMSuperiorData] = useState({});
   const [alAdvancedData, setALAdvancedData] = useState({});
   const [ihAdvancedData, setIHAdvancedData] = useState({});
+  const [imAdvancedData, setIMAdvancedData] = useState({});
+  const [ilAdvancedData, setILAdvancedData] = useState({});
+  const [nhIntermediateData, setNHIntermediateData] = useState({});
+  const [nmIntermediateData, setNMIntermediateData] = useState({});
+  const [nlIntermediateData, setNLIntermediateData] = useState({});
+
   const [superiorTotal, setSuperiorTotal] = useState(0);
 
   const [filteredAHSuperiorData, setFilteredAHSuperiorData] = useState({});
   const [filteredAMSuperiorData, setFilteredAMSuperiorData] = useState({});
   const [filteredALAdvancedData, setFilteredALAdvancedData] = useState({});
   const [filteredIHAdvancedData, setFilteredIHAdvancedData] = useState({});
+  const [filteredIMAdvancedData, setFilteredIMAdvancedData] = useState({});
+  const [filteredILAdvancedData, setFilteredILAdvancedData] = useState({});
+  const [filteredNHIntermediateData, setFilteredNHIntermediateData] = useState({});
+  const [filteredNMIntermediateData, setFilteredNMIntermediateData] = useState({});
+  const [filteredNLIntermediateData, setFilteredNLIntermediateData] = useState({});
 
+  const [nlInsightDetails, setNLInsightDetails] = useState({});
+  const [nmInsightDetails, setNMInsightDetails] = useState({});
+  const [nhInsightDetails, setNHInsightDetails] = useState({});
+  const [ilInsightDetails, setILInsightDetails] = useState({});
+  const [imInsightDetails, setIMInsightDetails] = useState({});
   const [ihInsightDetails, setIHInsightDetails] = useState({});
   const [alInsightDetails, setALInsightDetails] = useState({});
-  const [ahInsightDetails, setAHInsightDetails] = useState({});
   const [amInsightDetails, setAMInsightDetails] = useState({});
+  const [ahInsightDetails, setAHInsightDetails] = useState({});
+
+  const [viewByGridType, setViewByGridType] = useState(true);
 
   const [open, setOpen] = useState(false);
+
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleViewByGridType = () => {
+    setViewByGridType(!viewByGridType);
+  };
+
+  const handleTestTypeChange = (event) => {
+    setTestType(event.target.value);
+  };
+
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
 
   const handleOpen = () => {
     setOpen(true);
@@ -90,6 +133,34 @@ export default function DiagnosticGrids() {
     handleClose();
   };
 
+const getExampleCSVUrl = process.env.REACT_APP_GET_CSV_EXAMPLE_DIAGNOSTIC_GRIDS_URL;
+const downloadExampleCSV = () => {
+    const csrfToken = Cookies.get('csrftoken');
+    fetch(getExampleCSVUrl, {
+    method: 'GET',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': csrfToken,
+      }
+    }
+    )
+    .then(response => response.blob())
+    .then(blob => {
+      // Create a URL for the blob
+      const url = window.URL.createObjectURL(blob);
+      // Create an anchor (<a>) element with the URL
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'example.csv'; // Set the file name for the download
+      document.body.appendChild(a); // Append the anchor to the body
+      a.click(); // Simulate a click on the anchor to trigger the download
+      document.body.removeChild(a); // Clean up
+      window.URL.revokeObjectURL(url); // Release the object URL
+      handleMenuClose();
+    })
+    .catch(error => console.error('Error downloading the file:', error));
+  };
 const getSchemaUrl = process.env.REACT_APP_GET_GRID_SCHEMA_URL;
 const downloadSchema = () => {
   const csrfToken = Cookies.get('csrftoken');
@@ -113,6 +184,7 @@ const downloadSchema = () => {
       a.click(); // Simulate a click on the anchor to trigger the download
       document.body.removeChild(a); // Clean up
       window.URL.revokeObjectURL(url); // Release the object URL
+      handleMenuClose();
     })
     .catch(error => console.error('Error downloading the file:', error));
   };
@@ -155,10 +227,27 @@ const downloadSchema = () => {
           setAMSuperiorData({});
           setALAdvancedData({});
           setIHAdvancedData({});
+          setIMAdvancedData({});
+          setILAdvancedData({});
+          setNHIntermediateData({});
+          setNMIntermediateData({});
+          setNLIntermediateData({});
+
           setFilteredAHSuperiorData({});
           setFilteredALAdvancedData({});
           setFilteredAMSuperiorData({});
           setFilteredIHAdvancedData({});
+          setFilteredIMAdvancedData({});
+          setFilteredILAdvancedData({});
+          setFilteredNHIntermediateData({});
+          setFilteredNMIntermediateData({});
+          setFilteredNLIntermediateData({});
+
+          setNLInsightDetails({});
+          setNMInsightDetails({});
+          setNHInsightDetails({});
+          setILInsightDetails({});
+          setIMInsightDetails({});
           setIHInsightDetails({});
           setALInsightDetails({});
           setAMInsightDetails({});
@@ -193,39 +282,92 @@ const downloadSchema = () => {
           );
           console.log(response.data);
           setAllData(response.data)
-          setAMSuperiorData(response.data.am_superior_grid_results);
-          const filteredAMSuperiorData = Object.fromEntries(
-            Object.entries(response.data.am_superior_grid_results).filter(([key, value]) => typeof value === 'number' && (value % 1 !== 0 || value === 0 || value === 1.0))
-          );
-          setFilteredAMSuperiorData(filteredAMSuperiorData);
-
+          
           setAHSuperiorData(response.data.ah_superior_grid_results);
           const filteredAHSuperiorData = Object.fromEntries(
-            Object.entries(response.data.ah_superior_grid_results).filter(([key, value]) => typeof value === 'number' && (value % 1 !== 0 || value === 0 || value === 1.0))
-          );
+            Object.entries(response.data.ah_superior_grid_results).filter(([key, value]) => typeof value === 'number' && (value % 1 !== 0 || value === 0 || value === 1.0 &&
+            key !== 'Total People' && 
+            key !== 'Total Function Count'))
+            );
           setFilteredAHSuperiorData(filteredAHSuperiorData);
 
-        setALAdvancedData(response.data.al_advanced_grid_results);
-        const filteredALAdvancedData = Object.fromEntries(
-          Object.entries(response.data.al_advanced_grid_results).filter(([key, value]) => typeof value === 'number' && (value % 1 !== 0 || value === 0 || value === 1.0))
-        );
-        setFilteredALAdvancedData(filteredALAdvancedData);
+          setAMSuperiorData(response.data.am_superior_grid_results);
+          const filteredAMSuperiorData = Object.fromEntries(
+            Object.entries(response.data.am_superior_grid_results).filter(([key, value]) => typeof value === 'number' && (value % 1 !== 0 || value === 0 || value === 1.0 &&
+            key !== 'Total People' && 
+            key !== 'Total Function Count' &&
+            key !== 'Total People' && 
+            key !== 'Total Function Count'))
+            );
+          setFilteredAMSuperiorData(filteredAMSuperiorData);
 
-        setIHAdvancedData(response.data.ih_advanced_grid_results);
-        const filteredIHAdvancedData = Object.fromEntries(
-          Object.entries(response.data.ih_advanced_grid_results).filter(([key, value]) => typeof value === 'number' && (value % 1 !== 0 || value === 0 || value === 1.0))
-        );
-        setFilteredIHAdvancedData(filteredIHAdvancedData);
-        setSuperiorTotal(response.data.superior_count)
+          setALAdvancedData(response.data.al_advanced_grid_results);
+          const filteredALAdvancedData = Object.fromEntries(
+            Object.entries(response.data.al_advanced_grid_results).filter(([key, value]) => typeof value === 'number' && (value % 1 !== 0 || value === 0 || value === 1.0 &&
+            key !== 'Total People' && 
+            key !== 'Total Function Count'))
+            );
+          setFilteredALAdvancedData(filteredALAdvancedData);
 
-        setIHInsightDetails(response.data.ih_insight_details);
-        setALInsightDetails(response.data.al_insight_details);
-        setAHInsightDetails(response.data.ah_insight_details);
-        setAMInsightDetails(response.data.am_insight_details);
-        console.log('Filter=', filteredAMSuperiorData, filteredAHSuperiorData, filteredALAdvancedData, filteredIHAdvancedData);
-        // console.log('Details=', ihInsightDetails, alInsightDetails, ahInsightDetails, amInsightDetails);
-        console.log('Details=', ahInsightDetails);
+          setIHAdvancedData(response.data.ih_advanced_grid_results);
+          const filteredIHAdvancedData = Object.fromEntries(
+            Object.entries(response.data.ih_advanced_grid_results).filter(([key, value]) => typeof value === 'number' && (value % 1 !== 0 || value === 0 || value === 1.0 &&
+            key !== 'Total People' && 
+            key !== 'Total Function Count'))
+            );
+          setFilteredIHAdvancedData(filteredIHAdvancedData);
+          setSuperiorTotal(response.data.superior_count)
 
+          setIMAdvancedData(response.data.im_advanced_grid_results);
+          const filteredIMAdvancedData = Object.fromEntries(
+            Object.entries(response.data.im_advanced_grid_results).filter(([key, value]) => typeof value === 'number' && (value % 1 !== 0 || value === 0 || value === 1.0 &&
+            key !== 'Total People' && 
+            key !== 'Total Function Count'))
+            );
+          setFilteredIMAdvancedData(filteredIMAdvancedData);
+
+          setILAdvancedData(response.data.il_advanced_grid_results);
+          const filteredILAdvancedData = Object.fromEntries(
+            Object.entries(response.data.il_advanced_grid_results).filter(([key, value]) => typeof value === 'number' && (value % 1 !== 0 || value === 0 || value === 1.0 &&
+            key !== 'Total People' && 
+            key !== 'Total Function Count'))
+            );
+          setFilteredILAdvancedData(filteredILAdvancedData);
+
+          setNLIntermediateData(response.data.nl_intermediate_grid_results);
+          const filteredNLIntermediateData = Object.fromEntries(
+            Object.entries(response.data.nl_intermediate_grid_results).filter(([key, value]) => typeof value === 'number' && (value % 1 !== 0 || value === 0 || value === 1.0 &&
+            key !== 'Total People' && 
+            key !== 'Total Function Count'))
+            );
+          setFilteredNLIntermediateData(filteredNLIntermediateData);
+
+          setNMIntermediateData(response.data.nm_intermediate_grid_results);
+          const filteredNMIntermediateData = Object.fromEntries(
+            Object.entries(response.data.nm_intermediate_grid_results).filter(([key, value]) => typeof value === 'number' && (value % 1 !== 0 || value === 0 || value === 1.0 &&
+            key !== 'Total People' && 
+            key !== 'Total Function Count'))
+            );
+          setFilteredNMIntermediateData(filteredNMIntermediateData);
+
+          setNHIntermediateData(response.data.nh_intermediate_grid_results);
+          const filteredNHIntermediateData = Object.fromEntries(
+            Object.entries(response.data.nh_intermediate_grid_results).filter(([key, value]) => typeof value === 'number' && (value % 1 !== 0 || value === 0 || value === 1.0 &&
+            key !== 'Total People' && 
+            key !== 'Total Function Count'))
+            );
+          setFilteredNHIntermediateData(filteredNHIntermediateData);
+
+          setNLInsightDetails(response.data.nl_insight_details);
+          setNMInsightDetails(response.data.nm_insight_details);
+          setNHInsightDetails(response.data.nh_insight_details);
+          setILInsightDetails(response.data.il_insight_details);
+          setIMInsightDetails(response.data.im_insight_details);
+          setIHInsightDetails(response.data.ih_insight_details);
+          setALInsightDetails(response.data.al_insight_details);
+          setAMInsightDetails(response.data.am_insight_details);
+          setAHInsightDetails(response.data.ah_insight_details);
+        console.log('Filter=', filteredAMSuperiorData, filteredAHSuperiorData, filteredALAdvancedData, filteredIHAdvancedData, filteredIMAdvancedData, filteredILAdvancedData, filteredNHIntermediateData, filteredNMIntermediateData, filteredNLIntermediateData);
         setMasterLoader(false);
 
       } catch (error) {
@@ -253,20 +395,12 @@ const downloadSchema = () => {
                   gap: '0.5rem' // Space between buttons
                 }}
               >
-                <Button
-                  variant="contained"
-                  color="primary"
-                  title="Select the CSV File that you want to upload"
-                  onClick={handleOpen}
-                >
-                Upload CSV
-                </Button>
               <Dialog open={open}>
                 <DialogTitle>Upload Notification</DialogTitle>
                 <DialogContent>
                   <DialogContentText>
-                    Please select a CSV file with the following columns:<br/>
-                    <strong>First Name, Last Name</strong> <br/>
+                    This is an optional step. Please select a CSV file with the following columns:<br/>
+                    <strong>First Name, Last Name, BYU ID</strong> <br/>
                   </DialogContentText>
                 </DialogContent>
                 <DialogActions>
@@ -304,33 +438,78 @@ const downloadSchema = () => {
                 </DialogActions>
               </Dialog>
 
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={downloadSchema}
-            >
-              Download Database Schema
-            </Button>
+            <div>
+              <Button
+                variant="contained"
+                color="primary"
+                aria-label="menu"
+                onClick={handleMenuOpen}
+              >
+                Additional Resources
+                <MenuIcon sx={{marginLeft:1}} />
+              </Button>
+              <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleMenuClose}
+                    anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'right',
+                  }}
+                  transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                  }}
+              >
+                <MenuItem onClick={downloadSchema}>
+                  <Button
+                    variant="text"
+                    color="primary"
+                    sx={{
+                      width: "100%",
+                      '&:hover': {
+                        backgroundColor: 'transparent', // Removes the background color on hover
+                      },
+                    }}
+                  >
+                    Download Database Schema
+                  </Button>
+                </MenuItem>
+                <MenuItem onClick={downloadExampleCSV}>
+                  <Button
+                    variant="text"
+                    color="primary"
+                    sx={{
+                      width: "100%",
+                      '&:hover': {
+                        backgroundColor: 'transparent', // Removes the background color on hover
+                      },
+                    }}
+                  >
+                    Download Example CSV
+                  </Button>
+                </MenuItem>
+              </Menu>
+            </div>
             </Box>
           </Box>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginRight: "1vw" }}>
-              {selectedFiles.length > 0 && selectedFiles.map((file, index) => (
-                <div key={index} style={{ marginRight: "1vw" }}>
-                  <Typography variant="caption">
-                    Uploaded File: {file.name}
-                  </Typography>
-                  <Button
-                    variant=""
-                    color="primary"
-                    size="small"
-                    style={{ marginLeft: '1vw' }}
-                    onClick={() => setSelectedFiles([])} // Use a function here
-                  >
-                    Clear
-                  </Button>
-                </div>
-              ))}
-            </div>
+
+          <Stack direction="column" sx={{padding:'1vw'}}>
+            <InputLabel id="demo-simple-select-label">Test Type</InputLabel>
+                  <Select
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      value={testType}
+                      label="Test Type"
+                      onChange={handleTestTypeChange}
+                      sx={{width: "60%"}}
+                  > 
+                    {testTypeOptions.map((test, index) => (
+                      <MenuItem key={index} value={test}>{test}</MenuItem>
+                    ))}
+                    
+                  </Select>
+          </Stack>
           <Stack direction="column" sx={{padding:'1vw'}}>
             <InputLabel id="demo-simple-select-label">Language</InputLabel>
                   <Select
@@ -374,11 +553,39 @@ const downloadSchema = () => {
                 />
               </Box>
           </Stack>
+                      <div style={{ display: 'flex', justifyContent: 'flex-end', marginRight: "1vw" }}>
+              {selectedFiles.length > 0 && selectedFiles.map((file, index) => (
+                <div key={index} style={{ marginRight: "1vw" }}>
+                  <Typography variant="caption">
+                    Uploaded File: {file.name}
+                  </Typography>
+                  <Button
+                    variant="text"
+                    color="error"
+                    size="small"
+                    style={{ marginLeft: '1vw' }}
+                    onClick={() => setSelectedFiles([])} // Use a function here
+                  >
+                    Clear
+                  </Button>
+                </div>
+              ))}
+            </div>
           <Stack direction="row"  sx={{padding:'1vw', justifyContent:'right'
           }}>
+
             {/* <Typography variant="caption">
               {selectedFiles.length} file(s) selected
             </Typography> */}
+                <Button
+                  variant="contained"
+                  color="primary"
+                  title="Select the CSV File that you want to upload"
+                  onClick={handleOpen}
+                  sx={{marginRight: "1vw"}}
+                >
+                Upload CSV
+                </Button>
                 <Button variant="contained" startIcon={<Iconify icon="eva:arrow-circle-down-outline" />} onClick={sendInfo}>
                     Generate Reports
               </Button>
@@ -395,9 +602,19 @@ const downloadSchema = () => {
               </div>
               Superior Score Total = {superiorTotal}
             </Card>
+          <FormControlLabel
+            control={<Checkbox />}
+            label="Group Grid Types"
+            sx={{marginLeft:"1vw"}}
+            onChange={handleViewByGridType}
+          />
           </Grid>
           )
-        }
+        } 
+        {viewByGridType ? (
+        <>
+        
+
         {Object.keys(filteredAHSuperiorData).length > 0 &&(
           <Grid item xs={6} md={8} lg={12} sx={{marginTop:"2vw"}}>
                   <DiagnosticGridReports
@@ -482,10 +699,137 @@ const downloadSchema = () => {
           </Grid>
           )
         }
-
+        {Object.keys(filteredIMAdvancedData).length > 0 &&(
+          <Grid item xs={6} md={8} lg={12} sx={{marginTop:"2vw"}}>
+                  <DiagnosticGridReports
+                    title={
+                        <>
+                          <div>{language} Intermediate Mid (Sample Size = {imAdvancedData['Total People']} Students)</div>
+                          <div>Advanced Diagnostic Grid</div>
+                        </>
+                      }
+                    subheader={
+                        <>
+                          <div>What features do examinees need to improve to reach the Superior level?</div>
+                        </>
+                      }
+                    chartData={filteredIMAdvancedData} 
+                    details={imInsightDetails}
+                    total={imAdvancedData['Total People']}
+                  />
+          </Grid>
+          )
+        }
+        {Object.keys(filteredILAdvancedData).length > 0 &&(
+          <Grid item xs={6} md={8} lg={12} sx={{marginTop:"2vw"}}>
+                  <DiagnosticGridReports
+                    title={
+                        <>
+                          <div>{language} Intermediate Low (Sample Size = {ilAdvancedData['Total People']} Students)</div>
+                          <div>Advanced Diagnostic Grid</div>
+                        </>
+                      }
+                    subheader={
+                        <>
+                          <div>What features do examinees need to improve to reach the Superior level?</div>
+                        </>
+                      }
+                    chartData={filteredILAdvancedData} 
+                    details={ilInsightDetails}
+                    total={ilAdvancedData['Total People']}
+                  />
+          </Grid>
+          )
+        }
+        {Object.keys(filteredNHIntermediateData).length > 0 &&(
+          <Grid item xs={6} md={8} lg={12} sx={{marginTop:"2vw"}}>
+                  <DiagnosticGridReports
+                    title={
+                        <>
+                          <div>{language} Novice High (Sample Size = {nhIntermediateData['Total People']} Students)</div>
+                          <div>Intermediate Diagnostic Grid</div>
+                        </>
+                      }
+                    subheader={
+                        <>
+                          <div>What features do examinees need to improve to reach the Superior level?</div>
+                        </>
+                      }
+                    chartData={filteredNHIntermediateData} 
+                    details={nhInsightDetails}
+                    total={nhIntermediateData['Total People']}
+                  />
+          </Grid>
+          )
+        }
+        {Object.keys(filteredNMIntermediateData).length > 0 &&(
+          <Grid item xs={6} md={8} lg={12} sx={{marginTop:"2vw"}}>
+                  <DiagnosticGridReports
+                    title={
+                        <>
+                          <div>{language} Novice Mid (Sample Size = {nmIntermediateData['Total People']} Students)</div>
+                          <div>Intermediate Diagnostic Grid</div>
+                        </>
+                      }
+                    subheader={
+                        <>
+                          <div>What features do examinees need to improve to reach the Superior level?</div>
+                        </>
+                      }
+                    chartData={filteredNMIntermediateData} 
+                    details={nmInsightDetails}
+                    total={nmIntermediateData['Total People']}
+                  />
+          </Grid>
+          )
+        }
+        {Object.keys(filteredNLIntermediateData).length > 0 &&(
+          <Grid item xs={6} md={8} lg={12} sx={{marginTop:"2vw"}}>
+                  <DiagnosticGridReports
+                    title={
+                        <>
+                          <div>{language} Novice Low (Sample Size = {nlIntermediateData['Total People']} Students)</div>
+                          <div>Intermediate Diagnostic Grid</div>
+                        </>
+                      }
+                    subheader={
+                        <>
+                          <div>What features do examinees need to improve to reach the Superior level?</div>
+                        </>
+                      }
+                    chartData={filteredNLIntermediateData} 
+                    details={nlInsightDetails}
+                    total={nlIntermediateData['Total People']}
+                  />
+          </Grid>
+          )
+        }
+      
+      </>
+      ) : (
+        <Grid item xs={6} md={8} lg={12} sx={{marginTop:"2vw"}}>
+                  <DiagnosticGroupChart
+                    title={
+                        <>
+                          <div>{language} Test</div>
+                          <div>Grouped Superior Diagnostic Grids</div>
+                        </>
+                      }
+                    subheader={
+                        <>
+                          <div>What features do examinees need to improve to reach the Superior level?</div>
+                        </>
+                      }
+                    chartData={[filteredAHSuperiorData, filteredAMSuperiorData]} 
+                    details={nlInsightDetails}
+                    total={nlIntermediateData['Total People']}
+                  />
+          </Grid>
+      )
+      }
       </Grid>
         
-    
+      
 
     
     </>

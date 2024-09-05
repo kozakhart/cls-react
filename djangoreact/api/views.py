@@ -1042,7 +1042,7 @@ def get_post_diagnostic_grid(request):
             print("nh_intermediate_grid_results", nh_intermediate_grid_results)
             print("im_advanced_grid_results", im_advanced_grid_results)
             print("im_insight_counters", im_insight_counters)
-
+            print('ah_superior_grid_results', ah_superior_grid_results)
             data = {
                     'nl_intermediate_grid_results': nl_intermediate_grid_results,
                     'nm_intermediate_grid_results': nm_intermediate_grid_results,

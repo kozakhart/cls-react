@@ -24,7 +24,6 @@ urlpatterns = [
     path('qualtrics-report/', views.qualtrics_reports, name='qualtrics-reports'),
     path('laser-database/', views.laser_data, name='laser-data'),
     path('get-db-schema/', views.get_db_schema, name='get-db-schema'),
-    path('get-grid-schema/', views.get_grid_schema, name='get-grid-schema'),
 
     ############################## LASER Queries ##############################
     path('laser-queries/', views.get_post_laser_queries, name='get-laser-queries'),
@@ -33,4 +32,8 @@ urlpatterns = [
     ############################## Diagnostic Grid Reports ##############################
     path('diagnostic-grid-report/', views.get_post_diagnostic_grid, name='post-diagnostic-grid'),
     path('diagnostic-grid-report/get-data/', views.get_post_diagnostic_grid, name='get-diagnostic-grid'),
+    path('diagnostic-grid-report/get-csv-example/', views.get_grid_example_search_csv, name='get-search-csv-example'),
+    path('diagnostic-grid-report/get-grid-schema/', views.get_grid_schema, name='get-grid-schema'),
+
+
 ]
