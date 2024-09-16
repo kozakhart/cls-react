@@ -3,7 +3,6 @@ from requests.structures import CaseInsensitiveDict
 from datetime import datetime
 from collections import defaultdict
 import csv
-import copy
 
 def get_opic_scores(firstname, lastname):
     todays_date = datetime.now()
@@ -416,7 +415,7 @@ def get_opic_diagnostic_grids(fromDate, toDate, language, csv_file):
                                 'Function: Linguistically Unfamiliar Topics or Situations': {key: ah_insight_counters[key] for key in linguistically_unfamiliar_topics_or_situations},
                                 'Accuracy: Grammar': {key: ah_insight_counters[key] for key in superior_grammar_accuracy},
                                 'Accuracy: Other': {key: ah_insight_counters[key] for key in other_accuracy},
-                                'Content: Pronunciation': {key: ah_insight_counters[key] for key in superior_pronunciation},
+                                'Accuracy: Pronunciation': {key: ah_insight_counters[key] for key in superior_pronunciation},
                                 'Content: Sociolinguistic Competency': {key: ah_insight_counters[key] for key in sociolinguistic_competency},
                                 'Text Type': {key: ah_insight_counters[key] for key in superior_text_type}
                             }
@@ -435,7 +434,7 @@ def get_opic_diagnostic_grids(fromDate, toDate, language, csv_file):
                                 'Function: Linguistically Unfamiliar Topics or Situations': {key: am_insight_counters[key] for key in linguistically_unfamiliar_topics_or_situations},
                                 'Accuracy: Grammar': {key: am_insight_counters[key] for key in superior_grammar_accuracy},
                                 'Accuracy: Other': {key: am_insight_counters[key] for key in other_accuracy},
-                                'Content: Pronunciation': {key: am_insight_counters[key] for key in superior_pronunciation},
+                                'Accuracy: Pronunciation': {key: am_insight_counters[key] for key in superior_pronunciation},
                                 'Content: Sociolinguistic Competency': {key: am_insight_counters[key] for key in sociolinguistic_competency},
                                 'Text Type': {key: am_insight_counters[key] for key in superior_text_type}
                             }
@@ -666,6 +665,9 @@ def get_opic_diagnostic_grids(fromDate, toDate, language, csv_file):
         nm_counts = [d["Total Function Count"] for d in nm_data]
         nl_counts = [d["Total Function Count"] for d in nl_data]
 
+        # the equation is total functions found / (total people * number of function topics)
+        # the denominator is the max total functions that could be found
+        # the numerator is the total functions actually found
         if ah_counts:
             ah_normalized_counts = [function_data['Total Function Count'] / (function_data['Total People'] * function_data['Number of Function Topics']) for function_data in ah_data]
             ah_normalized_count_dict = {d["Function Name"]: ah_normalized_counts[i] for i, d in enumerate(ah_data)}
