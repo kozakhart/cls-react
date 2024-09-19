@@ -20,3 +20,4 @@ djangoreact/node_modules/
 # Ignore Excel files
 *.xlsx
 djangoreact/frontend/package.json
+node_modules/

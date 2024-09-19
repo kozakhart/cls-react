@@ -1,13 +1,18 @@
 import { Helmet } from 'react-helmet-async';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import JSZip from 'jszip';
+import html2canvas from 'html2canvas';
 // @mui
+import ApexCharts from 'apexcharts';
 import '../theme/style.css'
 import MenuIcon from '@mui/icons-material/Menu';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import jsPDF from 'jspdf';
+
 import {
   Card,
   Stack,
@@ -132,6 +137,50 @@ export default function DiagnosticGrids() {
     setSelectedFiles(filesArray);
     handleClose();
   };
+
+  const chartRefs = useRef([]);
+
+const handleExportAllCharts = async () => {
+    const screenshotPromises = [];
+
+    // Loop through each chart ref and create a screenshot promise
+    chartRefs.current.forEach((chartDiv) => {
+      if (chartDiv) {
+        screenshotPromises.push(
+          html2canvas(chartDiv).then((canvas) => canvas.toDataURL('image/png'))
+        );
+      }
+    });
+
+    // Resolve all screenshot promises concurrently
+    const screenshotUrls = await Promise.all(screenshotPromises);
+
+    // Initialize jsPDF document
+    const pdf = jsPDF({
+      orientation: 'landscape', // Use 'landscape' if needed
+      unit: 'px',
+      format: [1110, 364]
+    });
+
+    // Add each screenshot as a new page
+    screenshotUrls.forEach((imgData, index) => {
+      // If it's not the first page, add a new page
+      if (index > 0) {
+        pdf.addPage();
+      }
+      // Add the image to the PDF document
+      pdf.addImage(imgData, 'PNG', 0, 0, 1110, 364); // Adjust coordinates and size as needed
+    });
+
+    // Save the PDF document
+    pdf.save('charts.pdf');
+  };
+
+
+
+
+
+
 
 const getExampleCSVUrl = process.env.REACT_APP_GET_CSV_EXAMPLE_DIAGNOSTIC_GRIDS_URL;
 const downloadExampleCSV = () => {
@@ -608,6 +657,8 @@ const downloadSchema = () => {
             sx={{marginLeft:"1vw"}}
             onChange={handleViewByGridType}
           />
+          <Button onClick={handleExportAllCharts}>Export All Charts as PDF</Button>
+
           </Grid>
           )
         } 
@@ -617,6 +668,7 @@ const downloadSchema = () => {
 
         {Object.keys(filteredAHSuperiorData).length > 0 &&(
           <Grid item xs={6} md={8} lg={12} sx={{marginTop:"2vw"}}>
+            <div ref={(el) => { chartRefs.current[0] = el; }}>
                   <DiagnosticGridReports
                     title={
                         <>
@@ -633,11 +685,13 @@ const downloadSchema = () => {
                     details={ahInsightDetails}
                     total={ahSuperiorData['Total People']}
                   />
+            </div>
           </Grid>
           )
         }
         {Object.keys(filteredAMSuperiorData).length > 0 &&(
           <Grid item xs={6} md={8} lg={12} sx={{marginTop:"2vw"}}>
+            <div ref={(el) => { chartRefs.current[1] = el; }}>
                   <DiagnosticGridReports
                     title={
                         <>
@@ -654,11 +708,14 @@ const downloadSchema = () => {
                     details={amInsightDetails}
                     total={amSuperiorData['Total People']}
                   />
+            </div>
           </Grid>
           )
         }
         {Object.keys(filteredALAdvancedData).length > 0 &&(
           <Grid item xs={6} md={8} lg={12} sx={{marginTop:"2vw"}}>
+            <div ref={(el) => { chartRefs.current[2] = el; }}>
+
                   <DiagnosticGridReports
                     title={
                         <>
@@ -675,11 +732,13 @@ const downloadSchema = () => {
                     details={alInsightDetails}
                     total={alAdvancedData['Total People']}
                   />
+            </div>
           </Grid>
           )
         }
         {Object.keys(filteredIHAdvancedData).length > 0 &&(
           <Grid item xs={6} md={8} lg={12} sx={{marginTop:"2vw"}}>
+            <div ref={(el) => { chartRefs.current[3] = el; }}>
                   <DiagnosticGridReports
                     title={
                         <>
@@ -696,11 +755,13 @@ const downloadSchema = () => {
                     details={ihInsightDetails}
                     total={ihAdvancedData['Total People']}
                   />
+            </div>
           </Grid>
           )
         }
         {Object.keys(filteredIMAdvancedData).length > 0 &&(
           <Grid item xs={6} md={8} lg={12} sx={{marginTop:"2vw"}}>
+            <div ref={(el) => { chartRefs.current[4] = el; }}>
                   <DiagnosticGridReports
                     title={
                         <>
@@ -717,11 +778,13 @@ const downloadSchema = () => {
                     details={imInsightDetails}
                     total={imAdvancedData['Total People']}
                   />
+            </div>
           </Grid>
           )
         }
         {Object.keys(filteredILAdvancedData).length > 0 &&(
           <Grid item xs={6} md={8} lg={12} sx={{marginTop:"2vw"}}>
+            <div ref={(el) => { chartRefs.current[5] = el; }}>
                   <DiagnosticGridReports
                     title={
                         <>
@@ -738,11 +801,13 @@ const downloadSchema = () => {
                     details={ilInsightDetails}
                     total={ilAdvancedData['Total People']}
                   />
+            </div>
           </Grid>
           )
         }
         {Object.keys(filteredNHIntermediateData).length > 0 &&(
           <Grid item xs={6} md={8} lg={12} sx={{marginTop:"2vw"}}>
+              <div ref={(el) => { chartRefs.current[6] = el; }}>
                   <DiagnosticGridReports
                     title={
                         <>
@@ -759,11 +824,13 @@ const downloadSchema = () => {
                     details={nhInsightDetails}
                     total={nhIntermediateData['Total People']}
                   />
+              </div>
           </Grid>
           )
         }
         {Object.keys(filteredNMIntermediateData).length > 0 &&(
           <Grid item xs={6} md={8} lg={12} sx={{marginTop:"2vw"}}>
+            <div ref={(el) => { chartRefs.current[7] = el; }}>            
                   <DiagnosticGridReports
                     title={
                         <>
@@ -780,11 +847,13 @@ const downloadSchema = () => {
                     details={nmInsightDetails}
                     total={nmIntermediateData['Total People']}
                   />
+            </div>
           </Grid>
           )
         }
         {Object.keys(filteredNLIntermediateData).length > 0 &&(
           <Grid item xs={6} md={8} lg={12} sx={{marginTop:"2vw"}}>
+            <div ref={(el) => { chartRefs.current[8] = el; }}>
                   <DiagnosticGridReports
                     title={
                         <>
@@ -801,6 +870,7 @@ const downloadSchema = () => {
                     details={nlInsightDetails}
                     total={nlIntermediateData['Total People']}
                   />
+            </div>
           </Grid>
           )
         }
@@ -808,6 +878,8 @@ const downloadSchema = () => {
       </>
       ) : (
         <Grid item xs={6} md={8} lg={12} sx={{marginTop:"2vw"}}>
+          <div ref={(el) => { chartRefs.current[9] = el; }}>
+
                   <DiagnosticGroupChart
                     title={
                         <>
@@ -824,6 +896,7 @@ const downloadSchema = () => {
                     details={nlInsightDetails}
                     total={nlIntermediateData['Total People']}
                   />
+          </div>
           </Grid>
       )
       }
