@@ -518,7 +518,7 @@ const downloadSchema = () => {
                 <DialogContent>
                   <DialogContentText>
                     This is an optional step. Please select a CSV file with the following columns:<br/>
-                    <strong>First Name, Last Name, BYU ID</strong> <br/>
+                    <strong>First Name, Last Name</strong> <br/>
                   </DialogContentText>
                 </DialogContent>
                 <DialogActions>
