@@ -15,7 +15,7 @@ DiagnosticGroupChart.propTypes = {
   chartData: PropTypes.array.isRequired,
 };
 
-export default function DiagnosticGroupChart({ title, subheader, chartData = [], details, total, ...other }) {
+export default function DiagnosticGroupChart({ title, subheader, testTypes = [], chartData = [], details, total, ...other }) {
     console.log('chartData for group', chartData);
   const [sortedData, setSortedData] = useState(chartData);
     
@@ -28,8 +28,22 @@ export default function DiagnosticGroupChart({ title, subheader, chartData = [],
 //     chartLabels.push(key);
 //     chartSeries.push({ name: key, data:[value] });
 //   });
-const seriesMap = {};
 
+const maxLength = Math.max(...chartData.map(item => Object.values(item).length));
+
+const series = chartData.map((item, index) => {
+  // Convert object to array and pad with 0s if necessary
+  const data = Object.values(item);
+  const paddedData = [...data, ...Array(maxLength - data.length).fill(0)];
+
+  return {
+    data: paddedData,
+    name: testTypes[index], // Set the corresponding testType as the name
+  };
+});
+
+const seriesMap = {};
+console.log(chartData);
 chartData.forEach(dataObject => {
     Object.entries(dataObject).forEach(([key, value]) => {
         if (!seriesMap[key]) {
@@ -131,7 +145,6 @@ const chartSeries = Object.keys(seriesMap).map(name => ({
         horizontal: true,
         barHeight: '99%',
         borderRadius: 2,
-        
       },
     },
     xaxis: {
@@ -149,10 +162,11 @@ const chartSeries = Object.keys(seriesMap).map(name => ({
       showAlways: false,
       showEmpty: false,
       labels: {
+        
       },
     },
-    // fill: professionalColors,
-  // colors: professionalColors,
+    fill: professionalColors,
+    colors: professionalColors,
       legend: {
       show: true,
       position: 'bottom',
@@ -167,7 +181,7 @@ const chartSeries = Object.keys(seriesMap).map(name => ({
         height: 10,
         strokeWidth: 0,
         strokeColor: '#fff',
-  //     fillColors: professionalColors, // Set marker colors
+        fillColors: professionalColors, // Set marker colors
       },
       itemMargin: {
         horizontal: 10,
@@ -191,7 +205,7 @@ const chartSeries = Object.keys(seriesMap).map(name => ({
               Value Sort
             </Button>
           </Box> */}
-          <ReactApexChart type="bar" series={chartSeries} options={chartOptions} height={364} />
+          <ReactApexChart type="bar" series={series} options={chartOptions} height={364} />
           {/* {selectedBarData && selectedBarData.length > 0 && (
             <div>
               <CardHeader title={`${detailName}`} />

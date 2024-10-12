@@ -18,6 +18,8 @@ from rest_framework import status, permissions, views
 import os
 from rest_framework import generics
 import zipfile
+import base64
+from io import StringIO
 
 from .models import Students, LASER_Queries, OPIc_Diagnostic_Grid_Languages
 from .serializers import StudentSerializer, LASER_QueriesSerializer, ProgramSerializer, OPIcLanguageSerializer
@@ -1018,7 +1020,7 @@ def delete_laser_queries(request, pk):
         return JsonResponse({'message': 'User is not authenticated'}, status=401)
 
 
-from .lti_grid_api import get_opic_diagnostic_grids
+from .lti_grid_api import get_opic_diagnostic_grids, get_opi_comments
 
 @permission_classes([IsAuthenticated])
 @api_view(['POST', 'GET'])
@@ -1036,35 +1038,78 @@ def get_post_diagnostic_grid(request):
             from_date = data.get('fromDate')
             to_date = data.get('toDate')
             csv_file = data.get('files')
+            test_type = data.get('testType')
+            
+            if test_type == 'OPIc':
+                nl_intermediate_grid_results, nm_intermediate_grid_results, nh_intermediate_grid_results, il_advanced_grid_results, im_advanced_grid_results, ih_advanced_grid_results, al_advanced_grid_results, am_superior_grid_results, ah_superior_grid_results, nl_insight_counters, nm_insight_counters, nh_insight_counters, il_insight_counters, im_insight_counters, ih_insight_counters, al_insight_counters, am_insight_counters, ah_insight_counters, total_results, s_counter, missing_candidates = get_opic_diagnostic_grids(from_date, to_date, language, csv_file)
 
-            nl_intermediate_grid_results, nm_intermediate_grid_results, nh_intermediate_grid_results, il_advanced_grid_results, im_advanced_grid_results, ih_advanced_grid_results, al_advanced_grid_results, am_superior_grid_results, ah_superior_grid_results, nl_insight_counters, nm_insight_counters, nh_insight_counters, il_insight_counters, im_insight_counters, ih_insight_counters, al_insight_counters, am_insight_counters, ah_insight_counters, total_results, s_counter = get_opic_diagnostic_grids(from_date, to_date, language, csv_file)
-            print("nh_insight_counters", nh_insight_counters)
-            print("nh_intermediate_grid_results", nh_intermediate_grid_results)
-            print("im_advanced_grid_results", im_advanced_grid_results)
-            print("im_insight_counters", im_insight_counters)
-            print('ah_superior_grid_results', ah_superior_grid_results)
-            data = {
-                    'nl_intermediate_grid_results': nl_intermediate_grid_results,
-                    'nm_intermediate_grid_results': nm_intermediate_grid_results,
-                    'nh_intermediate_grid_results': nh_intermediate_grid_results,
-                    'il_advanced_grid_results': il_advanced_grid_results,
-                    'im_advanced_grid_results': im_advanced_grid_results,
-                    'ih_advanced_grid_results': ih_advanced_grid_results,
-                    'al_advanced_grid_results': al_advanced_grid_results,
-                    'am_superior_grid_results': am_superior_grid_results,
-                    'ah_superior_grid_results': ah_superior_grid_results,
-                    'nl_insight_details': nl_insight_counters,
-                    'nm_insight_details': nm_insight_counters,
-                    'nh_insight_details': nh_insight_counters,
-                    'il_insight_details': il_insight_counters,
-                    'im_insight_details': im_insight_counters,
-                    'ih_insight_details': ih_insight_counters,
-                    'al_insight_details': al_insight_counters,
-                    'am_insight_details': am_insight_counters,
-                    'ah_insight_details': ah_insight_counters,
-                    'total_results': total_results,
-                    'superior_count': s_counter,
-                }
+                data = {
+                        'nl_intermediate_grid_results': nl_intermediate_grid_results,
+                        'nm_intermediate_grid_results': nm_intermediate_grid_results,
+                        'nh_intermediate_grid_results': nh_intermediate_grid_results,
+                        'il_advanced_grid_results': il_advanced_grid_results,
+                        'im_advanced_grid_results': im_advanced_grid_results,
+                        'ih_advanced_grid_results': ih_advanced_grid_results,
+                        'al_advanced_grid_results': al_advanced_grid_results,
+                        'am_superior_grid_results': am_superior_grid_results,
+                        'ah_superior_grid_results': ah_superior_grid_results,
+                        'nl_insight_details': nl_insight_counters,
+                        'nm_insight_details': nm_insight_counters,
+                        'nh_insight_details': nh_insight_counters,
+                        'il_insight_details': il_insight_counters,
+                        'im_insight_details': im_insight_counters,
+                        'ih_insight_details': ih_insight_counters,
+                        'al_insight_details': al_insight_counters,
+                        'am_insight_details': am_insight_counters,
+                        'ah_insight_details': ah_insight_counters,
+                        'total_results': total_results,
+                        'superior_count': s_counter,
+                    }
+                
+            if test_type == 'OPI':
+                nl_intermediate_grid_results, nm_intermediate_grid_results, nh_intermediate_grid_results, il_advanced_grid_results, im_advanced_grid_results, ih_advanced_grid_results, al_advanced_grid_results, am_superior_grid_results, ah_superior_grid_results, nl_insight_counters, nm_insight_counters, nh_insight_counters, il_insight_counters, im_insight_counters, ih_insight_counters, al_insight_counters, am_insight_counters, ah_insight_counters, total_results, s_counter, missing_candidates = get_opi_comments(from_date, to_date, language, csv_file)
+
+                data = {
+                        'nl_intermediate_grid_results': nl_intermediate_grid_results,
+                        'nm_intermediate_grid_results': nm_intermediate_grid_results,
+                        'nh_intermediate_grid_results': nh_intermediate_grid_results,
+                        'il_advanced_grid_results': il_advanced_grid_results,
+                        'im_advanced_grid_results': im_advanced_grid_results,
+                        'ih_advanced_grid_results': ih_advanced_grid_results,
+                        'al_advanced_grid_results': al_advanced_grid_results,
+                        'am_superior_grid_results': am_superior_grid_results,
+                        'ah_superior_grid_results': ah_superior_grid_results,
+                        'nl_insight_details': nl_insight_counters,
+                        'nm_insight_details': nm_insight_counters,
+                        'nh_insight_details': nh_insight_counters,
+                        'il_insight_details': il_insight_counters,
+                        'im_insight_details': im_insight_counters,
+                        'ih_insight_details': ih_insight_counters,
+                        'al_insight_details': al_insight_counters,
+                        'am_insight_details': am_insight_counters,
+                        'ah_insight_details': ah_insight_counters,
+                        'total_results': total_results,
+                        'superior_count': s_counter,
+                    }
+                
+            if len(missing_candidates) != 0:
+                csv_output = StringIO()
+                writer = csv.writer(csv_output)
+                
+                # Write header for CSV (optional)
+                writer.writerow(['Missing Candidates'])
+                
+                # Write each candidate to a new row in the CSV
+                for candidate in missing_candidates:
+                    writer.writerow([candidate])
+                
+                # Step 2: Encode the CSV content as base64
+                csv_output.seek(0)  # Move to the start of the StringIO buffer
+                csv_base64 = base64.b64encode(csv_output.getvalue().encode('utf-8')).decode('utf-8')
+
+                # Step 3: Return the base64-encoded CSV content in the response
+                data['csv_file'] = csv_base64
+
             return JsonResponse(data, status=201)
         return JsonResponse({'message': 'No Valid Method'}, status=400)
     else:

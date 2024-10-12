@@ -26,6 +26,10 @@ import {
   MenuItem,
   Menu,
   Box,
+  List,
+  ListItem,
+  ListItemText,
+  Divider,
   Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle
 
 } from '@mui/material';
@@ -49,7 +53,7 @@ export default function DiagnosticGrids() {
   const navigate = useNavigate();
 
   const diagnosticGridsUrl = process.env.REACT_APP_POST_DIAGNOSTIC_GRIDS_URL;
-  const getDataUrl = process.env.REACT_APP_GET_DIAGNOSTIC_GRIDS_URL
+  const getDataUrl = process.env.REACT_APP_GET_DIAGNOSTIC_GRIDS_URL;
 
   const today = new Date();
   const oneYearFromToday = new Date();
@@ -103,6 +107,32 @@ export default function DiagnosticGrids() {
 
   const [anchorEl, setAnchorEl] = useState(null);
 
+
+const scoreMapping = {
+  "nl_intermediate_grid_results": "Novice Low",
+  "nm_intermediate_grid_results": "Novice Mid",
+  "nh_intermediate_grid_results": "Novice High",
+  "il_advanced_grid_results": "Intermediate Low",
+  "im_advanced_grid_results": "Intermediate Mid",
+  "ih_advanced_grid_results": "Intermediate High",
+  "al_advanced_grid_results": "Advanced Low",
+  "am_superior_grid_results": "Advanced Mid",
+  "ah_superior_grid_results": "Advanced High"
+};
+
+const emptyKeys = Object.keys(allData)
+  .filter((key) => {
+    const value = allData[key];
+    return key.indexOf("grid_results") !== -1 && Object.keys(value).length === 0;
+  })
+  .map((key) => scoreMapping[key]) // Map the filtered keys to human-readable names
+  .filter((result) => result !== undefined); // Remove any undefined values (if mapping not found)
+
+if (testType === "OPIc") {
+  emptyKeys.push("Superior"); // Add "Superior Grid" manually if testTypeOptions is "OPIc"
+}
+
+  
   const handleViewByGridType = () => {
     setViewByGridType(!viewByGridType);
   };
@@ -141,45 +171,59 @@ export default function DiagnosticGrids() {
   const chartRefs = useRef([]);
 
 const handleExportAllCharts = async () => {
-    const screenshotPromises = [];
+  const screenshotPromises = [];
 
-    // Loop through each chart ref and create a screenshot promise
-    chartRefs.current.forEach((chartDiv) => {
-      if (chartDiv) {
-        screenshotPromises.push(
-          html2canvas(chartDiv).then((canvas) => canvas.toDataURL('image/png'))
-        );
-      }
-    });
+  // Loop through each chart ref and create a screenshot promise
+  chartRefs.current.forEach((chartDiv) => {
+    if (chartDiv) {
+      // Temporarily disable box-shadow
+      const originalBoxShadow = chartDiv.style.boxShadow;
+      chartDiv.style.boxShadow = 'unset'; // or 'none'
 
-    // Resolve all screenshot promises concurrently
-    const screenshotUrls = await Promise.all(screenshotPromises);
+      screenshotPromises.push(
+        html2canvas(chartDiv, {
+          backgroundColor: '#ffffff' // Ensure background is white
+        }).then((canvas) => {
+          // Restore original box-shadow
+          chartDiv.style.boxShadow = originalBoxShadow;
 
-    // Initialize jsPDF document
-    const pdf = jsPDF({
-      orientation: 'landscape', // Use 'landscape' if needed
-      unit: 'px',
-      format: [1110, 364]
-    });
-
-    // Add each screenshot as a new page
-    screenshotUrls.forEach((imgData, index) => {
-      // If it's not the first page, add a new page
-      if (index > 0) {
-        pdf.addPage();
-      }
-      // Add the image to the PDF document
-      pdf.addImage(imgData, 'PNG', 0, 0, 1110, 364); // Adjust coordinates and size as needed
-    });
-
-    // Save the PDF document
-    pdf.save('charts.pdf');
-  };
+          const width = canvas.width;
+          const height = canvas.height;
+          const imgData = canvas.toDataURL('image/png');
+          return { imgData, width, height };
+        })
+      );
+    }
+  });
 
 
+  // Resolve all screenshot promises concurrently
+  const screenshots = await Promise.all(screenshotPromises);
 
+  // Initialize jsPDF document based on the first chart's dimensions
+  const firstScreenshot = screenshots[0];
+  const pdf = jsPDF({
+    orientation: firstScreenshot.width > firstScreenshot.height ? 'landscape' : 'portrait', // Set orientation dynamically
+    unit: 'px',
+    format: [firstScreenshot.width, firstScreenshot.height], // Use the dimensions of the first chart
+  });
 
+  // Add each screenshot as a new page
+  screenshots.forEach((screenshot, index) => {
+    const { imgData, width, height } = screenshot;
 
+    // If it's not the first page, add a new page with the correct size
+    if (index > 0) {
+      pdf.addPage([width, height], width > height ? 'landscape' : 'portrait');
+    }
+
+    // Add the image to the PDF document with dynamic size
+    pdf.addImage(imgData, 'PNG', 0, 0, width, height);
+  });
+
+  // Save the PDF document
+  pdf.save('charts.pdf');
+};
 
 
 const getExampleCSVUrl = process.env.REACT_APP_GET_CSV_EXAMPLE_DIAGNOSTIC_GRIDS_URL;
@@ -312,6 +356,7 @@ const downloadSchema = () => {
           formData.append('language', language);
           formData.append('fromDate', formattedStartDate);
           formData.append('toDate', formattedEndDate);
+          formData.append('testType', testType);
 
           if (selectedFiles.length > 0) {
             selectedFiles.forEach(file => {
@@ -331,6 +376,30 @@ const downloadSchema = () => {
           );
           console.log(response.data);
           setAllData(response.data)
+
+          if (response.data.csv_file) {
+            const csvBase64 = response.data.csv_file;  // Get the base64 CSV from the response
+
+            // Decode the base64-encoded CSV to a string
+            const csvContent = atob(csvBase64);
+
+            // Convert the CSV content into a Blob for download
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+
+            // Create a link to trigger the download
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'missing_candidates.csv';  // Specify the CSV file name
+            document.body.appendChild(link);
+
+            // Trigger the download
+            link.click();
+
+            // Clean up the DOM
+            document.body.removeChild(link);
+        } else {
+            console.log('CSV file not found in the response');
+        }
           
           setAHSuperiorData(response.data.ah_superior_grid_results);
           const filteredAHSuperiorData = Object.fromEntries(
@@ -521,7 +590,7 @@ const downloadSchema = () => {
                       },
                     }}
                   >
-                    Download Database Schema
+                    Download Function Schemas
                   </Button>
                 </MenuItem>
                 <MenuItem onClick={downloadExampleCSV}>
@@ -644,21 +713,43 @@ const downloadSchema = () => {
         <LoadingModal isLoading={masterLoader} message="Retrieving data... Please wait..."/>
 
         {Object.keys(allData).length > 0 && (
-          <Grid container justifyContent="center" item xs={6} md={8} lg={12} sx={{marginTop:"2vw"}}>
-            <Card sx={{ width:"50%", p:2 }}>
-              <div style={{ fontWeight: 'bold' }}>
-              Students Who Scored A Superior (Will Not Display On Graph)
-              </div>
-              Superior Score Total = {superiorTotal}
-            </Card>
-          <FormControlLabel
-            control={<Checkbox />}
-            label="Group Grid Types"
-            sx={{marginLeft:"1vw"}}
-            onChange={handleViewByGridType}
-          />
-          <Button onClick={handleExportAllCharts}>Export All Charts as PDF</Button>
-
+          <Grid container justifyContent="left" item xs={6} md={8} lg={12} sx={{marginTop:"2vw"}}>
+<Card sx={{ width: "50%", p: 1, boxShadow: 1, overflowY: 'auto' }}>
+      <Typography variant="subtitle1" sx={{ fontWeight: 'bold', marginBottom: 1 }}>
+        Scores Not Present In Results
+      </Typography>
+      <div>
+        {emptyKeys.length > 0 ? (
+          <Grid container spacing={2}>
+            {emptyKeys.map((key, index) => (
+              <Grid item xs={6} key={index}>
+                <List sx={{ padding: 0 }}>
+                  <ListItem sx={{ padding: "4px 0" }}>
+                    <ListItemText primary={key} />
+                  </ListItem>
+                  <Divider sx={{ margin: "4px 0" }} />
+                </List>
+              </Grid>
+            ))}
+          </Grid>
+        ) : (
+          <Typography variant="body2" sx={{ padding: 1 }}>No empty results</Typography>
+        )}
+      </div>
+    </Card>
+           <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', mt: 2 }}>
+      <FormControlLabel
+        control={<Checkbox />}
+        label="Group Grid Types"
+        sx={{ marginLeft: 1 }} // Set max height
+        onChange={handleViewByGridType}
+      />
+      <Button 
+        onClick={handleExportAllCharts} 
+      >
+        Export All Charts as PDF
+      </Button>
+    </Box>
           </Grid>
           )
         } 
@@ -668,7 +759,7 @@ const downloadSchema = () => {
 
         {Object.keys(filteredAHSuperiorData).length > 0 &&(
           <Grid item xs={6} md={8} lg={12} sx={{marginTop:"2vw"}}>
-            <div ref={(el) => { chartRefs.current[0] = el; }}>
+            <div ref={(el) => { chartRefs.current[0] = el; }} style={{ backgroundColor: '#ffffff' }}>
                   <DiagnosticGridReports
                     title={
                         <>
@@ -678,7 +769,7 @@ const downloadSchema = () => {
                       }
                     subheader={
                         <>
-                          <div>What features do examinees need to improve to reach the Superior level?</div>
+                          <div>What features do examinees need to improve?</div>
                         </>
                       }
                     chartData={filteredAHSuperiorData} 
@@ -691,7 +782,7 @@ const downloadSchema = () => {
         }
         {Object.keys(filteredAMSuperiorData).length > 0 &&(
           <Grid item xs={6} md={8} lg={12} sx={{marginTop:"2vw"}}>
-            <div ref={(el) => { chartRefs.current[1] = el; }}>
+            <div ref={(el) => { chartRefs.current[1] = el; }} style={{ backgroundColor: '#ffffff' }}>
                   <DiagnosticGridReports
                     title={
                         <>
@@ -701,7 +792,7 @@ const downloadSchema = () => {
                       }
                     subheader={
                         <>
-                          <div>What features do examinees need to improve to reach the Superior level?</div>
+                          <div>What features do examinees need to improve?</div>
                         </>
                       }
                     chartData={filteredAMSuperiorData} 
@@ -714,7 +805,7 @@ const downloadSchema = () => {
         }
         {Object.keys(filteredALAdvancedData).length > 0 &&(
           <Grid item xs={6} md={8} lg={12} sx={{marginTop:"2vw"}}>
-            <div ref={(el) => { chartRefs.current[2] = el; }}>
+            <div ref={(el) => { chartRefs.current[2] = el; }} style={{ backgroundColor: '#ffffff' }}>
 
                   <DiagnosticGridReports
                     title={
@@ -725,7 +816,7 @@ const downloadSchema = () => {
                       }
                     subheader={
                         <>
-                          <div>What features do examinees need to improve to reach the Superior level?</div>
+                          <div>What features do examinees need to improve?</div>
                         </>
                       }
                     chartData={filteredALAdvancedData} 
@@ -738,7 +829,7 @@ const downloadSchema = () => {
         }
         {Object.keys(filteredIHAdvancedData).length > 0 &&(
           <Grid item xs={6} md={8} lg={12} sx={{marginTop:"2vw"}}>
-            <div ref={(el) => { chartRefs.current[3] = el; }}>
+            <div ref={(el) => { chartRefs.current[3] = el; }} style={{ backgroundColor: '#ffffff' }}>
                   <DiagnosticGridReports
                     title={
                         <>
@@ -748,7 +839,7 @@ const downloadSchema = () => {
                       }
                     subheader={
                         <>
-                          <div>What features do examinees need to improve to reach the Superior level?</div>
+                          <div>What features do examinees need to improve?</div>
                         </>
                       }
                     chartData={filteredIHAdvancedData} 
@@ -761,7 +852,7 @@ const downloadSchema = () => {
         }
         {Object.keys(filteredIMAdvancedData).length > 0 &&(
           <Grid item xs={6} md={8} lg={12} sx={{marginTop:"2vw"}}>
-            <div ref={(el) => { chartRefs.current[4] = el; }}>
+            <div ref={(el) => { chartRefs.current[4] = el; }} style={{ backgroundColor: '#ffffff' }}>
                   <DiagnosticGridReports
                     title={
                         <>
@@ -771,7 +862,7 @@ const downloadSchema = () => {
                       }
                     subheader={
                         <>
-                          <div>What features do examinees need to improve to reach the Superior level?</div>
+                          <div>What features do examinees need to improve?</div>
                         </>
                       }
                     chartData={filteredIMAdvancedData} 
@@ -784,7 +875,7 @@ const downloadSchema = () => {
         }
         {Object.keys(filteredILAdvancedData).length > 0 &&(
           <Grid item xs={6} md={8} lg={12} sx={{marginTop:"2vw"}}>
-            <div ref={(el) => { chartRefs.current[5] = el; }}>
+            <div ref={(el) => { chartRefs.current[5] = el; }} style={{ backgroundColor: '#ffffff' }}>
                   <DiagnosticGridReports
                     title={
                         <>
@@ -794,7 +885,7 @@ const downloadSchema = () => {
                       }
                     subheader={
                         <>
-                          <div>What features do examinees need to improve to reach the Superior level?</div>
+                          <div>What features do examinees need to improve?</div>
                         </>
                       }
                     chartData={filteredILAdvancedData} 
@@ -807,7 +898,7 @@ const downloadSchema = () => {
         }
         {Object.keys(filteredNHIntermediateData).length > 0 &&(
           <Grid item xs={6} md={8} lg={12} sx={{marginTop:"2vw"}}>
-              <div ref={(el) => { chartRefs.current[6] = el; }}>
+              <div ref={(el) => { chartRefs.current[6] = el; }} style={{ backgroundColor: '#ffffff' }}>
                   <DiagnosticGridReports
                     title={
                         <>
@@ -817,7 +908,7 @@ const downloadSchema = () => {
                       }
                     subheader={
                         <>
-                          <div>What features do examinees need to improve to reach the Superior level?</div>
+                          <div>What features do examinees need to improve?</div>
                         </>
                       }
                     chartData={filteredNHIntermediateData} 
@@ -830,7 +921,7 @@ const downloadSchema = () => {
         }
         {Object.keys(filteredNMIntermediateData).length > 0 &&(
           <Grid item xs={6} md={8} lg={12} sx={{marginTop:"2vw"}}>
-            <div ref={(el) => { chartRefs.current[7] = el; }}>            
+            <div ref={(el) => { chartRefs.current[7] = el; }} style={{ backgroundColor: '#ffffff' }}>            
                   <DiagnosticGridReports
                     title={
                         <>
@@ -840,7 +931,7 @@ const downloadSchema = () => {
                       }
                     subheader={
                         <>
-                          <div>What features do examinees need to improve to reach the Superior level?</div>
+                          <div>What features do examinees need to improve?</div>
                         </>
                       }
                     chartData={filteredNMIntermediateData} 
@@ -853,7 +944,7 @@ const downloadSchema = () => {
         }
         {Object.keys(filteredNLIntermediateData).length > 0 &&(
           <Grid item xs={6} md={8} lg={12} sx={{marginTop:"2vw"}}>
-            <div ref={(el) => { chartRefs.current[8] = el; }}>
+            <div ref={(el) => { chartRefs.current[8] = el; }} style={{ backgroundColor: '#ffffff' }}>
                   <DiagnosticGridReports
                     title={
                         <>
@@ -863,7 +954,7 @@ const downloadSchema = () => {
                       }
                     subheader={
                         <>
-                          <div>What features do examinees need to improve to reach the Superior level?</div>
+                          <div>What features do examinees need to improve?</div>
                         </>
                       }
                     chartData={filteredNLIntermediateData} 
@@ -877,30 +968,92 @@ const downloadSchema = () => {
       
       </>
       ) : (
-        <Grid item xs={6} md={8} lg={12} sx={{marginTop:"2vw"}}>
-          <div ref={(el) => { chartRefs.current[9] = el; }}>
+        <Grid item xs={6} md={8} lg={12}>
+          <Grid item sx={{marginTop:"2vw"}}>
+          <div ref={(el) => { chartRefs.current[9] = el; }} style={{ backgroundColor: '#ffffff' }}>
 
                   <DiagnosticGroupChart
                     title={
                         <>
-                          <div>{language} Test</div>
+                          <div>
+                            {language} (Sample Size = { 
+                              (ahSuperiorData['Total People'] || 0) + (amSuperiorData['Total People'] || 0)
+                            })
+                          </div>
                           <div>Grouped Superior Diagnostic Grids</div>
                         </>
                       }
                     subheader={
                         <>
-                          <div>What features do examinees need to improve to reach the Superior level?</div>
+                          <div>What features do examinees need to improve?</div>
                         </>
                       }
+                    testTypes={['Advanced High', 'Advanced Mid']}
                     chartData={[filteredAHSuperiorData, filteredAMSuperiorData]} 
                     details={nlInsightDetails}
-                    total={nlIntermediateData['Total People']}
+                    total={(ahSuperiorData['Total People'] || 0) + (amSuperiorData['Total People'] || 0)}
                   />
           </div>
           </Grid>
+          <Grid item sx={{marginTop:"2vw"}}>
+            <div ref={(el) => { chartRefs.current[10] = el; }} style={{ backgroundColor: '#ffffff' }}>
+
+                    <DiagnosticGroupChart
+                      title={
+                          <>
+                            <div>{language} (Sample Size = {
+                              (alAdvancedData['Total People'] || 0) + (ihAdvancedData['Total People'] || 0)
+                              })
+                            </div>
+                            <div>Grouped Advanced Diagnostic Grids</div>
+                          </>
+                        }
+                      subheader={
+                          <>
+                            <div>What features do examinees need to improve?</div>
+                          </>
+                        }
+                      testTypes={['Advanced Low', 'Intermediate High']}
+                      chartData={[filteredALAdvancedData, filteredIHAdvancedData]} 
+                      details={nlInsightDetails}
+                      total={(alAdvancedData['Total People'] || 0) + (ihAdvancedData['Total People'] || 0)
+                      }
+                    />
+              </div>
+              </Grid>
+              <Grid item sx={{marginTop:"2vw"}}>
+              <div ref={(el) => { chartRefs.current[11] = el; }} style={{ backgroundColor: '#ffffff' }}>
+
+                      <DiagnosticGroupChart
+                        title={
+                            <>
+                              <div>{language} (Sample Size = {
+                                (imAdvancedData['Total People'] || 0) + (ilAdvancedData['Total People'] || 0) + (nhIntermediateData['Total People'] || 0)
+                                })
+                              </div>
+                              <div>Grouped Intermediate Diagnostic Grids</div>
+                            </>
+                          }
+                        subheader={
+                            <>
+                              <div>What features do examinees need to improve?</div>
+                            </>
+                          }
+                        testTypes={['Intermediate Mid', 'Intermediate Low', 'Novice High']}
+                        chartData={[filteredIMAdvancedData, filteredILAdvancedData, filteredNHIntermediateData]} 
+                        details={nlInsightDetails}
+                        total={(imAdvancedData['Total People'] || 0) + (ilAdvancedData['Total People'] || 0) + (nhIntermediateData['Total People'] || 0)}
+                      />
+              </div>
+
+            </Grid>
+
+          </Grid>
+
       )
       }
       </Grid>
+
         
       
 
