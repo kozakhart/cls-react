@@ -498,7 +498,7 @@ def opi_form(request):
             test = filemaker.find_record('BYUID', byuid, filemaker_token)
             print(test['response']['data'][0]['fieldData']['Language'])
             if test['messages'][0]['code'] == '0':
-                if test['response']['data'][0]['fieldData']['Language'] in language.abbreviation and test['response']['data'][0]['fieldData']['EmailSent'] == 'No':
+                if (test['response']['data'][0]['fieldData']['Language'] in language.abbreviation) or (test['response']['data'][0]['fieldData']['Language'] == "Mandarin" and language.abbreviation == "CHIN") and test['response']['data'][0]['fieldData']['EmailSent'] == 'No':
                     response = JsonResponse({"error": "You have already submitted a test request for your requested language. If you would like to rescedule, please call or email the Center for Language Studies."})
                     response.status_code = 403
                     return response
