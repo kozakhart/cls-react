@@ -3,7 +3,6 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import JSZip from 'jszip';
 import html2canvas from 'html2canvas';
 // @mui
 import ApexCharts from 'apexcharts';

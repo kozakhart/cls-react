@@ -309,12 +309,20 @@ export default function DashboardAppPage() {
    
         const dateCounts = countOccurrences(entryDates);
 
+        const isValidDate = (date) => {
+            const timestamp = Date.parse(date);
+            return !Number.isNaN(timestamp);
+        };
+
         const sortedDateCounts = Object.keys(dateCounts)
-        .sort((date1, date2) => new Date(date1) - new Date(date2))
-        .reduce((acc, key) => {
-          acc[key] = dateCounts[key];
-          return acc;
-        }, {});
+            .filter(date => date.trim() !== "" && isValidDate(date)) // Use the custom function
+            .sort((date1, date2) => new Date(date1) - new Date(date2))
+            .reduce((acc, key) => {
+                acc[key] = dateCounts[key];
+                return acc;
+            }, {});
+
+
 
         const keysArray = Object.keys(sortedDateCounts);
         const uniqueKeys = new Set(keysArray);
